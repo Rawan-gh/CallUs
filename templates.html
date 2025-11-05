@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Choose a Template - Presentation Maker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-white text-slate-900 antialiased">
+    <link rel="stylesheet" href="./templates.css">
+    <header class="mx-auto max-w-7xl px-6 py-6 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="h-8 w-8 rounded bg-emerald-500/10 ring-1 ring-emerald-300/60 flex items-center justify-center">
+          <span class="text-emerald-600 text-sm font-semibold">PM</span>
+        </div>
+        <span class="font-semibold tracking-tight">Presentation Maker</span>
+      </div>
+      <nav class="hidden sm:flex items-center gap-6 text-sm text-slate-600">
+        <a class="hover:text-slate-900" href="index.html">Home</a>
+        <a class="hover:text-slate-900" href="login.html">Account</a>
+      </nav>
+    </header>
+
+    <main class="relative isolate">
+      <div class="absolute inset-x-0 -top-20 -z-10 blur-3xl opacity-40" aria-hidden="true">
+        <div class="mx-auto aspect-[4/1] max-w-4xl bg-gradient-to-r from-emerald-400 via-teal-300 to-sky-400"></div>
+      </div>
+
+      <section class="mx-auto max-w-6xl px-6 pb-16">
+        <div class="text-center mb-10">
+          <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">Pick a template to get started</h1>
+          <p class="mt-3 text-slate-600">Clean, modern presets you can customize in minutes.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Aramco Style 1 -->
+          <div class="group rounded-xl bg-white ring-1 ring-slate-200 shadow-sm overflow-hidden">
+            <div class="aspect-[16/10] relative">
+              <div class="absolute inset-0 bg-white"></div>
+              <div class="absolute left-0 top-0 h-full w-2 bg-emerald-500"></div>
+              <div class="absolute right-4 top-4 h-3 w-20 bg-gradient-to-r from-emerald-500 via-teal-400 to-sky-500 rounded"></div>
+              <div class="absolute left-4 bottom-4 h-2 w-28 bg-slate-200 rounded"></div>
+            </div>
+            <div class="p-4 flex items-center justify-between">
+              <div>
+                <h3 class="font-semibold">Clean</h3>
+                <p class="text-sm text-slate-600">14 slides</p>
+              </div>
+              <a href="editor.html?template=clean" class="inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500">Use</a>
+            </div>
+          </div>
+
+          <!-- Aramco Style 2 -->
+          <div class="group rounded-xl bg-white ring-1 ring-slate-200 shadow-sm overflow-hidden">
+            <div class="aspect-[16/10] relative">
+              <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 to-sky-50"></div>
+              <div class="absolute bottom-0 right-0 translate-x-6 translate-y-6 h-40 w-40 rounded-full bg-gradient-to-tr from-emerald-400 via-teal-300 to-sky-500 opacity-40 blur-xl"></div>
+              <div class="absolute left-4 top-4 h-3 w-24 bg-slate-200 rounded"></div>
+              <div class="absolute left-4 top-8 h-2 w-36 bg-slate-200/70 rounded"></div>
+            </div>
+            <div class="p-4 flex items-center justify-between">
+              <div>
+                <h3 class="font-semibold">Gradient</h3>
+                <p class="text-sm text-slate-600">16 slides</p>
+              </div>
+              <a href="editor.html?template=gradient" class="inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500">Use</a>
+            </div>
+          </div>
+
+          <!-- Aramco Style 3 -->
+          <div class="group rounded-xl bg-white ring-1 ring-slate-200 shadow-sm overflow-hidden">
+            <div class="aspect-[16/10] relative">
+              <div class="absolute inset-0 bg-white"></div>
+              <div class="absolute right-0 top-0 h-20 w-20 bg-gradient-to-br from-emerald-500 via-teal-400 to-sky-500 clip-path-triangle"></div>
+              <div class="absolute left-4 top-4 h-3 w-28 bg-slate-200 rounded"></div>
+              <div class="absolute left-4 top-8 h-2 w-24 bg-slate-200 rounded"></div>
+            </div>
+            <div class="p-4 flex items-center justify-between">
+              <div>
+                <h3 class="font-semibold">Corner Accent</h3>
+                <p class="text-sm text-slate-600">12 slides</p>
+              </div>
+              <a href="editor.html?template=corner" class="inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500">Use</a>
+            </div>
+          </div>
+
+          <!-- Blank Template -->
+          <div class="group rounded-xl bg-white ring-1 ring-slate-200 shadow-sm overflow-hidden">
+            <div class="aspect-[16/10] grid place-items-center text-slate-400">Blank</div>
+            <div class="p-4 flex items-center justify-between">
+              <div>
+                <h3 class="font-semibold">Blank</h3>
+                <p class="text-sm text-slate-600">Start from scratch</p>
+              </div>
+              <a href="editor.html?template=blank" class="inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500">Use</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+  </html>
+
+

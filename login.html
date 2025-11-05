@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login - Presentation Maker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-white text-slate-900 antialiased">
+    <div class="relative isolate min-h-screen w-full flex items-center justify-center px-4">
+      <div class="absolute inset-x-0 -top-20 -z-10 blur-3xl opacity-40" aria-hidden="true">
+        <div class="mx-auto aspect-[4/1] max-w-4xl bg-gradient-to-r from-emerald-400 via-teal-300 to-sky-400"></div>
+      </div>
+
+      <div class="w-full max-w-md p-8 rounded-2xl border border-slate-200 shadow-sm bg-white/95 backdrop-blur">
+      <div class="flex items-center gap-2 mb-6">
+        <div class="h-8 w-8 rounded bg-emerald-500/10 ring-1 ring-emerald-300/60 flex items-center justify-center">
+          <span class="text-emerald-600 text-sm font-semibold">PM</span>
+        </div>
+        <h1 class="text-lg font-semibold tracking-tight">Sign in to Presentation Maker</h1>
+      </div>
+      <form class="space-y-4" onsubmit="event.preventDefault(); window.location.href='templates.html'">
+        <div>
+          <label class="block text-sm font-medium text-slate-700" for="email">Email</label>
+          <input id="email" type="text" required class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="you@aramcodigital.com" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700" for="password">Password</label>
+          <input id="password" type="password" required class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="••••••••" />
+        </div>
+        <button type="submit" class="w-full inline-flex items-center justify-center rounded-md bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-500">Sign in</button>
+      </form>
+        <div class="mt-6 text-center text-sm text-slate-600">
+          <a href="index.html" class="hover:text-slate-900">Back to Home</a>
+        </div>
+      </div>
+    </div>
+  </body>
+  </html>
+
+

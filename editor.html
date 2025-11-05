@@ -6,11 +6,317 @@
     <title>Editor - Presentation Maker</title>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body class="bg-[#0b0b0f] text-gray-100 antialiased min-h-screen flex items-center justify-center">
-    <div class="text-center space-y-4">
-      <h1 class="text-3xl font-semibold tracking-tight">Editor Page coming soon…</h1>
-      <a href="/index.html" class="inline-flex items-center rounded-md bg-indigo-500 px-4 py-2 font-medium text-white hover:bg-indigo-400">Back Home</a>
-    </div>
+  <body class="bg-white text-slate-900 antialiased">
+    <header class="mx-auto max-w-7xl px-6 py-6 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="h-8 w-8 rounded bg-emerald-500/10 ring-1 ring-emerald-300/60 flex items-center justify-center">
+          <span class="text-emerald-600 text-sm font-semibold">PM</span>
+        </div>
+        <span class="font-semibold tracking-tight">Presentation Maker</span>
+      </div>
+      <nav class="hidden sm:flex items-center gap-6 text-sm text-slate-600">
+        <a class="hover:text-slate-900" href="index.html">Home</a>
+        <a class="hover:text-slate-900" href="templates.html">Templates</a>
+      </nav>
+    </header>
+
+    <main class="relative isolate">
+      <div class="absolute inset-x-0 -top-20 -z-10 blur-3xl opacity-40" aria-hidden="true">
+        <div class="mx-auto aspect-[4/1] max-w-4xl bg-gradient-to-r from-emerald-400 via-teal-300 to-sky-400"></div>
+      </div>
+
+      <section class="mx-auto max-w-7xl px-6 pb-16">
+        <div class="mb-4 flex items-center justify-between">
+          <div>
+            <h1 id="title" class="text-2xl sm:text-3xl font-bold tracking-tight">Editor</h1>
+            <p id="subtitle" class="mt-1 text-slate-600">Customize your slides below.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="btn-add-slide" class="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium ring-1 ring-slate-200 hover:bg-slate-50">Add slide</button>
+            <button id="btn-duplicate" class="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium ring-1 ring-slate-200 hover:bg-slate-50">Duplicate</button>
+            <button id="btn-delete" class="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium ring-1 ring-slate-200 hover:bg-slate-50">Delete</button>
+            <button id="btn-add-text" class="inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500">Add text</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-6">
+          <!-- Sidebar: thumbnails -->
+          <aside class="col-span-3 max-h-[70vh] overflow-auto pr-2">
+            <ol id="thumbs" class="space-y-3"></ol>
+          </aside>
+
+          <!-- Canvas -->
+          <div class="col-span-6">
+            <div class="relative mx-auto bg-slate-200/50 rounded-lg p-4" id="canvas-container">
+              <div id="canvas-wrap" class="mx-auto">
+                <div id="canvas" class="relative bg-white ring-1 ring-slate-300 rounded-lg overflow-hidden"
+                  style="width: 960px; height: 540px; transform-origin: top left;"></div>
+              </div>
+            </div>
+            <p class="mt-2 text-xs text-slate-500">Tip: drag text blocks on the slide. Select a block to edit in the panel.</p>
+          </div>
+
+          <!-- Properties panel -->
+          <aside class="col-span-3">
+            <div class="space-y-3 rounded-lg border border-slate-200 p-4">
+              <h3 class="font-semibold">Properties</h3>
+              <div>
+                <label class="block text-sm font-medium text-slate-700">Text</label>
+                <textarea id="prop-text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" rows="4" placeholder="Select a text block..."></textarea>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-sm font-medium text-slate-700">Font size</label>
+                  <input id="prop-size" type="number" min="10" max="120" value="32" class="mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700">Color</label>
+                  <input id="prop-color" type="color" value="#0f172a" class="mt-1 w-full h-[34px] rounded-md border border-slate-300" />
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <label class="text-sm text-slate-700">Bold</label>
+                <input id="prop-bold" type="checkbox" />
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <div class="mt-8 flex items-center gap-4">
+          <a href="templates.html" class="inline-flex items-center rounded-md px-4 py-2 text-sm font-medium ring-1 ring-slate-200 hover:bg-slate-50">Back to templates</a>
+          <a href="index.html" class="inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500">Finish</a>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const params = new URLSearchParams(location.search)
+      const template = params.get('template') || 'blank'
+      const title = document.getElementById('title')
+      const subtitle = document.getElementById('subtitle')
+      const thumbs = document.getElementById('thumbs')
+      const canvas = document.getElementById('canvas')
+      const canvasWrap = document.getElementById('canvas-wrap')
+      const btnAddSlide = document.getElementById('btn-add-slide')
+      const btnDuplicate = document.getElementById('btn-duplicate')
+      const btnDelete = document.getElementById('btn-delete')
+      const btnAddText = document.getElementById('btn-add-text')
+      const propText = document.getElementById('prop-text')
+      const propSize = document.getElementById('prop-size')
+      const propColor = document.getElementById('prop-color')
+      const propBold = document.getElementById('prop-bold')
+
+      const templates = {
+        clean: {
+          title: 'Clean template',
+          subtitle: 'Left accent bar, subtle top accent',
+          renderThumb(){
+            const el = document.createElement('div')
+            el.className = 'aspect-[16/10] bg-white ring-1 ring-slate-200 rounded relative overflow-hidden'
+            el.innerHTML = `<div class=\"absolute left-0 top-0 h-full w-1.5 bg-emerald-500\"></div>
+              <div class=\"absolute right-3 top-3 h-2 w-10 bg-gradient-to-r from-emerald-500 via-teal-400 to-sky-500 rounded\"></div>`
+            return el
+          },
+          applyToCanvas(root){
+            root.innerHTML = ''
+            const accent = document.createElement('div')
+            accent.className = 'absolute left-0 top-0 h-full w-2 bg-emerald-500'
+            root.appendChild(accent)
+          }
+        },
+        gradient: {
+          title: 'Gradient template',
+          subtitle: 'Soft emerald→sky background accents',
+          renderThumb(){
+            const el = document.createElement('div')
+            el.className = 'aspect-[16/10] rounded ring-1 ring-slate-200 relative overflow-hidden bg-gradient-to-br from-emerald-50 to-sky-50'
+            el.innerHTML = `<div class=\"absolute bottom-0 right-0 translate-x-5 translate-y-5 h-16 w-16 rounded-full bg-gradient-to-tr from-emerald-400 via-teal-300 to-sky-500 opacity-40 blur\"></div>`
+            return el
+          },
+          applyToCanvas(root){
+            root.style.backgroundImage = 'linear-gradient(to bottom right, rgba(16,185,129,0.06), rgba(14,165,233,0.06))'
+            const orb = document.createElement('div')
+            orb.className = 'absolute bottom-0 right-0 translate-x-10 translate-y-10 h-40 w-40 rounded-full bg-gradient-to-tr from-emerald-400 via-teal-300 to-sky-500 opacity-30 blur-2xl'
+            root.appendChild(orb)
+          }
+        },
+        corner: {
+          title: 'Corner accent template',
+          subtitle: 'Diagonal corner color accent',
+          renderThumb(){
+            const el = document.createElement('div')
+            el.className = 'aspect-[16/10] bg-white ring-1 ring-slate-200 rounded relative overflow-hidden'
+            el.innerHTML = `<div style=\"clip-path: polygon(100% 0, 0 0, 100% 100%);\" class=\"absolute right-0 top-0 h-8 w-8 bg-gradient-to-br from-emerald-500 via-teal-400 to-sky-500\"></div>`
+            return el
+          },
+          applyToCanvas(root){
+            const corner = document.createElement('div')
+            corner.style.clipPath = 'polygon(100% 0, 0 0, 100% 100%)'
+            corner.className = 'absolute right-0 top-0 h-24 w-24 bg-gradient-to-br from-emerald-500 via-teal-400 to-sky-500'
+            root.appendChild(corner)
+          }
+        },
+        blank: {
+          title: 'Blank presentation',
+          subtitle: 'Start from scratch',
+          renderThumb(){
+            const el = document.createElement('div')
+            el.className = 'aspect-[16/10] bg-white ring-1 ring-slate-200 rounded'
+            return el
+          },
+          applyToCanvas(){ /* no-op */ }
+        }
+      }
+
+      // Editor state
+      const chosen = templates[template] || templates.blank
+      title.textContent = chosen.title
+      subtitle.textContent = chosen.subtitle
+
+      const state = {
+        slides: [ { elements: [] } ],
+        current: 0,
+        selectedElId: null
+      }
+
+      function scaleCanvasToFit() {
+        const container = document.getElementById('canvas-container')
+        const parentWidth = container ? container.clientWidth : window.innerWidth * 0.5
+        const wrapWidth = Math.min(parentWidth - 8, 960)
+        const scale = Math.min(1, (wrapWidth) / 960)
+        canvas.style.transform = `scale(${scale})`
+        canvasWrap.style.width = `${960 * scale}px`
+      }
+      window.addEventListener('resize', scaleCanvasToFit)
+
+      function renderThumbs(){
+        thumbs.innerHTML = ''
+        state.slides.forEach((s, idx) => {
+          const li = document.createElement('li')
+          li.className = 'relative'
+          const thumb = chosen.renderThumb()
+          thumb.classList.add('cursor-pointer')
+          if (idx === state.current) thumb.classList.add('ring-emerald-400','ring-2')
+          thumb.addEventListener('click', ()=>{ state.current = idx; renderCanvas(); renderThumbs(); })
+          li.appendChild(thumb)
+          li.appendChild(Object.assign(document.createElement('div'), {className: 'mt-1 text-xs text-slate-500', textContent: `Slide ${idx+1}`}))
+          thumbs.appendChild(li)
+        })
+      }
+
+      function renderCanvas(){
+        canvas.innerHTML = ''
+        canvas.className = 'relative bg-white ring-1 ring-slate-300 rounded-lg overflow-hidden'
+        chosen.applyToCanvas(canvas)
+        const slide = state.slides[state.current]
+        slide.elements.forEach(el => {
+          const node = document.createElement('div')
+          node.dataset.id = el.id
+          node.className = 'absolute outline-offset-0'
+          node.style.left = el.x + 'px'
+          node.style.top = el.y + 'px'
+          node.style.cursor = 'move'
+          node.innerHTML = `<div class=\"px-2 py-1\" style=\"font-size:${el.size}px;color:${el.color};font-weight:${el.bold?700:400}\">${el.text}</div>`
+          node.addEventListener('mousedown', startDrag)
+          node.addEventListener('dblclick', startInlineEdit)
+          node.addEventListener('click', ()=> selectElement(el.id))
+          if (state.selectedElId === el.id) node.classList.add('ring-2','ring-emerald-500','rounded')
+          canvas.appendChild(node)
+        })
+
+        // clicking empty canvas deselects
+        canvas.addEventListener('mousedown', (e)=>{ if(e.target === canvas){ state.selectedElId=null; renderCanvas() } })
+      }
+
+      function selectElement(id){
+        state.selectedElId = id
+        const slide = state.slides[state.current]
+        const el = slide.elements.find(e=>e.id===id)
+        if(!el) return
+        propText.value = el.text
+        propSize.value = el.size
+        propColor.value = el.color
+        propBold.checked = !!el.bold
+        renderCanvas()
+      }
+
+      // Dragging
+      function startDrag(e){
+        const target = e.currentTarget
+        const id = target.dataset.id
+        selectElement(id)
+        const startX = e.clientX
+        const startY = e.clientY
+        const rect = target.getBoundingClientRect()
+        const offsetX = startX - rect.left
+        const offsetY = startY - rect.top
+        function onMove(ev){
+          const slideRect = canvas.getBoundingClientRect()
+          let x = ev.clientX - slideRect.left - offsetX
+          let y = ev.clientY - slideRect.top - offsetY
+          const elRect = target.getBoundingClientRect()
+          const elW = elRect.width / (parseFloat(getComputedStyle(canvas).transform.split(',')[0].replace('matrix(','') ) || 1)
+          const elH = elRect.height / (parseFloat(getComputedStyle(canvas).transform.split(',')[0].replace('matrix(','') ) || 1)
+          x = Math.max(0, Math.min(960 - elW, x))
+          y = Math.max(0, Math.min(540 - elH, y))
+          const slide = state.slides[state.current]
+          const el = slide.elements.find(e=>e.id===id)
+          if(el){ el.x = x; el.y = y; renderCanvas() }
+        }
+        function onUp(){
+          window.removeEventListener('mousemove', onMove)
+          window.removeEventListener('mouseup', onUp)
+          document.body.classList.remove('select-none')
+        }
+        document.body.classList.add('select-none')
+        window.addEventListener('mousemove', onMove)
+        window.addEventListener('mouseup', onUp)
+      }
+
+      // Inline editing
+      function startInlineEdit(e){
+        const wrapper = e.currentTarget
+        const inner = wrapper.firstChild
+        inner.setAttribute('contenteditable','true')
+        inner.focus()
+        const id = wrapper.dataset.id
+        function finish(){
+          inner.removeAttribute('contenteditable')
+          const slide = state.slides[state.current]
+          const el = slide.elements.find(x=>x.id===id)
+          if(el){ el.text = inner.textContent || '' }
+          inner.removeEventListener('blur', finish)
+          inner.removeEventListener('keydown', onKey)
+        }
+        function onKey(ev){ if(ev.key==='Enter'){ ev.preventDefault(); inner.blur() } }
+        inner.addEventListener('blur', finish)
+        inner.addEventListener('keydown', onKey)
+      }
+
+      // Actions
+      btnAddSlide.addEventListener('click', ()=>{ state.slides.push({elements: []}); state.current = state.slides.length-1; renderThumbs(); renderCanvas(); })
+      btnDuplicate.addEventListener('click', ()=>{ const s = state.slides[state.current]; state.slides.splice(state.current+1,0, JSON.parse(JSON.stringify(s))); state.current++; renderThumbs(); renderCanvas(); })
+      btnDelete.addEventListener('click', ()=>{ if(state.slides.length>1){ state.slides.splice(state.current,1); state.current = Math.max(0,state.current-1); renderThumbs(); renderCanvas(); } })
+      btnAddText.addEventListener('click', ()=>{
+        const el = { id: 'el_'+Date.now(), type:'text', text:'Double click to edit', x: 100, y: 100, size: 32, color: '#0f172a', bold: false }
+        state.slides[state.current].elements.push(el)
+        selectElement(el.id)
+        renderThumbs(); renderCanvas();
+      })
+
+      // Properties bindings
+      propText.addEventListener('input', ()=>{
+        const slide = state.slides[state.current]; const el = slide.elements.find(e=>e.id===state.selectedElId); if(!el) return; el.text = propText.value; renderCanvas();
+      })
+      propSize.addEventListener('input', ()=>{ const s=state.slides[state.current]; const el=s.elements.find(e=>e.id===state.selectedElId); if(!el) return; el.size=parseInt(propSize.value||32,10); renderCanvas(); })
+      propColor.addEventListener('input', ()=>{ const s=state.slides[state.current]; const el=s.elements.find(e=>e.id===state.selectedElId); if(!el) return; el.color=propColor.value; renderCanvas(); })
+      propBold.addEventListener('change', ()=>{ const s=state.slides[state.current]; const el=s.elements.find(e=>e.id===state.selectedElId); if(!el) return; el.bold=propBold.checked; renderCanvas(); })
+
+      // Init
+      renderThumbs()
+      renderCanvas()
+      scaleCanvasToFit()
+    </script>
   </body>
   </html>
 
