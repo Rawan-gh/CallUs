@@ -1,15 +1,82 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="dark light" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Presentation Maker</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🖥️</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+  <body class="bg-[#0b0b0f] text-gray-100 antialiased">
+    <header class="mx-auto max-w-7xl px-6 py-6 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="h-8 w-8 rounded bg-indigo-500/20 ring-1 ring-indigo-400/30 flex items-center justify-center">
+          <span class="text-indigo-400 text-sm font-semibold">PM</span>
+        </div>
+        <span class="font-semibold tracking-tight">Presentation Maker</span>
+      </div>
+      <nav class="hidden sm:flex items-center gap-6 text-sm text-gray-300">
+        <a class="hover:text-white" href="#features">Features</a>
+        <a class="hover:text-white" href="editor.html">Editor</a>
+        <a href="editor.html" class="inline-flex items-center rounded-md bg-indigo-500 px-4 py-2 font-medium text-white hover:bg-indigo-400">Start Creating</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="relative isolate">
+        <div class="absolute inset-x-0 -top-20 -z-10 blur-3xl opacity-40" aria-hidden="true">
+          <div class="mx-auto aspect-[4/1] max-w-4xl bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-emerald-500/70"></div>
+        </div>
+
+        <div class="mx-auto max-w-5xl px-6 pt-20 pb-16 text-center">
+          <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">Create stunning presentations in minutes</h1>
+          <p class="mt-4 text-base sm:text-lg text-gray-300 max-w-2xl mx-auto">A modern, minimal workspace inspired by the best of Google Slides and Canva. Design faster with AI, collaborate live, and never lose your work.</p>
+          <div class="mt-8 flex items-center justify-center gap-4">
+            <a href="editor.html" class="inline-flex items-center rounded-md bg-indigo-500 px-6 py-3 font-medium text-white hover:bg-indigo-400">Start Creating</a>
+            <a href="#features" class="inline-flex items-center rounded-md px-6 py-3 font-medium text-gray-200 ring-1 ring-white/10 hover:bg-white/5">Learn more</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" class="mx-auto max-w-6xl px-6 pb-24">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="rounded-xl bg-[#121217] ring-1 ring-white/10 p-6 flex flex-col gap-3">
+            <div class="h-10 w-10 rounded-lg bg-white/5 text-indigo-400 flex items-center justify-center">
+              <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 0 0-5 5v1H6a4 4 0 0 0 0 8h1v1a5 5 0 0 0 10 0v-1h1a4 4 0 1 0 0-8h-1V7a5 5 0 0 0-5-5z"/></svg>
+            </div>
+            <h3 class="text-lg font-semibold tracking-tight">AI Slide Design</h3>
+            <p class="text-sm text-gray-300 leading-relaxed">Generate layouts, color palettes, and content suggestions tailored to your topic.</p>
+          </div>
+          <div class="rounded-xl bg-[#121217] ring-1 ring-white/10 p-6 flex flex-col gap-3">
+            <div class="h-10 w-10 rounded-lg bg-white/5 text-indigo-400 flex items-center justify-center">
+              <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M7 7a5 5 0 1 1 10 0 5 5 0 0 1-10 0zm-2 13a7 7 0 0 1 14 0v1H5v-1z"/></svg>
+            </div>
+            <h3 class="text-lg font-semibold tracking-tight">Real-Time Collaboration</h3>
+            <p class="text-sm text-gray-300 leading-relaxed">Edit together with comments, cursors, and presence—no refresh needed.</p>
+          </div>
+          <div class="rounded-xl bg-[#121217] ring-1 ring-white/10 p-6 flex flex-col gap-3">
+            <div class="h-10 w-10 rounded-lg bg-white/5 text-indigo-400 flex items-center justify-center">
+              <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M6 14a4 4 0 1 1 1-7.874A6 6 0 1 1 18 13h-2l-4 5-4-5H6z"/></svg>
+            </div>
+            <h3 class="text-lg font-semibold tracking-tight">Autosave and Cloud Sync</h3>
+            <p class="text-sm text-gray-300 leading-relaxed">Your edits save instantly and sync securely across devices.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="border-t border-white/10">
+      <div class="mx-auto max-w-7xl px-6 py-10 text-sm text-gray-400 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p>© <span id="year"></span> Presentation Maker</p>
+        <div class="flex items-center gap-4">
+          <a href="#features" class="hover:text-gray-200">Features</a>
+          <a href="editor.html" class="hover:text-gray-200">Editor</a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      document.getElementById('year').textContent = new Date().getFullYear()
+    </script>
   </body>
   </html>
 
