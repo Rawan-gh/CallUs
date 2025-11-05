@@ -26,16 +26,39 @@
       </div>
 
       <section class="mx-auto max-w-7xl px-6 pb-16">
-        <div class="mb-4 flex items-center justify-between">
-          <div>
-            <h1 id="title" class="text-2xl sm:text-3xl font-bold tracking-tight">Editor</h1>
-            <p id="subtitle" class="mt-1 text-slate-600">Customize your slides below.</p>
+        <div class="mb-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h1 id="title" class="text-2xl sm:text-3xl font-bold tracking-tight">Editor</h1>
+              <p id="subtitle" class="mt-1 text-slate-600">Customize your slides below.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="btn-add-slide" class="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium ring-1 ring-slate-200 hover:bg-slate-50">Add slide</button>
+              <button id="btn-duplicate" class="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium ring-1 ring-slate-200 hover:bg-slate-50">Duplicate</button>
+              <button id="btn-delete" class="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium ring-1 ring-slate-200 hover:bg-slate-50">Delete</button>
+              <a href="index.html" class="inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500">Export (mock)</a>
+            </div>
           </div>
-          <div class="flex items-center gap-2">
-            <button id="btn-add-slide" class="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium ring-1 ring-slate-200 hover:bg-slate-50">Add slide</button>
-            <button id="btn-duplicate" class="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium ring-1 ring-slate-200 hover:bg-slate-50">Duplicate</button>
-            <button id="btn-delete" class="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium ring-1 ring-slate-200 hover:bg-slate-50">Delete</button>
-            <button id="btn-add-text" class="inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500">Add text</button>
+
+          <!-- Creative toolbar -->
+          <div class="mt-3 flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2">
+            <div class="flex items-center gap-2">
+              <button id="tool-select" class="tool-btn data-[active=true]:bg-slate-100 inline-flex items-center rounded px-3 py-1.5 text-sm ring-1 ring-slate-200">Select</button>
+              <button id="tool-text" class="tool-btn inline-flex items-center rounded px-3 py-1.5 text-sm ring-1 ring-slate-200">Text</button>
+              <button id="tool-rect" class="tool-btn inline-flex items-center rounded px-3 py-1.5 text-sm ring-1 ring-slate-200">Rectangle</button>
+              <button id="tool-ellipse" class="tool-btn inline-flex items-center rounded px-3 py-1.5 text-sm ring-1 ring-slate-200">Circle</button>
+              <button id="tool-line" class="tool-btn inline-flex items-center rounded px-3 py-1.5 text-sm ring-1 ring-slate-200">Line</button>
+              <div class="ml-3 flex items-center gap-2">
+                <label class="text-xs text-slate-600">BG</label>
+                <input id="slide-bg" type="color" value="#ffffff" class="h-8 w-8 rounded border border-slate-200" />
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="zoom-out" class="inline-flex items-center rounded px-2 py-1.5 text-sm ring-1 ring-slate-200">-</button>
+              <span id="zoom-label" class="w-14 text-center text-sm">100%</span>
+              <button id="zoom-in" class="inline-flex items-center rounded px-2 py-1.5 text-sm ring-1 ring-slate-200">+</button>
+              <button id="zoom-fit" class="inline-flex items-center rounded px-2 py-1.5 text-sm ring-1 ring-slate-200">Fit</button>
+            </div>
           </div>
         </div>
 
@@ -58,25 +81,63 @@
 
           <!-- Properties panel -->
           <aside class="col-span-3">
-            <div class="space-y-3 rounded-lg border border-slate-200 p-4">
+            <div class="space-y-4 rounded-lg border border-slate-200 p-4">
               <h3 class="font-semibold">Properties</h3>
-              <div>
-                <label class="block text-sm font-medium text-slate-700">Text</label>
-                <textarea id="prop-text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" rows="4" placeholder="Select a text block..."></textarea>
-              </div>
-              <div class="grid grid-cols-2 gap-3">
+
+              <!-- Selection header -->
+              <div class="text-xs text-slate-500" id="selection-label">No selection</div>
+
+              <!-- Text props -->
+              <div id="text-props" class="space-y-3 hidden">
                 <div>
-                  <label class="block text-sm font-medium text-slate-700">Font size</label>
-                  <input id="prop-size" type="number" min="10" max="120" value="32" class="mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
+                  <label class="block text-sm font-medium text-slate-700">Text</label>
+                  <textarea id="prop-text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" rows="4"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-sm font-medium text-slate-700">Font size</label>
+                    <input id="prop-size" type="number" min="10" max="120" value="32" class="mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-slate-700">Color</label>
+                    <input id="prop-color" type="color" value="#0f172a" class="mt-1 w-full h-[34px] rounded-md border border-slate-300" />
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <label class="text-sm text-slate-700">Bold</label>
+                  <input id="prop-bold" type="checkbox" />
+                  <button id="align-center" class="ml-3 inline-flex items-center rounded px-2 py-1 text-xs ring-1 ring-slate-200">Center on slide</button>
+                </div>
+              </div>
+
+              <!-- Shape props -->
+              <div id="shape-props" class="space-y-3 hidden">
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-sm font-medium text-slate-700">Fill</label>
+                    <input id="prop-fill" type="color" value="#10b981" class="mt-1 w-full h-[34px] rounded-md border border-slate-300" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-slate-700">Stroke</label>
+                    <input id="prop-stroke" type="color" value="#0f172a" class="mt-1 w-full h-[34px] rounded-md border border-slate-300" />
+                  </div>
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-slate-700">Color</label>
-                  <input id="prop-color" type="color" value="#0f172a" class="mt-1 w-full h-[34px] rounded-md border border-slate-300" />
+                  <label class="block text-sm font-medium text-slate-700">Stroke width</label>
+                  <input id="prop-stroke-w" type="number" min="0" max="16" value="2" class="mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" />
+                </div>
+                <div class="flex items-center gap-2">
+                  <button id="bring-front" class="inline-flex items-center rounded px-2 py-1 text-xs ring-1 ring-slate-200">Bring to front</button>
+                  <button id="send-back" class="inline-flex items-center rounded px-2 py-1 text-xs ring-1 ring-slate-200">Send to back</button>
                 </div>
               </div>
-              <div class="flex items-center gap-2">
-                <label class="text-sm text-slate-700">Bold</label>
-                <input id="prop-bold" type="checkbox" />
+
+              <!-- Slide props (no selection) -->
+              <div id="slide-props" class="space-y-3">
+                <div>
+                  <label class="block text-sm font-medium text-slate-700">Slide background</label>
+                  <input id="prop-slide-bg" type="color" value="#ffffff" class="mt-1 w-full h-[34px] rounded-md border border-slate-300" />
+                </div>
               </div>
             </div>
           </aside>
@@ -168,13 +229,33 @@
         }
       }
 
+      // Tools
+      const tools = {
+        current: 'select'
+      }
+      const toolButtons = {
+        select: document.getElementById('tool-select'),
+        text: document.getElementById('tool-text'),
+        rect: document.getElementById('tool-rect'),
+        ellipse: document.getElementById('tool-ellipse'),
+        line: document.getElementById('tool-line')
+      }
+      Object.entries(toolButtons).forEach(([name, btn])=>{
+        btn.addEventListener('click', ()=>{ tools.current = name; updateToolActive(); if(name==='text') addText(); if(name==='rect') addShape('rect'); if(name==='ellipse') addShape('ellipse'); if(name==='line') addShape('line'); })
+      })
+      function updateToolActive(){
+        Object.entries(toolButtons).forEach(([name, btn])=>{
+          btn.setAttribute('data-active', String(tools.current===name))
+        })
+      }
+
       // Editor state
       const chosen = templates[template] || templates.blank
       title.textContent = chosen.title
       subtitle.textContent = chosen.subtitle
 
       const state = {
-        slides: [ { elements: [] } ],
+        slides: [ { elements: [], bg:'#ffffff' } ],
         current: 0,
         selectedElId: null
       }
@@ -206,9 +287,11 @@
 
       function renderCanvas(){
         canvas.innerHTML = ''
-        canvas.className = 'relative bg-white ring-1 ring-slate-300 rounded-lg overflow-hidden'
-        chosen.applyToCanvas(canvas)
         const slide = state.slides[state.current]
+        canvas.className = 'relative ring-1 ring-slate-300 rounded-lg overflow-hidden'
+        canvas.style.backgroundColor = slide.bg || '#ffffff'
+        chosen.applyToCanvas(canvas)
+        // elements
         slide.elements.forEach(el => {
           const node = document.createElement('div')
           node.dataset.id = el.id
@@ -216,11 +299,22 @@
           node.style.left = el.x + 'px'
           node.style.top = el.y + 'px'
           node.style.cursor = 'move'
-          node.innerHTML = `<div class=\"px-2 py-1\" style=\"font-size:${el.size}px;color:${el.color};font-weight:${el.bold?700:400}\">${el.text}</div>`
+          if(el.type==='text'){
+            node.innerHTML = `<div class=\"px-2 py-1\" style=\"font-size:${el.size}px;color:${el.color};font-weight:${el.bold?700:400}\">${el.text}</div>`
+          } else if(el.type==='rect' || el.type==='ellipse'){
+            node.innerHTML = `<div class=\"\" style=\"width:${el.w}px;height:${el.h}px;background:${el.fill};border:${el.strokeW}px solid ${el.stroke};border-radius:${el.type==='ellipse'?'9999px':'8px'}\"></div>`
+          } else if(el.type==='line'){
+            node.innerHTML = `<div style=\"width:${el.w}px;height:${el.strokeW}px;background:${el.stroke}\"></div>`
+          }
           node.addEventListener('mousedown', startDrag)
           node.addEventListener('dblclick', startInlineEdit)
           node.addEventListener('click', ()=> selectElement(el.id))
           if (state.selectedElId === el.id) node.classList.add('ring-2','ring-emerald-500','rounded')
+          // resize handle (for shapes/text width)
+          const handle = document.createElement('div')
+          handle.className = 'absolute -right-1 -bottom-1 h-3 w-3 bg-emerald-500 rounded-full cursor-se-resize'
+          handle.addEventListener('mousedown', (ev)=> startResize(ev, el.id))
+          node.appendChild(handle)
           canvas.appendChild(node)
         })
 
@@ -297,12 +391,20 @@
       btnAddSlide.addEventListener('click', ()=>{ state.slides.push({elements: []}); state.current = state.slides.length-1; renderThumbs(); renderCanvas(); })
       btnDuplicate.addEventListener('click', ()=>{ const s = state.slides[state.current]; state.slides.splice(state.current+1,0, JSON.parse(JSON.stringify(s))); state.current++; renderThumbs(); renderCanvas(); })
       btnDelete.addEventListener('click', ()=>{ if(state.slides.length>1){ state.slides.splice(state.current,1); state.current = Math.max(0,state.current-1); renderThumbs(); renderCanvas(); } })
-      btnAddText.addEventListener('click', ()=>{
-        const el = { id: 'el_'+Date.now(), type:'text', text:'Double click to edit', x: 100, y: 100, size: 32, color: '#0f172a', bold: false }
+      function addText(){
+        const el = { id: 'el_'+Date.now(), type:'text', text:'Double click to edit', x: 120, y: 120, size: 32, color: '#0f172a', bold: false }
         state.slides[state.current].elements.push(el)
         selectElement(el.id)
         renderThumbs(); renderCanvas();
-      })
+      }
+
+      function addShape(kind){
+        const base = { id:'el_'+Date.now(), type:kind, x: 160, y: 160, w: 160, h: 100, fill:'#10b981', stroke:'#0f172a', strokeW:2 }
+        if(kind==='line'){ base.w = 200; base.h = 0; base.fill='transparent' }
+        state.slides[state.current].elements.push(base)
+        selectElement(base.id)
+        renderThumbs(); renderCanvas();
+      }
 
       // Properties bindings
       propText.addEventListener('input', ()=>{
@@ -312,10 +414,76 @@
       propColor.addEventListener('input', ()=>{ const s=state.slides[state.current]; const el=s.elements.find(e=>e.id===state.selectedElId); if(!el) return; el.color=propColor.value; renderCanvas(); })
       propBold.addEventListener('change', ()=>{ const s=state.slides[state.current]; const el=s.elements.find(e=>e.id===state.selectedElId); if(!el) return; el.bold=propBold.checked; renderCanvas(); })
 
+      const selectionLabel = document.getElementById('selection-label')
+      const textProps = document.getElementById('text-props')
+      const shapeProps = document.getElementById('shape-props')
+      const slideProps = document.getElementById('slide-props')
+      const propFill = document.getElementById('prop-fill')
+      const propStroke = document.getElementById('prop-stroke')
+      const propStrokeW = document.getElementById('prop-stroke-w')
+      const bringFront = document.getElementById('bring-front')
+      const sendBack = document.getElementById('send-back')
+      const alignCenter = document.getElementById('align-center')
+      const slideBg = document.getElementById('slide-bg')
+      const propSlideBg = document.getElementById('prop-slide-bg')
+
+      slideBg.addEventListener('input', ()=>{ state.slides[state.current].bg = slideBg.value; propSlideBg.value = slideBg.value; renderCanvas() })
+      propSlideBg.addEventListener('input', ()=>{ state.slides[state.current].bg = propSlideBg.value; slideBg.value = propSlideBg.value; renderCanvas() })
+
+      function refreshPanels(){
+        const s = state.slides[state.current]
+        const el = s.elements.find(e=>e.id===state.selectedElId)
+        slideProps.classList.toggle('hidden', !!el)
+        textProps.classList.toggle('hidden', !(el && el.type==='text'))
+        shapeProps.classList.toggle('hidden', !(el && el.type!=='text'))
+        selectionLabel.textContent = el ? `Selected: ${el.type}` : 'No selection'
+        if(!el){ propSlideBg.value = s.bg || '#ffffff'; return }
+        if(el.type==='text'){
+          propText.value = el.text; propSize.value = el.size; propColor.value = el.color; propBold.checked = !!el.bold
+        } else {
+          propFill.value = el.fill || '#10b981'; propStroke.value = el.stroke || '#0f172a'; propStrokeW.value = el.strokeW || 2
+        }
+      }
+
+      propFill.addEventListener('input', ()=>{ const s=state.slides[state.current]; const el=s.elements.find(e=>e.id===state.selectedElId); if(!el) return; el.fill=propFill.value; renderCanvas(); })
+      propStroke.addEventListener('input', ()=>{ const s=state.slides[state.current]; const el=s.elements.find(e=>e.id===state.selectedElId); if(!el) return; el.stroke=propStroke.value; renderCanvas(); })
+      propStrokeW.addEventListener('input', ()=>{ const s=state.slides[state.current]; const el=s.elements.find(e=>e.id===state.selectedElId); if(!el) return; el.strokeW=parseInt(propStrokeW.value||2,10); renderCanvas(); })
+      bringFront.addEventListener('click', ()=>{ const s=state.slides[state.current]; const i=s.elements.findIndex(e=>e.id===state.selectedElId); if(i>=0){ const [el]=s.elements.splice(i,1); s.elements.push(el); renderCanvas(); } })
+      sendBack.addEventListener('click', ()=>{ const s=state.slides[state.current]; const i=s.elements.findIndex(e=>e.id===state.selectedElId); if(i>=0){ const [el]=s.elements.splice(i,1); s.elements.unshift(el); renderCanvas(); } })
+      alignCenter.addEventListener('click', ()=>{ const s=state.slides[state.current]; const el=s.elements.find(e=>e.id===state.selectedElId); if(!el) return; el.x = (960 - (el.w||200))/2; el.y = (540 - (el.h||40))/2; renderCanvas(); })
+
+      // Zoom
+      let zoom = 1
+      function setZoom(z){ zoom = Math.min(1, Math.max(0.25, z)); canvas.style.transform = `scale(${zoom})`; canvasWrap.style.width = `${960 * zoom}px`; document.getElementById('zoom-label').textContent = Math.round(zoom*100)+'%'; }
+      document.getElementById('zoom-in').addEventListener('click', ()=> setZoom(zoom+0.1))
+      document.getElementById('zoom-out').addEventListener('click', ()=> setZoom(zoom-0.1))
+      document.getElementById('zoom-fit').addEventListener('click', ()=> scaleCanvasToFit())
+
       // Init
       renderThumbs()
       renderCanvas()
+      refreshPanels()
       scaleCanvasToFit()
+      updateToolActive()
+
+      // Resize handle support
+      function startResize(ev, id){
+        ev.stopPropagation()
+        const slide = state.slides[state.current]
+        const el = slide.elements.find(e=>e.id===id)
+        if(!el) return
+        const startX = ev.clientX; const startY = ev.clientY
+        const startW = el.w || 200; const startH = el.h || 40
+        function onMove(e2){
+          const dx = e2.clientX - startX; const dy = e2.clientY - startY
+          el.w = Math.max(20, startW + dx)
+          el.h = Math.max(10, startH + dy)
+          renderCanvas()
+        }
+        function onUp(){ window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp) }
+        window.addEventListener('mousemove', onMove)
+        window.addEventListener('mouseup', onUp)
+      }
     </script>
   </body>
   </html>
