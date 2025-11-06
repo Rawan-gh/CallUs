@@ -9,60 +9,94 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body class="bg-white text-slate-900 antialiased font-sans">
-
-    <main>
-      <section class="relative isolate">
-        <div class="absolute inset-x-0 -top-20 -z-10 blur-3xl opacity-40" aria-hidden="true">
-          <div class="mx-auto aspect-[4/1] max-w-4xl bg-gradient-to-r from-emerald-400 via-teal-300 to-sky-400"></div>
-        </div>
-
-        <div class="mx-auto max-w-5xl px-6 pt-20 pb-16 text-center">
-          <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">Create stunning presentations in minutes</h1>
-          <p class="mt-4 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto">A modern, minimal workspace. Design faster with AI, collaborate live, and never lose your work.</p>
-          <div class="mt-8 flex items-center justify-center gap-4">
-            <a href="login.html" class="inline-flex items-center rounded-md bg-emerald-600 px-6 py-3 font-medium text-white hover:bg-emerald-500">Start Creating</a>
-            <a href="#features" class="inline-flex items-center rounded-md px-6 py-3 font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50">Learn more</a>
-          </div>
-        </div>
-      </section>
-
-      <section id="features" class="mx-auto max-w-6xl px-6 pb-24">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="rounded-xl bg-white ring-1 ring-slate-200 p-6 shadow-sm flex flex-col gap-3">
-            <div class="h-10 w-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 0 0-5 5v1H6a4 4 0 0 0 0 8h1v1a5 5 0 0 0 10 0v-1h1a4 4 0 1 0 0-8h-1V7a5 5 0 0 0-5-5z"/></svg>
-            </div>
-            <h3 class="text-lg font-semibold tracking-tight">AI Slide Design</h3>
-            <p class="text-sm text-slate-600 leading-relaxed">Generate layouts, color palettes, and content suggestions tailored to your topic.</p>
-          </div>
-          <div class="rounded-xl bg-white ring-1 ring-slate-200 p-6 shadow-sm flex flex-col gap-3">
-            <div class="h-10 w-10 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center">
-              <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M7 7a5 5 0 1 1 10 0 5 5 0 0 1-10 0zm-2 13a7 7 0 0 1 14 0v1H5v-1z"/></svg>
-            </div>
-            <h3 class="text-lg font-semibold tracking-tight">Real-Time Collaboration</h3>
-            <p class="text-sm text-slate-600 leading-relaxed">Edit together with comments, cursors, and presence—no refresh needed.</p>
-          </div>
-          <div class="rounded-xl bg-white ring-1 ring-slate-200 p-6 shadow-sm flex flex-col gap-3">
-            <div class="h-10 w-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center">
-              <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M6 14a4 4 0 1 1 1-7.874A6 6 0 1 1 18 13h-2l-4 5-4-5H6z"/></svg>
-            </div>
-            <h3 class="text-lg font-semibold tracking-tight">Autosave and Cloud Sync</h3>
-            <p class="text-sm text-slate-600 leading-relaxed">Your edits save instantly and sync securely across devices.</p>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer class="border-t border-slate-200">
-      <div class="mx-auto max-w-7xl px-6 py-10 text-sm text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p>© <span id="year"></span> Presentation Maker</p>
-        <div class="flex items-center gap-4">
-          <a href="#features" class="hover:text-slate-900">Features</a>
-          <a href="editor.html" class="hover:text-slate-900">Editor</a>
-        </div>
+  <body class="bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-900 antialiased font-sans">
+    <div class="relative">
+      <div class="pointer-events-none absolute inset-0 overflow-hidden">
+        <div class="absolute -top-40 -left-32 h-96 w-96 rounded-full bg-emerald-400/20 blur-3xl"></div>
+        <div class="absolute top-10 right-0 h-72 w-72 rounded-full bg-sky-400/20 blur-3xl"></div>
       </div>
-    </footer>
+
+      <header class="sticky top-0 z-20 border-b border-white/60 bg-white/95 backdrop-blur">
+        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+          <div class="flex items-center gap-4">
+            <img src="assets/aramco-digital-logo.png" alt="Aramco Digital" style="width:auto; height:58px;" />
+          </div>
+          <div class="hidden md:flex flex-col text-right leading-tight text-slate-600">
+            <span class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-600">Presentation Maker</span>
+            <span class="text-sm font-medium text-slate-600">Executive Comms Suite · Dhahran</span>
+            <span class="text-xs text-slate-500">Investor decks • Board updates • Strategic storytelling</span>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section class="relative isolate">
+          <div class="absolute inset-x-0 -top-32 -z-10 blur-3xl opacity-60" aria-hidden="true">
+            <div class="mx-auto aspect-[5/2] max-w-4xl bg-gradient-to-r from-emerald-400 via-teal-300 to-sky-400"></div>
+          </div>
+          <div class="mx-auto max-w-3xl px-6 pt-16 pb-14 text-center">
+            <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900">Craft presentations your leadership will trust</h1>
+            <p class="mt-6 text-base sm:text-lg text-slate-600">Keep every deck consistent, on-message, and ready for the boardroom. Presentation Maker gives you branded layouts, collaboration, and secure delivery in one calm workspace.</p>
+            <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <a href="login.html" class="inline-flex items-center rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:-translate-y-0.5 hover:bg-emerald-500">Sign in to continue</a>
+              <a href="#features" class="inline-flex items-center rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-400 hover:text-emerald-600">Explore features</a>
+            </div>
+          </div>
+        </section>
+
+        <section id="features" class="mx-auto max-w-6xl px-6 pb-16">
+          <div class="text-center">
+            <h2 class="text-3xl font-bold tracking-tight">Built for teams who sweat the details</h2>
+            <p class="mt-3 text-slate-600">Everything you need to deliver presentations that feel boardroom-ready.</p>
+          </div>
+          <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <article class="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-lg shadow-emerald-500/10 transition hover:-translate-y-1 hover:shadow-xl">
+              <div class="h-12 w-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.75 13.054 8.03l4.196.171-3.31 2.66 1.1 4.079L12 12.873l-3.04 2.067 1.1-4.079-3.31-2.66 4.196-.172L12 3.75Z"/></svg>
+              </div>
+              <h3 class="mt-4 text-lg font-semibold tracking-tight">Design systems built-in</h3>
+              <p class="mt-2 text-sm leading-relaxed text-slate-600">Reusable section layouts keep every slide aligned with your brand voice.</p>
+            </article>
+            <article class="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-lg shadow-emerald-500/10 transition hover:-translate-y-1 hover:shadow-xl">
+              <div class="h-12 w-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M9 3a4 4 0 0 1 0 8 4 4 0 0 1 0-8Zm6 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6ZM4 17.25c0-2.485 2.343-4.5 5.25-4.5h.5c.648 0 1.274.102 1.857.29a5.25 5.25 0 0 0-2.607 4.584v.376H4v-.75Zm7.5.374a5.25 5.25 0 0 1 5.25-5.25h.5c2.907 0 5.25 2.015 5.25 4.5v.75h-11v-.376Z"/></svg>
+              </div>
+              <h3 class="mt-4 text-lg font-semibold tracking-tight">Live presence</h3>
+              <p class="mt-2 text-sm leading-relaxed text-slate-600">Comment bubbles, multi-cursor editing, and instant feedback.</p>
+            </article>
+            <article class="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-lg shadow-emerald-500/10 transition hover:-translate-y-1 hover:shadow-xl">
+              <div class="h-12 w-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.25 4.5 5v6.75c0 4.97 3.16 9.4 7.75 11 4.59-1.6 7.75-6.03 7.75-11V5L12 2.25Zm0 5.5 2.12 2.121-2.12 2.12-2.121-2.12L12 7.75Z"/></svg>
+              </div>
+              <h3 class="mt-4 text-lg font-semibold tracking-tight">Secure delivery</h3>
+              <p class="mt-2 text-sm leading-relaxed text-slate-600">Autosave, history, and controlled exports for sensitive reviews.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="mx-auto max-w-6xl px-6 pb-20">
+          <div class="rounded-3xl border border-slate-200 bg-gradient-to-r from-emerald-500/90 via-emerald-500 to-sky-500 p-10 text-white shadow-emerald-500/30">
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
+              <div>
+                <h2 class="text-3xl font-bold tracking-tight">Ready to modernize your presentation workflow?</h2>
+                <p class="mt-3 text-emerald-50/90">Join teams who ship polished decks faster. No installs, no fuss—just focused creativity.</p>
+              </div>
+              <div class="flex flex-col sm:flex-row items-center gap-3">
+                <a href="login.html" class="inline-flex items-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-emerald-600 shadow-lg shadow-emerald-500/40 hover:-translate-y-0.5">Sign in to get started</a>
+                <a href="#features" class="inline-flex items-center rounded-full border border-white/70 px-6 py-3 text-sm font-semibold text-white/90 hover:bg-white/10">Review the workflow</a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="border-t border-white/40 bg-white/70 backdrop-blur">
+        <div class="mx-auto max-w-7xl px-6 py-10 text-sm text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p class="text-xs text-slate-400">Rawan • Hadeel • Renad</p>
+          <p class="text-xs text-slate-400">© <span id="year"></span> Presentation Maker · Crafted in Dhahran</p>
+        </div>
+      </footer>
+    </div>
 
     <script>
       document.getElementById('year').textContent = new Date().getFullYear()
