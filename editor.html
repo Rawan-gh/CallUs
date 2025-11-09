@@ -1,1688 +1,2171 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Editor - Presentation Maker</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentation Studio</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-      :root {
-        color-scheme: light;
-        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        --emerald: #0fb981;
-        --emerald-dark: #0a8f63;
-        --sky: #0ea5e9;
-        --navy: #0f172a;
-        --slate-100: #f1f5f9;
-        --slate-200: #e2e8f0;
-        --slate-300: #cbd5f5;
-        --slate-400: #94a3b8;
-        --slate-500: #64748b;
-        --slate-600: #475569;
-      }
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        background: linear-gradient(180deg, #f7fafc 0%, #eef2fb 70%);
-        color: var(--slate-700, #1f2937);
-      }
-      .app-shell {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-      }
-      .topbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 32px;
-        padding: 18px 32px;
-        color: #fff;
-        background: linear-gradient(100deg, var(--sky) 5%, #38bdf8 45%, var(--emerald) 100%);
-        box-shadow: 0 22px 48px -24px rgba(14, 165, 233, 0.55);
-      }
-      .topbar-group {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-      }
-      .menu-button {
-        display: grid;
-        place-items: center;
-        width: 40px;
-        height: 40px;
-        border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background: rgba(255, 255, 255, 0.08);
-        transition: background 0.18s ease, transform 0.18s ease;
-        cursor: pointer;
-      }
-      .menu-button:hover {
-        background: rgba(255, 255, 255, 0.16);
-        transform: translateY(-1px);
-      }
-      .topbar-title {
-        font-weight: 600;
-        font-size: 15px;
-      }
-      .topbar-nav {
-        display: flex;
-        gap: 16px;
-        font-size: 13px;
-        opacity: 0.92;
-      }
-      .topbar-nav span {
-        cursor: pointer;
-        transition: opacity 0.2s ease;
-      }
-      .topbar-nav span:hover {
-        opacity: 1;
-      }
-      .topbar-actions {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-      }
-      .circle-button {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        display: grid;
-        place-items: center;
-        color: #fff;
-        cursor: pointer;
-        transition: background 0.18s ease, transform 0.18s ease;
-      }
-      .circle-button:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-1px);
-      }
-      .pill-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        border-radius: 999px;
-        padding: 8px 18px;
-        font-weight: 500;
-        font-size: 13px;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        background: rgba(255, 255, 255, 0.14);
-        color: #fff;
-        cursor: pointer;
-        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-      }
-      .pill-button:hover {
-        transform: translateY(-1px);
-        background: rgba(255, 255, 255, 0.24);
-        box-shadow: 0 12px 30px -20px rgba(13, 148, 136, 0.5);
-      }
-      .primary-button {
-        background: linear-gradient(120deg, rgba(32, 201, 151, 0.9), rgba(14, 165, 233, 0.9));
-        border: none;
-        box-shadow: 0 16px 34px -18px rgba(14, 165, 233, 0.6);
-      }
-      .primary-button:hover {
-        box-shadow: 0 18px 40px -16px rgba(15, 118, 110, 0.55);
-        background: linear-gradient(120deg, rgba(15, 185, 129, 0.95), rgba(14, 165, 233, 0.95));
-      }
-      .avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 14px;
-        background: rgba(255, 255, 255, 0.18);
-        display: grid;
-        place-items: center;
-        font-weight: 600;
-      }
-      .workspace {
-        display: flex;
-        flex: 1;
-        min-height: 0;
-      }
-      .left-rail {
-        width: 80px;
-        background: rgba(255, 255, 255, 0.95);
-        border-right: 1px solid rgba(148, 163, 184, 0.18);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 26px 0;
-        gap: 14px;
-        box-shadow: 8px 0 30px -28px rgba(15, 118, 110, 0.45);
-      }
-      .rail-button {
-        width: 46px;
-        height: 46px;
-        border-radius: 16px;
-        border: 1px solid transparent;
-        background: rgba(248, 250, 252, 0.85);
-        display: grid;
-        place-items: center;
-        color: var(--slate-500);
-        cursor: pointer;
-        transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform 0.2s ease;
-      }
-      .rail-button:hover,
-      .rail-button.active {
-        border-color: rgba(14, 165, 233, 0.45);
-        background: rgba(219, 234, 254, 0.95);
-        color: var(--navy);
-        transform: translateY(-1px);
-      }
-      .editor-area {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        min-height: 0;
-        position: relative;
-      }
-      .editor-toolbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        padding: 14px 28px;
-        background: rgba(255, 255, 255, 0.92);
-        border-bottom: 1px solid rgba(148, 163, 184, 0.18);
-        backdrop-filter: blur(12px);
-      }
-      .toolbar-left,
-      .toolbar-right {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
-      }
-      .toolbar-search {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: rgba(248, 250, 252, 0.95);
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.35);
-        padding: 6px 12px;
-        font-size: 13px;
-        color: var(--slate-500);
-      }
-      .toolbar-divider {
-        width: 1px;
-        height: 24px;
-        background: rgba(148, 163, 184, 0.35);
-      }
-      .toolbar-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 14px;
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.35);
-        background: rgba(255, 255, 255, 0.9);
-        font-size: 12px;
-        font-weight: 500;
-        color: var(--slate-600);
-        cursor: pointer;
-        transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, color 0.18s ease;
-      }
-      .toolbar-button:hover {
-        border-color: rgba(14, 165, 233, 0.45);
-        box-shadow: 0 12px 26px -18px rgba(14, 165, 233, 0.6);
-        color: var(--navy);
-        transform: translateY(-1px);
-      }
-      .toolbar-button svg {
-        width: 15px;
-        height: 15px;
-      }
-      .board-area {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 32px 28px 24px;
-        min-height: 0;
-      }
-      .canvas-wrapper {
-        width: min(82vw, 1100px);
-        aspect-ratio: 16/9;
-        background: #fff;
-        border-radius: 32px;
-        border: 1px solid rgba(148, 163, 184, 0.28);
-        box-shadow: 0 38px 80px -55px rgba(15, 118, 110, 0.55);
-        overflow: hidden;
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      #slide-stage {
-        position: relative;
-        width: 94%;
-        height: 90%;
-        background: #fff;
-        border-radius: 22px;
-        box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.9);
-        overflow: hidden;
-      }
-      #stage-placeholder {
-        position: absolute;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        color: rgba(100, 116, 139, 0.6);
-        font-size: 15px;
-        pointer-events: none;
-      }
-      .slide-dock {
-        padding: 20px 28px 32px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 24px;
-      }
-      .dock-left {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-      }
-      #btn-add-slide {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 60px;
-        height: 52px;
-        border-radius: 18px;
-        border: 1px dashed rgba(14, 165, 233, 0.45);
-        background: rgba(236, 254, 255, 0.65);
-        color: var(--sky);
-        font-size: 28px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background 0.2s ease, transform 0.2s ease;
-      }
-      #btn-add-slide:hover {
-        background: rgba(13, 148, 136, 0.12);
-        transform: translateY(-1px);
-      }
-      .slide-strip {
-        padding: 0;
-        margin: 0;
-        list-style: none;
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        max-width: min(50vw, 600px);
-        overflow-x: auto;
-        scrollbar-width: thin;
-      }
-      .slide-thumb {
-        position: relative;
-        flex: 0 0 auto;
-        width: 96px;
-        border-radius: 16px;
-        cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-      }
-      .slide-thumb:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 18px 36px -26px rgba(15, 118, 110, 0.6);
-      }
-      .slide-thumb .thumb-canvas {
-        position: relative;
-        width: 100%;
-        aspect-ratio: 4 / 3;
-        border-radius: 14px;
-        background: linear-gradient(135deg, #fff 0%, #e2f7ff 100%);
-        border: 1px solid rgba(226, 232, 240, 0.9);
-        overflow: hidden;
-      }
-      .slide-thumb .thumb-canvas::after {
-        content: "";
-        position: absolute;
-        inset: 6px;
-        border-radius: 10px;
-        border: 1px dashed rgba(14, 165, 233, 0.2);
-      }
-      .slide-thumb .thumb-label {
-        text-align: center;
-        color: var(--slate-500);
-        font-size: 11px;
-        margin-top: 6px;
-      }
-      .slide-thumb.active {
-        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.45);
-      }
-      .dock-center {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-        min-width: 200px;
-      }
-      .progress-track {
-        position: relative;
-        width: 220px;
-        height: 6px;
-        background: rgba(148, 163, 184, 0.18);
-        border-radius: 999px;
-        overflow: hidden;
-      }
-      .progress-fill {
-        position: absolute;
-        inset: 0;
-        width: 20%;
-        border-radius: inherit;
-        background: linear-gradient(120deg, rgba(16, 185, 129, 0.9), rgba(14, 165, 233, 0.9));
-      }
-      .progress-label {
-        font-size: 12px;
-        color: var(--slate-500);
-        font-weight: 500;
-      }
-      .dock-right {
-        display: inline-flex;
-        align-items: center;
-        gap: 12px;
-        background: rgba(255, 255, 255, 0.92);
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.24);
-        padding: 6px 12px;
-      }
-      .dock-right button {
-        border: none;
-        background: transparent;
-        color: var(--slate-500);
-        font-size: 16px;
-        cursor: pointer;
-        padding: 4px 8px;
-        border-radius: 8px;
-        transition: background 0.18s ease, color 0.18s ease;
-      }
-      .dock-right button:hover {
-        background: rgba(14, 165, 233, 0.12);
-        color: var(--navy);
-      }
-      .zoom-display {
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--slate-600);
-      }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
 
-      /* Stage elements and shape tooling */
-      .stage-element {
-        position: absolute;
-        min-width: 160px;
-        padding: 12px 18px;
-        border-radius: 16px;
-        background: rgba(255, 255, 255, 0.96);
-        border: 1px solid rgba(148, 163, 184, 0.42);
-        box-shadow: 0 28px 45px -32px rgba(15, 118, 110, 0.6);
-        cursor: move;
-        transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
-      }
-      .stage-element:hover {
-        transform: translateY(-1px);
-      }
-      .stage-element[data-selected="true"] {
-        border-color: rgba(14, 165, 233, 0.65);
-        box-shadow: 0 34px 60px -28px rgba(14, 165, 233, 0.55);
-      }
-      .stage-text {
-        outline: none;
-        font-size: 18px;
-        font-weight: 600;
-        color: var(--navy);
-      }
-      .stage-element[data-type="shape"] {
-        padding: 0;
-        min-width: 60px;
-        min-height: 40px;
-      }
-      .stage-element[data-type="shape"] .stage-text {
-        display: none;
-      }
-      .stage-element[data-type="shape"]::after {
-        content: "";
-        position: absolute;
-        inset: -2px;
-        border-radius: 22px;
-        border: 1px solid transparent;
-        pointer-events: none;
-        transition: border-color 0.18s ease, box-shadow 0.18s ease;
-      }
-      .stage-element[data-type="shape"][data-selected="true"]::after {
-        border-color: rgba(14, 165, 233, 0.6);
-        box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
-      }
-      .stage-shape-body {
-        width: 100%;
-        height: 100%;
-        display: block;
-      }
-      .stage-shape-body * {
-        pointer-events: none;
-      }
-      .resize-handle {
-        position: absolute;
-        right: -6px;
-        bottom: -6px;
-        width: 16px;
-        height: 16px;
-        border-radius: 6px;
-        border: 1px solid rgba(14, 165, 233, 0.55);
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.85), rgba(14, 165, 233, 0.75));
-        box-shadow: 0 12px 24px -14px rgba(14, 165, 233, 0.7);
-        cursor: nwse-resize;
-      }
-      .resize-handle::after {
-        content: "";
-        position: absolute;
-        inset: 4px;
-        border-radius: 3px;
-        background: rgba(255, 255, 255, 0.95);
-      }
+        .header {
+            background: linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #22d3ee 100%);
+            color: white;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 12px rgba(8, 145, 178, 0.2);
+        }
 
-      .shape-menu {
-        position: absolute;
-        top: calc(100% + 10px);
-        right: 0;
-        width: 180px;
-        background: rgba(255, 255, 255, 0.98);
-        border-radius: 18px;
-        border: 1px solid rgba(148, 163, 184, 0.35);
-        box-shadow: 0 35px 70px -32px rgba(15, 118, 110, 0.45);
-        padding: 12px;
-        display: grid;
-        gap: 6px;
-        z-index: 40;
-      }
-      .shape-menu.hidden {
-        display: none;
-      }
-      .shape-menu::before {
-        content: "";
-        position: absolute;
-        top: -8px;
-        right: 26px;
-        width: 16px;
-        height: 16px;
-        background: inherit;
-        border-left: 1px solid rgba(148, 163, 184, 0.35);
-        border-top: 1px solid rgba(148, 163, 184, 0.35);
-        transform: rotate(45deg);
-        z-index: -1;
-      }
-      .shape-menu button {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 10px;
-        border-radius: 12px;
-        border: 1px solid transparent;
-        background: rgba(248, 250, 252, 0.95);
-        color: var(--slate-600);
-        font-size: 12px;
-        cursor: pointer;
-        transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
-      }
-      .shape-menu button:hover {
-        border-color: rgba(16, 185, 129, 0.45);
-        background: rgba(236, 253, 245, 0.95);
-        transform: translateX(-1px);
-      }
+        .header-left, .header-right { display: flex; align-items: center; gap: 10px; }
 
-      .properties-panel {
-        position: fixed;
-        top: 110px;
-        right: 24px;
-        width: min(340px, 90vw);
-        background: rgba(255, 255, 255, 0.98);
-        border-radius: 22px;
-        border: 1px solid rgba(148, 163, 184, 0.24);
-        box-shadow: 0 35px 90px -45px rgba(15, 118, 110, 0.55);
-        padding: 18px 20px 22px;
-        transform: translateX(120%);
-        opacity: 0;
-        pointer-events: none;
-        transition: transform 0.25s ease, opacity 0.25s ease;
-        z-index: 50;
-      }
-      .properties-panel.open {
-        transform: translateX(0);
-        opacity: 1;
-        pointer-events: auto;
-      }
-      .properties-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 12px;
-        margin-bottom: 16px;
-      }
-      .properties-title {
-        font-size: 15px;
-        font-weight: 600;
-        color: var(--navy);
-      }
-      .properties-subtitle {
-        margin: 4px 0 0;
-        font-size: 12px;
-        color: var(--slate-500);
-      }
-      .properties-close {
-        border: none;
-        background: transparent;
-        color: var(--slate-400);
-        font-size: 20px;
-        cursor: pointer;
-      }
-      .properties-content {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        max-height: min(60vh, 520px);
-        overflow-y: auto;
-      }
-      .properties-content label {
-        font-size: 12px;
-        font-weight: 600;
-        color: var(--slate-600);
-        display: block;
-        margin-bottom: 6px;
-      }
-      .properties-content input,
-      .properties-content select {
-        width: 100%;
-        border-radius: 12px;
-        border: 1px solid rgba(148, 163, 184, 0.3);
-        padding: 10px 12px;
-        font-size: 13px;
-        color: var(--slate-600);
-        background: rgba(248, 250, 252, 0.9);
-      }
-      .properties-content input:focus,
-      .properties-content select:focus {
-        border-color: rgba(14, 165, 233, 0.6);
-        outline: none;
-        box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.18);
-      }
-      .properties-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-      }
-      .properties-empty {
-        text-align: center;
-        padding: 32px 0;
-        font-size: 13px;
-        color: var(--slate-400);
-      }
-      .align-buttons {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-      }
-      .align-buttons button {
-        padding: 8px 10px;
-        border-radius: 10px;
-        border: 1px solid rgba(148, 163, 184, 0.3);
-        background: rgba(248, 250, 252, 0.9);
-        font-size: 11px;
-        color: var(--slate-600);
-        cursor: pointer;
-        transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
-      }
-      .align-buttons button.active,
-      .align-buttons button:hover {
-        border-color: rgba(16, 185, 129, 0.5);
-        background: rgba(236, 253, 245, 0.9);
-        color: var(--navy);
-      }
+        .header-btn {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
 
-      @media (max-width: 1180px) {
-        .topbar {
-          flex-wrap: wrap;
-          gap: 18px;
+        .header-btn:hover { background: rgba(255,255,255,0.25); transform: translateY(-1px); }
+        .header-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .title-input {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            font-size: 14px;
+            padding: 9px 16px;
+            border-radius: 8px;
+            outline: none;
+            min-width: 320px;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
         }
-        .left-rail {
-          display: none;
+
+        .title-input::placeholder { color: rgba(255,255,255,0.7); }
+        .title-input:focus { background: rgba(255,255,255,0.25); }
+
+        .share-btn {
+            background: white;
+            color: #0891b2;
+            padding: 9px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        .canvas-wrapper {
-          width: min(90vw, 960px);
+
+        .share-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(8, 145, 178, 0.2); }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            display: none;
+            min-width: 220px;
+            z-index: 1000;
+            overflow: hidden;
         }
-        .slide-dock {
-          flex-direction: column;
-          align-items: stretch;
+
+        .dropdown-menu.show { display: block; }
+
+        .dropdown-item {
+            padding: 14px 18px;
+            cursor: pointer;
+            color: #374151;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.15s;
         }
-        .dock-left {
-          justify-content: center;
+
+        .dropdown-item:hover { background: #ecfeff; color: #0891b2; }
+
+        .toolbar {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
-        .dock-center {
-          align-items: center;
+
+        .tool-btn {
+            padding: 9px 16px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+            transition: all 0.2s;
         }
-        .dock-right {
-          align-self: center;
+
+        .tool-btn:hover { background: #f9fafb; border-color: #0891b2; color: #0891b2; transform: translateY(-1px); }
+
+        .tool-divider { width: 1px; height: 32px; background: #e5e7eb; margin: 0 6px; }
+
+        select.tool-btn { padding: 8px 14px; }
+        input[type="number"].tool-btn { width: 75px; padding: 8px 12px; }
+        input[type="color"] { width: 42px; height: 38px; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; }
+
+        .container { display: flex; height: calc(100vh - 130px); }
+
+        .sidebar {
+            width: 200px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            padding: 16px 12px;
+            gap: 12px;
+            overflow-y: auto;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.03);
         }
-      }
-      @media (max-width: 720px) {
-        .editor-toolbar {
-          flex-direction: column;
-          align-items: stretch;
+
+        .sidebar-header {
+            font-size: 13px;
+            font-weight: 600;
+            color: #6b7280;
+            padding: 8px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 8px;
         }
-        .toolbar-right {
-          justify-content: flex-start;
+
+        .sidebar-slide {
+            width: 100%;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
         }
-        .properties-panel {
-          top: 80px;
-          right: 12px;
+
+        .sidebar-slide:hover {
+            border-color: #0891b2;
+            transform: translateX(-4px);
+            box-shadow: 0 4px 12px rgba(8, 145, 178, 0.15);
         }
-      }
+
+        .sidebar-slide.active {
+            border-color: #0891b2;
+            border-width: 3px;
+            box-shadow: 0 4px 16px rgba(8, 145, 178, 0.25);
+        }
+
+        .sidebar-slide-preview {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: white;
+            position: relative;
+            font-size: 8px;
+        }
+
+        .sidebar-slide-number {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .sidebar-slide-delete {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-slide:hover .sidebar-slide-delete {
+            display: flex;
+        }
+
+        .sidebar-add-slide {
+            width: 100%;
+            padding: 12px;
+            background: #f9fafb;
+            border: 2px dashed #cbd5e1;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+
+        .sidebar-add-slide:hover {
+            background: #ecfeff;
+            border-color: #0891b2;
+            color: #0891b2;
+        }
+
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #f0f9fb 100%);
+            overflow: auto;
+            position: relative;
+        }
+
+        .canvas-area::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 19px, #e5e7eb 19px, #e5e7eb 20px),
+                repeating-linear-gradient(90deg, transparent, transparent 19px, #e5e7eb 19px, #e5e7eb 20px);
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .canvas-wrapper { transform-origin: center; transition: transform 0.3s; }
+
+        .canvas {
+            width: 960px;
+            height: 540px;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .guide-line {
+            position: absolute;
+            background: #0891b2;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .guide-line.horizontal {
+            height: 1px;
+            width: 100%;
+            left: 0;
+            box-shadow: 0 0 4px rgba(8, 145, 178, 0.5);
+        }
+
+        .guide-line.vertical {
+            width: 1px;
+            height: 100%;
+            top: 0;
+            box-shadow: 0 0 4px rgba(8, 145, 178, 0.5);
+        }
+
+        .snap-indicator {
+            position: absolute;
+            background: #10b981;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            z-index: 9998;
+            pointer-events: none;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+        }
+
+        .bottom-bar {
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .slides-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .slide-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            overflow-x: auto;
+            flex: 1;
+            padding: 4px;
+        }
+
+        .slide-preview {
+            min-width: 130px;
+            height: 74px;
+            border: 2px solid #94a3b8;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            background: white;
+            position: relative;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .slide-preview:hover { border-color: #0891b2; transform: translateY(-2px); }
+        .slide-preview.active { border-color: #0891b2; color: #0891b2; background: #ecfeff; box-shadow: 0 0 0 2px #0891b2; }
+
+        .slide-number {
+            position: absolute;
+            bottom: 6px;
+            left: 8px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .slide-icon {
+            font-size: 14px;
+        }
+
+        .slide-delete {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            width: 22px;
+            height: 22px;
+            font-size: 14px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .slide-preview:hover .slide-delete { display: flex; align-items: center; justify-content: center; }
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            cursor: pointer;
+            font-size: 18px;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover { background: #f9fafb; border-color: #0891b2; color: #0891b2; }
+
+        .zoom-control { display: flex; align-items: center; gap: 14px; }
+        .zoom-slider { width: 160px; }
+        .zoom-value { font-size: 13px; font-weight: 600; color: #6b7280; min-width: 45px; }
+
+        .canvas-element {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            transition: box-shadow 0.2s;
+        }
+
+        .canvas-element.selected { outline: 2px solid #0891b2; outline-offset: 2px; box-shadow: 0 4px 16px rgba(8, 145, 178, 0.2); }
+
+        .resize-handle {
+            position: absolute;
+            width: 11px;
+            height: 11px;
+            background: white;
+            border: 2px solid #0891b2;
+            border-radius: 50%;
+            display: none;
+            box-shadow: 0 2px 6px rgba(8, 145, 178, 0.3);
+        }
+
+        .canvas-element.selected .resize-handle { display: block; }
+        .resize-handle.nw { top: -6px; left: -6px; cursor: nw-resize; }
+        .resize-handle.ne { top: -6px; right: -6px; cursor: ne-resize; }
+        .resize-handle.sw { bottom: -6px; left: -6px; cursor: sw-resize; }
+        .resize-handle.se { bottom: -6px; right: -6px; cursor: se-resize; }
+
+        .text-element {
+            padding: 14px;
+            min-width: 100px;
+            outline: none;
+            cursor: text;
+            line-height: 1.6;
+            border-radius: 4px;
+        }
+        
+        .text-element:not(:focus) { cursor: move; }
+
+        .shape-element { border: 2px solid #0891b2; }
+        .image-element { background-size: contain; background-repeat: no-repeat; background-position: center; border-radius: 4px; }
+
+        table.table-element { border-collapse: collapse; background: white; }
+        table.table-element td { border: 1px solid #e5e7eb; padding: 10px; min-width: 90px; min-height: 35px; }
+
+        .context-menu {
+            position: fixed;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            padding: 6px 0;
+            display: none;
+            z-index: 1000;
+            min-width: 180px;
+        }
+
+        .context-menu-item { padding: 11px 18px; cursor: pointer; font-size: 13px; font-weight: 500; color: #374151; }
+        .context-menu-item:hover { background: #ecfeff; color: #0891b2; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show { display: flex; }
+
+        .modal-content {
+            background: white;
+            padding: 28px;
+            border-radius: 16px;
+            max-width: 520px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #1f2937; }
+        .modal-body { margin-bottom: 24px; }
+        .modal-footer { display: flex; gap: 12px; justify-content: flex-end; }
+
+        .btn { padding: 11px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
+        .btn-primary { background: #0891b2; color: white; }
+        .btn-secondary { background: #e5e7eb; color: #374151; }
+
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 10px; font-size: 13px; font-weight: 600; color: #374151; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 13px; }
+        
+        .color-swatch {
+            width: 100%;
+            height: 50px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s;
+        }
+        
+        .color-swatch:hover {
+            transform: scale(1.05);
+            border-color: #0891b2;
+            box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+        }
+        
+        /* Presentation Mode */
+        .present-mode {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .present-mode.active { display: flex; }
+        
+        .present-slide {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .present-canvas {
+            max-width: 90vw;
+            max-height: 90vh;
+            background: white;
+            box-shadow: 0 20px 80px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        
+        .present-controls {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 16px 32px;
+            border-radius: 50px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        
+        .present-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .present-btn:hover {
+            background: rgba(255,255,255,0.4);
+            transform: scale(1.1);
+        }
+        
+        .present-counter {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        /* Slide Transitions */
+        .slide-transition-fade {
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .slide-transition-slide {
+            animation: slideIn 0.5s ease;
+        }
+        
+        .slide-transition-zoom {
+            animation: zoomIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes zoomIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        /* Element Animations */
+        .animate-fadeIn {
+            animation: elementFadeIn 1s ease;
+        }
+        
+        .animate-slideInLeft {
+            animation: slideInLeft 1s ease;
+        }
+        
+        .animate-slideInRight {
+            animation: slideInRight 1s ease;
+        }
+        
+        .animate-slideInUp {
+            animation: slideInUp 1s ease;
+        }
+        
+        .animate-bounce {
+            animation: bounce 1s ease;
+        }
+        
+        @keyframes elementFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideInLeft {
+            from { transform: translateX(-100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideInUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-30px); }
+        }
     </style>
-  </head>
-  <body>
-    <div class="app-shell">
-      <header class="topbar">
-        <div class="topbar-group">
-          <button class="menu-button" title="Menu">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-          <div>
-            <div class="topbar-title">Untitled design – Presentation</div>
-            <div class="topbar-nav">
-              <span>File</span>
-              <span>Resize</span>
-              <span>Design</span>
-              <span>Insert</span>
-              <span>Animate</span>
-              <span>View</span>
-            </div>
-          </div>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <button class="header-btn" onclick="app.save()">Save</button>
+            <button class="header-btn" onclick="app.load()">Load</button>
+            <button class="header-btn" onclick="app.exportPDF()">Export PDF</button>
+            <button class="header-btn" onclick="app.undo()" id="undoBtn" disabled>Undo</button>
+            <button class="header-btn" onclick="app.redo()" id="redoBtn" disabled>Redo</button>
         </div>
-        <div class="topbar-actions">
-          <button class="circle-button" title="Undo">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v6h6M21 17a9 9 0 0 0-15.52-6.11L3 13" />
-            </svg>
-          </button>
-          <button class="circle-button" title="Redo">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21 7v6h-6M3 17a9 9 0 0 1 15.52-6.11L21 13" />
-            </svg>
-          </button>
-          <button class="pill-button">Share</button>
-          <button class="pill-button primary-button">Send to reviewer</button>
-          <div class="avatar">H</div>
-        </div>
-      </header>
-
-      <div class="workspace">
-        <nav class="left-rail">
-          <button class="rail-button active" title="Design">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="18" height="18">
-              <rect x="4" y="4" width="7" height="7" rx="1.5" />
-              <rect x="13" y="4" width="7" height="7" rx="1.5" />
-              <rect x="4" y="13" width="7" height="7" rx="1.5" />
-              <rect x="13" y="13" width="7" height="7" rx="1.5" />
-            </svg>
-          </button>
-          <button class="rail-button" title="Elements">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="18" height="18">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
-            </svg>
-          </button>
-          <button class="rail-button" title="Text">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="18" height="18">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M7 7v10m10-10-3 10" />
-            </svg>
-          </button>
-          <button class="rail-button" title="Uploads">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="18" height="18">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m4 16 4-4 4 4 4-4 4 4" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 20h16" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v6" />
-            </svg>
-          </button>
-          <button class="rail-button" title="Photos">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="18" height="18">
-              <circle cx="8.5" cy="8.5" r="2.5" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 20V7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v13" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="m4 15 3.5-3.5a1 1 0 0 1 1.5.1L12 15l2.5-2.5a1 1 0 0 1 1.5.1L20 17" />
-            </svg>
-          </button>
-          <button class="rail-button" title="Apps">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="18" height="18">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16M12 4v16" />
-            </svg>
-          </button>
-        </nav>
-
-        <main class="editor-area">
-          <div class="editor-toolbar">
-            <div class="toolbar-left">
-              <div class="toolbar-search">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M18 10.5a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" />
-                </svg>
-                <span>Search the editor</span>
-              </div>
-              <div class="toolbar-divider"></div>
-              <button id="btn-add-text" class="toolbar-button">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 6h14M8 6v12M16 6v12M5 18h14" />
-                </svg>
-                <span>Text box</span>
-              </button>
-              <button class="toolbar-button" id="btn-add-line">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16" />
-                </svg>
-                <span>Line</span>
-              </button>
-              <div class="toolbar-divider"></div>
-              <div style="position: relative;">
-                <button id="btn-add-shape" class="toolbar-button" aria-haspopup="menu" aria-expanded="false">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
-                    <rect x="5" y="5" width="14" height="14" rx="2" />
-                  </svg>
-                  <span>Shape</span>
-                </button>
-                <div id="shape-menu" class="shape-menu hidden" role="menu" aria-labelledby="btn-add-shape">
-                  <button data-shape="rectangle" role="menuitem">▭ Rectangle</button>
-                  <button data-shape="circle" role="menuitem">◯ Circle</button>
-                  <button data-shape="triangle" role="menuitem">△ Triangle</button>
-                  <button data-shape="diamond" role="menuitem">◇ Diamond</button>
-                  <button data-shape="arrow" role="menuitem">➤ Arrow</button>
-                  <button data-shape="line" role="menuitem">━ Line</button>
+        <div class="header-right">
+            <input type="text" class="title-input" id="title" placeholder="Untitled Presentation" />
+            <div style="position: relative;">
+                <button class="share-btn" onclick="app.toggleShare()">Share</button>
+                <div class="dropdown-menu" id="shareMenu">
+                    <div class="dropdown-item" onclick="app.shareEmail()">Send via Email</div>
+                    <div class="dropdown-item" onclick="app.download()">Download to Device</div>
+                    <div class="dropdown-item" onclick="app.shareLink()">Generate Share Link</div>
                 </div>
-              </div>
-              <button class="toolbar-button">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-                <span>Guides</span>
-              </button>
-              <button class="toolbar-button">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16v16H4z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m9 13 2-2 3 4" />
-                </svg>
-                <span>Image</span>
-              </button>
             </div>
-            <div class="toolbar-right">
-              <button class="toolbar-button">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16M4 12h16M4 19h16" />
-                </svg>
-                <span>Layout</span>
-              </button>
-              <button class="toolbar-button">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m3 3 18 18M21 3 3 21" />
-                </svg>
-                <span>Theme</span>
-              </button>
-              <button class="toolbar-button">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m4 4 8 8-8 8M12 12h8" />
-                </svg>
-                <span>Transitions</span>
-              </button>
-              <button id="toggle-properties" class="toolbar-button">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12M6 12h12" />
-                </svg>
-                <span>Properties</span>
-              </button>
-            </div>
-          </div>
-
-          <section class="board-area">
-            <div class="canvas-wrapper">
-              <div id="slide-stage">
-                <div id="stage-placeholder">Use “Text box” or “Shape” to start designing ⚡️</div>
-              </div>
-            </div>
-          </section>
-
-          <div class="slide-dock">
-            <div class="dock-left">
-              <button id="btn-add-slide" title="Add slide">+</button>
-              <ol id="slide-list" class="slide-strip"></ol>
-            </div>
-            <div class="dock-center">
-              <div class="progress-track">
-                <div id="progress-fill" class="progress-fill"></div>
-              </div>
-              <span id="progress-label" class="progress-label">Slide 1 of 1</span>
-            </div>
-            <div class="dock-right">
-              <button title="Zoom out">−</button>
-              <span class="zoom-display">100%</span>
-              <button title="Zoom in">+</button>
-            </div>
-          </div>
-        </main>
-      </div>
-
-      <aside id="properties-panel" class="properties-panel" aria-live="polite">
-        <div class="properties-header">
-          <div>
-            <span class="properties-title">Properties</span>
-            <p id="properties-subtitle" class="properties-subtitle">No selection</p>
-          </div>
-          <button class="properties-close" id="close-properties" title="Close properties">×</button>
         </div>
-        <div id="properties-content" class="properties-content">
-          <div class="properties-empty">Select an element to edit properties</div>
-        </div>
-      </aside>
     </div>
 
-    <template id="slide-template">
-      <li class="slide-thumb">
-        <div class="thumb-canvas"></div>
-        <div class="thumb-label">Slide <span data-index></span></div>
-      </li>
-    </template>
+    <div class="toolbar">
+        <button class="tool-btn" onclick="app.addText()">Text</button>
+        <button class="tool-btn" onclick="app.showShapes()">Shape</button>
+        <button class="tool-btn" onclick="app.addImage()">Image</button>
+        <button class="tool-btn" onclick="app.showTable()">Table</button>
+        
+        <div class="tool-divider"></div>
+        
+        <select class="tool-btn" id="font" onchange="app.changeFont()">
+            <option>Arial</option>
+            <option>Helvetica</option>
+            <option>Times New Roman</option>
+            <option>Georgia</option>
+            <option>Courier New</option>
+        </select>
+        
+        <input type="number" class="tool-btn" id="size" value="16" min="8" max="200" onchange="app.changeSize()" />
+        
+        <select class="tool-btn" id="weight" onchange="app.changeWeight()">
+            <option value="300">Light</option>
+            <option value="400" selected>Regular</option>
+            <option value="700">Bold</option>
+        </select>
+        
+        <input type="color" id="color" value="#000000" onchange="app.changeColor()" />
+        <input type="color" id="bg" value="#ffffff" onchange="app.changeBg()" />
+        
+        <div class="tool-divider"></div>
+        
+        <button class="tool-btn" onclick="app.align('left')">Left</button>
+        <button class="tool-btn" onclick="app.align('center')">Center</button>
+        <button class="tool-btn" onclick="app.align('right')">Right</button>
+        
+        <div class="tool-divider"></div>
+        
+        <button class="tool-btn" onclick="app.copyStyle()">Copy Style</button>
+        <button class="tool-btn" onclick="app.pasteStyle()">Paste Style</button>
+        
+        <div class="tool-divider"></div>
+        
+        <button class="tool-btn" onclick="app.setBgColor()">Background</button>
+        <button class="tool-btn" onclick="app.addShadow()">Shadow</button>
+        <button class="tool-btn" onclick="app.showAnimations()">Animate</button>
+        
+        <div class="tool-divider"></div>
+        
+        <button class="tool-btn" onclick="app.forward()">Forward</button>
+        <button class="tool-btn" onclick="app.backward()">Backward</button>
+        
+        <div class="tool-divider"></div>
+        
+        <button class="tool-btn" onclick="app.presentMode()" style="background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%); color: white; font-weight: 600;">▶ Present</button>
+    </div>
+
+    <div class="container">
+        <div class="sidebar" id="sidebarSlides">
+            <div class="sidebar-header">Slides</div>
+        </div>
+
+        <div class="canvas-area">
+            <div class="canvas-wrapper" id="wrapper">
+                <div class="canvas" id="canvas"></div>
+                <button class="add-slide-btn" onclick="app.addSlide()">
+                    <span style="font-size: 24px;">+</span>
+                    <span>Add New Slide</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-bar">
+        <div class="slides-section">
+            <div class="slide-controls" id="slides"></div>
+            <button class="control-btn" onclick="app.showSlideOptions()">▼</button>
+        </div>
+        <div class="zoom-control">
+            <input type="range" class="zoom-slider" min="25" max="200" value="100" oninput="app.zoom(this.value)">
+            <span class="zoom-value" id="zoom">100%</span>
+        </div>
+    </div>
+
+    <div class="context-menu" id="menu">
+        <div class="context-menu-item" onclick="app.duplicate()">Duplicate (Ctrl+D)</div>
+        <div class="context-menu-item" onclick="app.deleteEl()">Delete (Del)</div>
+        <div class="context-menu-item" onclick="app.copyStyle()">Copy Style</div>
+        <div class="context-menu-item" onclick="app.pasteStyle()">Paste Style</div>
+        <div class="context-menu-item" onclick="app.forward()">Bring Forward</div>
+        <div class="context-menu-item" onclick="app.backward()">Send Backward</div>
+    </div>
+
+    <div class="modal" id="bgModal">
+        <div class="modal-content">
+            <div class="modal-header">Choose Background</div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Solid Colors:</label>
+                    <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 12px; margin-bottom: 20px;">
+                        <div class="color-swatch" style="background: #ffffff;" onclick="app.applyBg('#ffffff')"></div>
+                        <div class="color-swatch" style="background: #f3f4f6;" onclick="app.applyBg('#f3f4f6')"></div>
+                        <div class="color-swatch" style="background: #1f2937;" onclick="app.applyBg('#1f2937')"></div>
+                        <div class="color-swatch" style="background: #ef4444;" onclick="app.applyBg('#ef4444')"></div>
+                        <div class="color-swatch" style="background: #f59e0b;" onclick="app.applyBg('#f59e0b')"></div>
+                        <div class="color-swatch" style="background: #10b981;" onclick="app.applyBg('#10b981')"></div>
+                        <div class="color-swatch" style="background: #3b82f6;" onclick="app.applyBg('#3b82f6')"></div>
+                        <div class="color-swatch" style="background: #8b5cf6;" onclick="app.applyBg('#8b5cf6')"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Gradients:</label>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
+                        <div class="color-swatch" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" onclick="app.applyBg('linear-gradient(135deg, #667eea 0%, #764ba2 100%)')"></div>
+                        <div class="color-swatch" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" onclick="app.applyBg('linear-gradient(135deg, #f093fb 0%, #f5576c 100%)')"></div>
+                        <div class="color-swatch" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);" onclick="app.applyBg('linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)')"></div>
+                        <div class="color-swatch" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);" onclick="app.applyBg('linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)')"></div>
+                        <div class="color-swatch" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);" onclick="app.applyBg('linear-gradient(135deg, #fa709a 0%, #fee140 100%)')"></div>
+                        <div class="color-swatch" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);" onclick="app.applyBg('linear-gradient(135deg, #30cfd0 0%, #330867 100%)')"></div>
+                        <div class="color-swatch" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);" onclick="app.applyBg('linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)')"></div>
+                        <div class="color-swatch" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);" onclick="app.applyBg('linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)')"></div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="app.uploadBgImage()">Upload Image</button>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="app.closeModal('bgModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="animModal">
+        <div class="modal-content">
+            <div class="modal-header">Choose Animation</div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+                    <button class="tool-btn" onclick="app.applyAnimation('none')" style="justify-content: flex-start; padding: 16px;">
+                        <strong>No Animation</strong>
+                    </button>
+                    <button class="tool-btn" onclick="app.applyAnimation('fadeIn')" style="justify-content: flex-start; padding: 16px;">
+                        <strong>Fade In</strong> - Element fades in smoothly
+                    </button>
+                    <button class="tool-btn" onclick="app.applyAnimation('slideInLeft')" style="justify-content: flex-start; padding: 16px;">
+                        <strong>Slide In Left</strong> - Slides from left side
+                    </button>
+                    <button class="tool-btn" onclick="app.applyAnimation('slideInRight')" style="justify-content: flex-start; padding: 16px;">
+                        <strong>Slide In Right</strong> - Slides from right side
+                    </button>
+                    <button class="tool-btn" onclick="app.applyAnimation('slideInUp')" style="justify-content: flex-start; padding: 16px;">
+                        <strong>Slide In Up</strong> - Slides from bottom
+                    </button>
+                    <button class="tool-btn" onclick="app.applyAnimation('bounce')" style="justify-content: flex-start; padding: 16px;">
+                        <strong>Bounce</strong> - Bouncing effect
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="app.closeModal('animModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="shapeModal">
+        <div class="modal-content">
+            <div class="modal-header">Select Shape</div>
+            <div class="modal-body" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                <button class="tool-btn" onclick="app.addShape('rect')">Rectangle</button>
+                <button class="tool-btn" onclick="app.addShape('circle')">Circle</button>
+                <button class="tool-btn" onclick="app.addShape('triangle')">Triangle</button>
+                <button class="tool-btn" onclick="app.addShape('line')">Line</button>
+                <button class="tool-btn" onclick="app.addShape('arrow')">Arrow</button>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="app.closeModal('shapeModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="tableModal">
+        <div class="modal-content">
+            <div class="modal-header">Create Table</div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Rows:</label>
+                    <input type="number" id="rows" value="3" min="1" max="20" />
+                </div>
+                <div class="form-group">
+                    <label>Columns:</label>
+                    <input type="number" id="cols" value="3" min="1" max="10" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="app.closeModal('tableModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="app.createTable()">Create</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-      const slideList = document.getElementById('slide-list');
-      const slideTemplate = document.getElementById('slide-template');
-      const progressFill = document.getElementById('progress-fill');
-      const progressLabel = document.getElementById('progress-label');
-      const addSlideBtn = document.getElementById('btn-add-slide');
-      const addTextBtn = document.getElementById('btn-add-text');
-      const addShapeBtn = document.getElementById('btn-add-shape');
-      const shapeMenu = document.getElementById('shape-menu');
-      const stage = document.getElementById('slide-stage');
-      const stagePlaceholder = document.getElementById('stage-placeholder');
-      const propertiesPanel = document.getElementById('properties-panel');
-      const propertiesContent = document.getElementById('properties-content');
-      const propertiesSubtitle = document.getElementById('properties-subtitle');
-      const togglePropertiesBtn = document.getElementById('toggle-properties');
-      const closePropertiesBtn = document.getElementById('close-properties');
+        const app = {
+            data: [{ id: 1, els: [], bg: '#ffffff', transition: 'fade' }],
+            curr: 0,
+            sel: null,
+            drag: false,
+            resize: false,
+            handle: null,
+            sx: 0, sy: 0, sw: 0, sh: 0, sl: 0, st: 0,
+            hist: [],
+            idx: -1,
+            ctr: 0,
+            snapThreshold: 8,
+            guides: [],
+            copiedStyle: null,
+            presenting: false,
+            presentSlide: 0,
 
-      const state = {
-        slides: [{ id: 'slide-1', elements: [] }],
-        current: 0,
-        selected: null,
-        counter: 0,
-        isEditing: false,
-      };
+            init() {
+                this.renderSlides();
+                this.renderSidebarSlides();
+                this.loadCanvas();
+                const saved = localStorage.getItem('pres');
+                if (saved) {
+                    const d = JSON.parse(saved);
+                    this.data = d.slides;
+                    document.getElementById('title').value = d.title || '';
+                    this.renderSlides();
+                    this.renderSidebarSlides();
+                    this.loadCanvas();
+                }
+                this.saveState();
+                
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.share-btn')) {
+                        document.getElementById('shareMenu').classList.remove('show');
+                    }
+                    if (!e.target.closest('.context-menu')) {
+                        document.getElementById('menu').style.display = 'none';
+                    }
+                });
+                
+                document.addEventListener('mousemove', (e) => this.onMove(e));
+                document.addEventListener('mouseup', () => {
+                    if (this.drag || this.resize) {
+                        this.saveState();
+                        this.clearGuides();
+                    }
+                    this.drag = false;
+                    this.resize = false;
+                });
+                
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey || e.metaKey) {
+                        if (e.key === 'd') {
+                            e.preventDefault();
+                            this.duplicate();
+                        }
+                    }
+                    if (e.key === 'Delete' && this.sel) {
+                        this.deleteEl();
+                    }
+                    if (e.key === 'Escape') {
+                        if (this.sel) {
+                            this.sel.classList.remove('selected');
+                            this.sel = null;
+                        }
+                    }
+                });
+                
+                document.getElementById('canvas').addEventListener('click', (e) => {
+                    if (e.target === document.getElementById('canvas') && this.sel) {
+                        this.sel.classList.remove('selected');
+                        this.sel = null;
+                    }
+                });
+            },
 
-      const SHAPE_PRESETS = {
-        rectangle: { label: 'Rectangle', width: 260, height: 180, fill: '#e2e8f0', stroke: '#0ea5e9', strokeWidth: 2, borderRadius: 28 },
-        circle: { label: 'Circle', width: 200, height: 200, fill: '#bae6fd', stroke: '#0284c7', strokeWidth: 2, borderRadius: 999 },
-        triangle: { label: 'Triangle', width: 240, height: 200, fill: '#fde68a', stroke: '#f59e0b', strokeWidth: 2, borderRadius: 0 },
-        diamond: { label: 'Diamond', width: 240, height: 180, fill: '#f5d0fe', stroke: '#d946ef', strokeWidth: 2, borderRadius: 0 },
-        arrow: { label: 'Arrow', width: 280, height: 180, fill: '#c7d2fe', stroke: '#6562f0', strokeWidth: 2, borderRadius: 0 },
-        line: { label: 'Line', width: 320, height: 14, fill: 'none', stroke: '#0f172a', strokeWidth: 6, borderRadius: 0 },
-      };
+            saveState() {
+                const s = { data: JSON.parse(JSON.stringify(this.data)), curr: this.curr };
+                this.hist = this.hist.slice(0, this.idx + 1);
+                this.hist.push(s);
+                this.idx++;
+                if (this.hist.length > 50) {
+                    this.hist.shift();
+                    this.idx--;
+                }
+                document.getElementById('undoBtn').disabled = this.idx <= 0;
+                document.getElementById('redoBtn').disabled = this.idx >= this.hist.length - 1;
+            },
 
-      function clamp(value, min, max) {
-        return Math.min(Math.max(value, min), max);
-      }
+            undo() {
+                if (this.idx > 0) {
+                    this.idx--;
+                    const s = this.hist[this.idx];
+                    this.data = JSON.parse(JSON.stringify(s.data));
+                    this.curr = s.curr;
+                    this.renderSlides();
+                    this.loadCanvas();
+                    document.getElementById('undoBtn').disabled = this.idx <= 0;
+                    document.getElementById('redoBtn').disabled = this.idx >= this.hist.length - 1;
+                }
+            },
 
-      function openPropertiesPanel() {
-        propertiesPanel?.classList.add('open');
-      }
-      function closePropertiesPanel() {
-        propertiesPanel?.classList.remove('open');
-      }
+            redo() {
+                if (this.idx < this.hist.length - 1) {
+                    this.idx++;
+                    const s = this.hist[this.idx];
+                    this.data = JSON.parse(JSON.stringify(s.data));
+                    this.curr = s.curr;
+                    this.renderSlides();
+                    this.loadCanvas();
+                    document.getElementById('undoBtn').disabled = this.idx <= 0;
+                    document.getElementById('redoBtn').disabled = this.idx >= this.hist.length - 1;
+                }
+            },
 
-      togglePropertiesBtn?.addEventListener('click', () => {
-        propertiesPanel.classList.toggle('open');
-      });
-      closePropertiesBtn?.addEventListener('click', closePropertiesPanel);
+            addText() {
+                const el = {
+                    id: ++this.ctr,
+                    type: 'text',
+                    text: 'Double-click to edit',
+                    x: 100, y: 100, w: 250, h: 60,
+                    font: 'Arial', size: 20, weight: 400,
+                    color: '#000000', bg: 'transparent', align: 'left'
+                };
+                this.data[this.curr].els.push(el);
+                this.saveState();
+                this.loadCanvas();
+            },
 
-      function updateProgress() {
-        const total = state.slides.length || 1;
-        const active = state.current + 1;
-        const ratio = Math.max(active / total, 1 / total);
-        progressFill.style.width = \`\${ratio * 100}%\`;
-        progressLabel.textContent = \`Slide \${active} of \${total}\`;
-      }
+            showShapes() {
+                document.getElementById('shapeModal').classList.add('show');
+            },
 
-      function renderSlides() {
-        slideList.innerHTML = '';
-        state.slides.forEach((slide, index) => {
-          const clone = slideTemplate.content.firstElementChild.cloneNode(true);
-          clone.dataset.index = index;
-          clone.querySelector('[data-index]').textContent = index + 1;
-          if (index === state.current) {
-            clone.classList.add('active');
-          }
-          clone.addEventListener('click', () => {
-            state.isEditing = false;
-            state.current = index;
-            state.selected = null;
-            renderSlides();
-            renderStage();
-            renderProperties();
-          });
-          slideList.appendChild(clone);
-        });
-        updateProgress();
-      }
+            addShape(type) {
+                this.closeModal('shapeModal');
+                const el = {
+                    id: ++this.ctr,
+                    type: 'shape',
+                    shape: type,
+                    x: 150, y: 150, w: 150, h: 150,
+                    border: '#0891b2', thick: 2, bg: 'transparent'
+                };
+                this.data[this.curr].els.push(el);
+                this.saveState();
+                this.loadCanvas();
+            },
 
-      function createShapeConfig(variant = 'rectangle') {
-        const preset = SHAPE_PRESETS[variant] || SHAPE_PRESETS.rectangle;
-        return {
-          variant,
-          width: preset.width,
-          height: preset.height,
-          fill: preset.fill,
-          stroke: preset.stroke,
-          strokeWidth: preset.strokeWidth,
-          borderRadius: preset.borderRadius,
+            addImage() {
+                const inp = document.createElement('input');
+                inp.type = 'file';
+                inp.accept = 'image/*';
+                inp.onchange = (e) => {
+                    const f = e.target.files[0];
+                    if (f) {
+                        const r = new FileReader();
+                        r.onload = (ev) => {
+                            const el = {
+                                id: ++this.ctr,
+                                type: 'img',
+                                src: ev.target.result,
+                                x: 100, y: 100, w: 300, h: 300
+                            };
+                            this.data[this.curr].els.push(el);
+                            this.saveState();
+                            this.loadCanvas();
+                        };
+                        r.readAsDataURL(f);
+                    }
+                };
+                inp.click();
+            },
+
+            showTable() {
+                document.getElementById('tableModal').classList.add('show');
+            },
+
+            createTable() {
+                const r = parseInt(document.getElementById('rows').value);
+                const c = parseInt(document.getElementById('cols').value);
+                this.closeModal('tableModal');
+                const el = {
+                    id: ++this.ctr,
+                    type: 'table',
+                    rows: r, cols: c,
+                    x: 100, y: 100,
+                    cw: 100, ch: 40,
+                    data: Array(r).fill().map(() => Array(c).fill(''))
+                };
+                this.data[this.curr].els.push(el);
+                this.saveState();
+                this.loadCanvas();
+            },
+
+            loadCanvas() {
+                const can = document.getElementById('canvas');
+                can.innerHTML = '';
+                can.style.backgroundColor = this.data[this.curr].bg || '#ffffff';
+                
+                this.data[this.curr].els.forEach(el => {
+                    const div = this.createEl(el);
+                    can.appendChild(div);
+                });
+            },
+
+            createEl(el) {
+                const d = document.createElement('div');
+                d.className = 'canvas-element';
+                d.dataset.id = el.id;
+                d.style.left = el.x + 'px';
+                d.style.top = el.y + 'px';
+                d.style.width = el.w + 'px';
+                d.style.height = el.h + 'px';
+
+                if (el.type === 'text') {
+                    d.className += ' text-element';
+                    d.contentEditable = true;
+                    d.textContent = el.text;
+                    d.style.fontSize = el.size + 'px';
+                    d.style.fontFamily = el.font;
+                    d.style.fontWeight = el.weight;
+                    d.style.color = el.color;
+                    d.style.backgroundColor = el.bg;
+                    d.style.textAlign = el.align;
+                    d.style.whiteSpace = 'pre-wrap';
+                    d.style.wordWrap = 'break-word';
+                    
+                    d.addEventListener('blur', () => {
+                        el.text = d.textContent;
+                        this.saveState();
+                    });
+                    
+                    d.addEventListener('dblclick', (e) => {
+                        e.stopPropagation();
+                        d.focus();
+                        const range = document.createRange();
+                        range.selectNodeContents(d);
+                        const sel = window.getSelection();
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    });
+                    
+                    d.addEventListener('focus', () => {
+                        d.dataset.editing = 'true';
+                    });
+                    
+                    d.addEventListener('blur', () => {
+                        delete d.dataset.editing;
+                    });
+                    if (el.shadow) {
+                        d.style.boxShadow = el.shadow;
+                    }
+                } else if (el.type === 'shape') {
+                    d.className += ' shape-element';
+                    d.style.borderColor = el.border;
+                    d.style.borderWidth = el.thick + 'px';
+                    d.style.borderStyle = 'solid';
+                    d.style.backgroundColor = el.bg;
+                    
+                    if (el.shape === 'circle') {
+                        d.style.borderRadius = '50%';
+                    } else if (el.shape === 'triangle') {
+                        d.style.width = '0';
+                        d.style.height = '0';
+                        d.style.borderLeft = (el.w/2) + 'px solid transparent';
+                        d.style.borderRight = (el.w/2) + 'px solid transparent';
+                        d.style.borderBottom = el.h + 'px solid ' + el.border;
+                        d.style.backgroundColor = 'transparent';
+                        d.style.borderTop = 'none';
+                    } else if (el.shape === 'line') {
+                        d.style.height = el.thick + 'px';
+                        d.style.backgroundColor = el.border;
+                        d.style.border = 'none';
+                    } else if (el.shape === 'arrow') {
+                        d.style.height = el.thick + 'px';
+                        d.style.backgroundColor = el.border;
+                        d.style.border = 'none';
+                        d.innerHTML = '<div style="position:absolute;right:-10px;top:-' + (5+el.thick/2) + 'px;width:0;height:0;border-left:10px solid ' + el.border + ';border-top:5px solid transparent;border-bottom:5px solid transparent;"></div>';
+                    }
+                } else if (el.type === 'img') {
+                    d.className += ' image-element';
+                    d.style.backgroundImage = `url(${el.src})`;
+                } else if (el.type === 'table') {
+                    const t = document.createElement('table');
+                    t.className = 'table-element';
+                    for (let i = 0; i < el.rows; i++) {
+                        const tr = document.createElement('tr');
+                        for (let j = 0; j < el.cols; j++) {
+                            const td = document.createElement('td');
+                            td.contentEditable = true;
+                            td.textContent = el.data[i][j];
+                            td.style.width = el.cw + 'px';
+                            td.style.height = el.ch + 'px';
+                            td.addEventListener('blur', () => {
+                                el.data[i][j] = td.textContent;
+                                this.saveState();
+                            });
+                            tr.appendChild(td);
+                        }
+                        t.appendChild(tr);
+                    }
+                    d.appendChild(t);
+                }
+
+                ['nw', 'ne', 'sw', 'se'].forEach(p => {
+                    const h = document.createElement('div');
+                    h.className = 'resize-handle ' + p;
+                    h.addEventListener('mousedown', (e) => this.startResize(e, d, p));
+                    d.appendChild(h);
+                });
+
+                d.addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                    this.startDrag(e, d);
+                });
+                
+                d.addEventListener('contextmenu', (e) => this.showMenu(e, d));
+
+                return d;
+            },
+
+            startDrag(e, d) {
+                if (e.target.classList.contains('resize-handle')) return;
+                
+                const isText = d.classList.contains('text-element');
+                const isEditing = d.dataset.editing === 'true';
+                
+                if (isEditing) return;
+                
+                if (this.sel && this.sel !== d) {
+                    this.sel.classList.remove('selected');
+                }
+                
+                this.sel = d;
+                this.sel.classList.add('selected');
+                
+                if (isText && e.detail === 2) return;
+                
+                this.drag = true;
+                this.sx = e.offsetX;
+                this.sy = e.offsetY;
+            },
+
+            startResize(e, d, p) {
+                e.stopPropagation();
+                if (this.sel) this.sel.classList.remove('selected');
+                this.sel = d;
+                this.sel.classList.add('selected');
+                this.resize = true;
+                this.handle = p;
+                this.sx = e.clientX;
+                this.sy = e.clientY;
+                this.sw = d.offsetWidth;
+                this.sh = d.offsetHeight;
+                this.sl = d.offsetLeft;
+                this.st = d.offsetTop;
+                e.preventDefault();
+            },
+
+            onMove(e) {
+                if (this.drag && this.sel) {
+                    const cr = document.getElementById('canvas').getBoundingClientRect();
+                    let nl = e.clientX - cr.left - this.sx;
+                    let nt = e.clientY - cr.top - this.sy;
+                    
+                    const maxL = cr.width - this.sel.offsetWidth;
+                    const maxT = cr.height - this.sel.offsetHeight;
+                    
+                    // Clear old guides
+                    this.clearGuides();
+                    
+                    // Smart snapping
+                    const snapResult = this.getSnapPosition(nl, nt, this.sel.offsetWidth, this.sel.offsetHeight);
+                    nl = snapResult.x;
+                    nt = snapResult.y;
+                    
+                    // Draw guides
+                    snapResult.guides.forEach(guide => this.drawGuide(guide));
+                    
+                    this.sel.style.left = Math.max(0, Math.min(nl, maxL)) + 'px';
+                    this.sel.style.top = Math.max(0, Math.min(nt, maxT)) + 'px';
+                    
+                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                    if (el) {
+                        el.x = parseInt(this.sel.style.left);
+                        el.y = parseInt(this.sel.style.top);
+                    }
+                } else if (this.resize && this.sel) {
+                    const dx = e.clientX - this.sx;
+                    const dy = e.clientY - this.sy;
+                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                    
+                    if (this.handle === 'se') {
+                        const nw = Math.max(50, this.sw + dx);
+                        const nh = Math.max(50, this.sh + dy);
+                        this.sel.style.width = nw + 'px';
+                        this.sel.style.height = nh + 'px';
+                        if (el) { el.w = nw; el.h = nh; }
+                    } else if (this.handle === 'sw') {
+                        const nw = Math.max(50, this.sw - dx);
+                        const nh = Math.max(50, this.sh + dy);
+                        this.sel.style.width = nw + 'px';
+                        this.sel.style.height = nh + 'px';
+                        this.sel.style.left = (this.sl + dx) + 'px';
+                        if (el) { el.w = nw; el.h = nh; el.x = parseInt(this.sel.style.left); }
+                    } else if (this.handle === 'ne') {
+                        const nw = Math.max(50, this.sw + dx);
+                        const nh = Math.max(50, this.sh - dy);
+                        this.sel.style.width = nw + 'px';
+                        this.sel.style.height = nh + 'px';
+                        this.sel.style.top = (this.st + dy) + 'px';
+                        if (el) { el.w = nw; el.h = nh; el.y = parseInt(this.sel.style.top); }
+                    } else if (this.handle === 'nw') {
+                        const nw = Math.max(50, this.sw - dx);
+                        const nh = Math.max(50, this.sh - dy);
+                        this.sel.style.width = nw + 'px';
+                        this.sel.style.height = nh + 'px';
+                        this.sel.style.left = (this.sl + dx) + 'px';
+                        this.sel.style.top = (this.st + dy) + 'px';
+                        if (el) { el.w = nw; el.h = nh; el.x = parseInt(this.sel.style.left); el.y = parseInt(this.sel.style.top); }
+                    }
+                }
+            },
+
+            getSnapPosition(x, y, w, h) {
+                const canvas = document.getElementById('canvas');
+                const canvasW = 960;
+                const canvasH = 540;
+                const threshold = this.snapThreshold;
+                const guides = [];
+                
+                let snapX = x;
+                let snapY = y;
+                
+                // Canvas center lines
+                const centerX = canvasW / 2;
+                const centerY = canvasH / 2;
+                const elCenterX = x + w / 2;
+                const elCenterY = y + h / 2;
+                
+                // Snap to canvas center
+                if (Math.abs(elCenterX - centerX) < threshold) {
+                    snapX = centerX - w / 2;
+                    guides.push({ type: 'vertical', pos: centerX });
+                }
+                if (Math.abs(elCenterY - centerY) < threshold) {
+                    snapY = centerY - h / 2;
+                    guides.push({ type: 'horizontal', pos: centerY });
+                }
+                
+                // Snap to edges
+                if (Math.abs(x) < threshold) {
+                    snapX = 0;
+                    guides.push({ type: 'vertical', pos: 0 });
+                }
+                if (Math.abs(y) < threshold) {
+                    snapY = 0;
+                    guides.push({ type: 'horizontal', pos: 0 });
+                }
+                if (Math.abs(x + w - canvasW) < threshold) {
+                    snapX = canvasW - w;
+                    guides.push({ type: 'vertical', pos: canvasW });
+                }
+                if (Math.abs(y + h - canvasH) < threshold) {
+                    snapY = canvasH - h;
+                    guides.push({ type: 'horizontal', pos: canvasH });
+                }
+                
+                // Snap to other elements
+                this.data[this.curr].els.forEach(el => {
+                    if (this.sel && el.id == this.sel.dataset.id) return;
+                    
+                    const ex = el.x;
+                    const ey = el.y;
+                    const ew = el.w;
+                    const eh = el.h;
+                    
+                    // Left edges align
+                    if (Math.abs(x - ex) < threshold) {
+                        snapX = ex;
+                        guides.push({ type: 'vertical', pos: ex });
+                    }
+                    // Right edges align
+                    if (Math.abs((x + w) - (ex + ew)) < threshold) {
+                        snapX = ex + ew - w;
+                        guides.push({ type: 'vertical', pos: ex + ew });
+                    }
+                    // Top edges align
+                    if (Math.abs(y - ey) < threshold) {
+                        snapY = ey;
+                        guides.push({ type: 'horizontal', pos: ey });
+                    }
+                    // Bottom edges align
+                    if (Math.abs((y + h) - (ey + eh)) < threshold) {
+                        snapY = ey + eh - h;
+                        guides.push({ type: 'horizontal', pos: ey + eh });
+                    }
+                    
+                    // Center alignment with other elements
+                    const elOtherCenterX = ex + ew / 2;
+                    const elOtherCenterY = ey + eh / 2;
+                    
+                    if (Math.abs(elCenterX - elOtherCenterX) < threshold) {
+                        snapX = elOtherCenterX - w / 2;
+                        guides.push({ type: 'vertical', pos: elOtherCenterX });
+                    }
+                    if (Math.abs(elCenterY - elOtherCenterY) < threshold) {
+                        snapY = elOtherCenterY - h / 2;
+                        guides.push({ type: 'horizontal', pos: elOtherCenterY });
+                    }
+                });
+                
+                // Grid snapping (20px grid)
+                const gridSize = 20;
+                const gridSnapX = Math.round(x / gridSize) * gridSize;
+                const gridSnapY = Math.round(y / gridSize) * gridSize;
+                
+                if (Math.abs(x - gridSnapX) < threshold && guides.length === 0) {
+                    snapX = gridSnapX;
+                }
+                if (Math.abs(y - gridSnapY) < threshold && guides.length === 0) {
+                    snapY = gridSnapY;
+                }
+                
+                return { x: snapX, y: snapY, guides };
+            },
+
+            drawGuide(guide) {
+                const canvas = document.getElementById('canvas');
+                const line = document.createElement('div');
+                line.className = 'guide-line ' + guide.type;
+                
+                if (guide.type === 'horizontal') {
+                    line.style.top = guide.pos + 'px';
+                } else {
+                    line.style.left = guide.pos + 'px';
+                }
+                
+                canvas.appendChild(line);
+                this.guides.push(line);
+                
+                // Auto remove after 1 second
+                setTimeout(() => {
+                    if (line.parentNode) line.remove();
+                }, 1000);
+            },
+
+            clearGuides() {
+                this.guides.forEach(g => {
+                    if (g.parentNode) g.remove();
+                });
+                this.guides = [];
+            },
+
+            showMenu(e, d) {
+                e.preventDefault();
+                if (this.sel) this.sel.classList.remove('selected');
+                this.sel = d;
+                this.sel.classList.add('selected');
+                const m = document.getElementById('menu');
+                m.style.display = 'block';
+                m.style.left = e.clientX + 'px';
+                m.style.top = e.clientY + 'px';
+            },
+
+            duplicate() {
+                if (this.sel) {
+                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                    if (el) {
+                        const dup = JSON.parse(JSON.stringify(el));
+                        dup.id = ++this.ctr;
+                        dup.x += 20;
+                        dup.y += 20;
+                        this.data[this.curr].els.push(dup);
+                        this.saveState();
+                        this.loadCanvas();
+                    }
+                }
+            },
+
+            deleteEl() {
+                if (this.sel) {
+                    this.data[this.curr].els = this.data[this.curr].els.filter(e => e.id != this.sel.dataset.id);
+                    this.sel = null;
+                    this.saveState();
+                    this.loadCanvas();
+                }
+            },
+
+            forward() {
+                if (this.sel) this.sel.style.zIndex = 1000;
+            },
+
+            backward() {
+                if (this.sel) this.sel.style.zIndex = 1;
+            },
+
+            changeFont() {
+                if (this.sel) {
+                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                    if (el && el.type === 'text') {
+                        el.font = document.getElementById('font').value;
+                        this.sel.style.fontFamily = el.font;
+                        this.saveState();
+                    }
+                }
+            },
+
+            changeSize() {
+                if (this.sel) {
+                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                    if (el && el.type === 'text') {
+                        el.size = parseInt(document.getElementById('size').value);
+                        this.sel.style.fontSize = el.size + 'px';
+                        this.saveState();
+                    }
+                }
+            },
+
+            changeWeight() {
+                if (this.sel) {
+                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                    if (el && el.type === 'text') {
+                        el.weight = parseInt(document.getElementById('weight').value);
+                        this.sel.style.fontWeight = el.weight;
+                        this.saveState();
+                    }
+                }
+            },
+
+            changeColor() {
+                if (this.sel) {
+                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                    if (el) {
+                        if (el.type === 'text') {
+                            el.color = document.getElementById('color').value;
+                            this.sel.style.color = el.color;
+                        } else if (el.type === 'shape') {
+                            el.border = document.getElementById('color').value;
+                            this.sel.style.borderColor = el.border;
+                        }
+                        this.saveState();
+                    }
+                }
+            },
+
+            changeBg() {
+                if (this.sel) {
+                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                    if (el) {
+                        el.bg = document.getElementById('bg').value;
+                        this.sel.style.backgroundColor = el.bg;
+                        this.saveState();
+                    }
+                }
+            },
+
+            align(dir) {
+                if (this.sel) {
+                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                    if (el && el.type === 'text') {
+                        el.align = dir;
+                        this.sel.style.textAlign = dir;
+                        this.saveState();
+                    }
+                }
+            },
+
+            zoom(v) {
+                document.getElementById('zoom').textContent = v + '%';
+                document.getElementById('wrapper').style.transform = `scale(${v / 100})`;
+            },
+
+            addSlide() {
+                this.data.push({ id: this.data.length + 1, els: [], bg: '#ffffff', transition: 'fade' });
+                this.curr = this.data.length - 1;
+                this.saveState();
+                this.renderSlides();
+                this.renderSidebarSlides();
+                this.loadCanvas();
+            },
+
+            selectSlide(i) {
+                this.curr = i;
+                this.renderSlides();
+                this.renderSidebarSlides();
+                this.loadCanvas();
+            },
+
+            deleteSlide(i) {
+                if (this.data.length > 1) {
+                    this.data.splice(i, 1);
+                    if (this.curr >= this.data.length) this.curr = this.data.length - 1;
+                    this.saveState();
+                    this.renderSlides();
+                    this.renderSidebarSlides();
+                    this.loadCanvas();
+                }
+            },
+
+            renderSidebarSlides() {
+                const sidebar = document.getElementById('sidebarSlides');
+                const header = sidebar.querySelector('.sidebar-header');
+                sidebar.innerHTML = '';
+                sidebar.appendChild(header);
+                
+                this.data.forEach((slide, i) => {
+                    const slideDiv = document.createElement('div');
+                    slideDiv.className = 'sidebar-slide' + (i === this.curr ? ' active' : '');
+                    slideDiv.onclick = () => this.selectSlide(i);
+                    
+                    const preview = document.createElement('div');
+                    preview.className = 'sidebar-slide-preview';
+                    preview.style.background = slide.bg || '#ffffff';
+                    
+                    if (slide.bg && slide.bg.startsWith('url(')) {
+                        preview.style.backgroundImage = slide.bg;
+                        preview.style.backgroundSize = 'cover';
+                        preview.style.backgroundPosition = 'center';
+                    }
+                    
+                    // Render mini elements
+                    slide.els.forEach(el => {
+                        const miniEl = document.createElement('div');
+                        miniEl.style.position = 'absolute';
+                        miniEl.style.left = (el.x / 960 * 100) + '%';
+                        miniEl.style.top = (el.y / 540 * 100) + '%';
+                        miniEl.style.width = (el.w / 960 * 100) + '%';
+                        miniEl.style.height = (el.h / 540 * 100) + '%';
+                        
+                        if (el.type === 'text') {
+                            miniEl.style.background = el.bg || 'transparent';
+                            miniEl.style.border = '1px solid #e5e7eb';
+                        } else if (el.type === 'shape') {
+                            miniEl.style.background = el.bg || 'transparent';
+                            miniEl.style.border = '1px solid ' + (el.border || '#0891b2');
+                            if (el.shape === 'circle') {
+                                miniEl.style.borderRadius = '50%';
+                            }
+                        } else if (el.type === 'img') {
+                            miniEl.style.backgroundImage = `url(${el.src})`;
+                            miniEl.style.backgroundSize = 'cover';
+                        }
+                        
+                        preview.appendChild(miniEl);
+                    });
+                    
+                    const number = document.createElement('div');
+                    number.className = 'sidebar-slide-number';
+                    number.textContent = i + 1;
+                    preview.appendChild(number);
+                    
+                    if (this.data.length > 1) {
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.className = 'sidebar-slide-delete';
+                        deleteBtn.textContent = '×';
+                        deleteBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            this.deleteSlide(i);
+                        };
+                        preview.appendChild(deleteBtn);
+                    }
+                    
+                    slideDiv.appendChild(preview);
+                    sidebar.appendChild(slideDiv);
+                });
+                
+                // Add new slide button
+                const addBtn = document.createElement('div');
+                addBtn.className = 'sidebar-add-slide';
+                addBtn.innerHTML = '<span style="font-size: 18px;">+</span> New Slide';
+                addBtn.onclick = () => this.addSlide();
+                sidebar.appendChild(addBtn);
+            },
+
+            renderSlides() {
+                const cont = document.getElementById('slides');
+                cont.innerHTML = '';
+                this.data.forEach((s, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'slide-preview' + (i === this.curr ? ' active' : '');
+                    div.onclick = () => this.selectSlide(i);
+                    
+                    const num = document.createElement('div');
+                    num.className = 'slide-number';
+                    num.innerHTML = '<span class="slide-icon">🗐</span> ' + (i + 1);
+                    div.appendChild(num);
+                    
+                    if (this.data.length > 1) {
+                        const del = document.createElement('button');
+                        del.className = 'slide-delete';
+                        del.textContent = '×';
+                        del.onclick = (e) => {
+                            e.stopPropagation();
+                            this.deleteSlide(i);
+                        };
+                        div.appendChild(del);
+                    }
+                    
+                    cont.appendChild(div);
+                });
+            },
+
+            save() {
+                const d = {
+                    title: document.getElementById('title').value,
+                    slides: this.data
+                };
+                localStorage.setItem('pres', JSON.stringify(d));
+                alert('✅ Presentation saved successfully!');
+            },
+
+            load() {
+                const saved = localStorage.getItem('pres');
+                if (saved) {
+                    const d = JSON.parse(saved);
+                    this.data = d.slides;
+                    document.getElementById('title').value = d.title || '';
+                    this.curr = 0;
+                    this.renderSlides();
+                    this.loadCanvas();
+                    this.saveState();
+                    alert('✅ Presentation loaded successfully!');
+                } else {
+                    alert('❌ No saved presentation found!');
+                }
+            },
+
+            async exportPDF() {
+                alert('📄 Generating PDF... This may take a moment.');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('landscape', 'px', [960, 540]);
+                
+                for (let i = 0; i < this.data.length; i++) {
+                    this.curr = i;
+                    this.loadCanvas();
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    
+                    const canvas = await html2canvas(document.getElementById('canvas'), {
+                        scale: 2,
+                        backgroundColor: '#ffffff'
+                    });
+                    
+                    const imgData = canvas.toDataURL('image/png');
+                    if (i > 0) pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, 0, 960, 540);
+                }
+                
+                const title = document.getElementById('title').value || 'presentation';
+                pdf.save(title + '.pdf');
+                alert('✅ PDF exported successfully!');
+            },
+
+            toggleShare() {
+                document.getElementById('shareMenu').classList.toggle('show');
+            },
+
+            shareEmail() {
+                const title = document.getElementById('title').value || 'Presentation';
+                const subject = encodeURIComponent(title);
+                const body = encodeURIComponent('Check out my presentation!');
+                window.location.href = `mailto:?subject=${subject}&body=${body}`;
+            },
+
+            download() {
+                const d = {
+                    title: document.getElementById('title').value,
+                    slides: this.data
+                };
+                const blob = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = (d.title || 'presentation') + '.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                alert('✅ Presentation downloaded to your device!');
+            },
+
+            shareLink() {
+                const d = {
+                    title: document.getElementById('title').value,
+                    slides: this.data
+                };
+                const encoded = btoa(JSON.stringify(d));
+                const link = window.location.origin + window.location.pathname + '?data=' + encoded;
+                
+                navigator.clipboard.writeText(link).then(() => {
+                    alert('✅ Share link copied to clipboard!\n\n' + link);
+                }).catch(() => {
+                    prompt('Copy this link to share:', link);
+                });
+            },
+
+            showSlideOptions() {
+                alert('Slide options menu');
+            },
+
+            startSelectionBox(e) {
+                const canvas = document.getElementById('canvas');
+                const rect = canvas.getBoundingClientRect();
+                
+                this.selectionStart = {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+                
+                this.selectionBox = document.createElement('div');
+                this.selectionBox.className = 'selection-box';
+                this.selectionBox.style.left = this.selectionStart.x + 'px';
+                this.selectionBox.style.top = this.selectionStart.y + 'px';
+                this.selectionBox.style.width = '0px';
+                this.selectionBox.style.height = '0px';
+                canvas.appendChild(this.selectionBox);
+                
+                let hasMoved = false;
+                
+                const onMove = (e) => {
+                    if (!this.selectionBox) return;
+                    
+                    hasMoved = true;
+                    const rect = canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const w = Math.abs(x - this.selectionStart.x);
+                    const h = Math.abs(y - this.selectionStart.y);
+                    const l = Math.min(x, this.selectionStart.x);
+                    const t = Math.min(y, this.selectionStart.y);
+                    
+                    this.selectionBox.style.left = l + 'px';
+                    this.selectionBox.style.top = t + 'px';
+                    this.selectionBox.style.width = w + 'px';
+                    this.selectionBox.style.height = h + 'px';
+                };
+                
+                const onUp = () => {
+                    if (!this.selectionBox) {
+                        document.removeEventListener('mousemove', onMove);
+                        document.removeEventListener('mouseup', onUp);
+                        return;
+                    }
+                    
+                    if (hasMoved && parseInt(this.selectionBox.style.width) > 5) {
+                        const boxRect = {
+                            left: parseFloat(this.selectionBox.style.left),
+                            top: parseFloat(this.selectionBox.style.top),
+                            right: parseFloat(this.selectionBox.style.left) + parseFloat(this.selectionBox.style.width),
+                            bottom: parseFloat(this.selectionBox.style.top) + parseFloat(this.selectionBox.style.height)
+                        };
+                        
+                        document.querySelectorAll('.canvas-element').forEach(el => {
+                            const elRect = {
+                                left: parseFloat(el.style.left),
+                                top: parseFloat(el.style.top),
+                                right: parseFloat(el.style.left) + el.offsetWidth,
+                                bottom: parseFloat(el.style.top) + el.offsetHeight
+                            };
+                            
+                            if (this.intersectsBox(boxRect, elRect)) {
+                                if (!this.multiSel.includes(el)) {
+                                    this.multiSel.push(el);
+                                    el.classList.add('multi-selected');
+                                }
+                            }
+                        });
+                    }
+                    
+                    if (this.selectionBox && this.selectionBox.parentNode) {
+                        this.selectionBox.remove();
+                    }
+                    this.selectionBox = null;
+                    
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+                };
+                
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+            },
+
+            intersectsBox(rect1, rect2) {
+                return !(rect1.right < rect2.left || 
+                         rect1.left > rect2.right || 
+                         rect1.bottom < rect2.top || 
+                         rect1.top > rect2.bottom);
+            },
+
+            intersects(rect1, rect2) {
+                return !(rect1.right < rect2.left || 
+                         rect1.left > rect2.right || 
+                         rect1.bottom < rect2.top || 
+                         rect1.top > rect2.bottom);
+            },
+
+            intersectsBox(rect1, rect2) {
+                return !(rect1.right < rect2.left || 
+                         rect1.left > rect2.right || 
+                         rect1.bottom < rect2.top || 
+                         rect1.top > rect2.bottom);
+            },
+
+            selectAll() {
+                this.clearSelection();
+                document.querySelectorAll('.canvas-element').forEach(el => {
+                    this.multiSel.push(el);
+                    el.classList.add('multi-selected');
+                });
+            },
+
+            clearSelection() {
+                if (this.sel) {
+                    this.sel.classList.remove('selected');
+                    this.sel = null;
+                }
+                this.multiSel.forEach(el => el.classList.remove('multi-selected'));
+                this.multiSel = [];
+            },
+
+            groupElements() {
+                if (this.multiSel.length < 2) {
+                    alert('⚠️ Select at least 2 elements to group');
+                    return;
+                }
+                
+                const ids = this.multiSel.map(el => parseInt(el.dataset.id));
+                const elements = this.data[this.curr].els.filter(e => ids.includes(e.id));
+                
+                elements.forEach(el => el.grouped = true);
+                this.saveState();
+                alert('✅ Elements grouped! Use Ctrl+Shift+G to ungroup');
+            },
+
+            ungroupElements() {
+                const ids = this.multiSel.length > 0 
+                    ? this.multiSel.map(el => parseInt(el.dataset.id))
+                    : this.sel ? [parseInt(this.sel.dataset.id)] : [];
+                
+                if (ids.length === 0) {
+                    alert('⚠️ Select grouped elements first');
+                    return;
+                }
+                
+                this.data[this.curr].els.forEach(el => {
+                    if (ids.includes(el.id)) el.grouped = false;
+                });
+                this.saveState();
+                alert('✅ Elements ungrouped!');
+            },
+
+            copyStyle() {
+                if (!this.sel) {
+                    alert('⚠️ Select an element first');
+                    return;
+                }
+                
+                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                if (el) {
+                    this.copiedStyle = {
+                        font: el.font,
+                        size: el.size,
+                        weight: el.weight,
+                        color: el.color,
+                        bg: el.bg,
+                        align: el.align,
+                        border: el.border,
+                        thick: el.thick
+                    };
+                    alert('✅ Style copied! Select another element and click Paste Style');
+                }
+            },
+
+            pasteStyle() {
+                if (!this.copiedStyle) {
+                    alert('⚠️ Copy a style first');
+                    return;
+                }
+                
+                if (!this.sel) {
+                    alert('⚠️ Select target element');
+                    return;
+                }
+                
+                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                if (el) {
+                    if (el.type === 'text' && this.copiedStyle.font) {
+                        el.font = this.copiedStyle.font;
+                        el.size = this.copiedStyle.size;
+                        el.weight = this.copiedStyle.weight;
+                        el.color = this.copiedStyle.color;
+                        el.bg = this.copiedStyle.bg;
+                        el.align = this.copiedStyle.align;
+                    }
+                    if (el.type === 'shape' && this.copiedStyle.border) {
+                        el.border = this.copiedStyle.border;
+                        el.thick = this.copiedStyle.thick;
+                        el.bg = this.copiedStyle.bg;
+                    }
+                }
+                
+                this.saveState();
+                this.loadCanvas();
+                alert('✅ Style applied!');
+            },
+
+            setBgColor() {
+                document.getElementById('bgModal').classList.add('show');
+            },
+
+            applyBg(color) {
+                this.data[this.curr].bg = color;
+                const canvas = document.getElementById('canvas');
+                canvas.style.background = color;
+                canvas.style.backgroundImage = 'none';
+                if (color.startsWith('linear-gradient')) {
+                    canvas.style.background = color;
+                }
+                this.saveState();
+                this.closeModal('bgModal');
+            },
+
+            uploadBgImage() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            this.data[this.curr].bg = `url(${ev.target.result})`;
+                            const canvas = document.getElementById('canvas');
+                            canvas.style.backgroundImage = this.data[this.curr].bg;
+                            canvas.style.backgroundSize = 'cover';
+                            canvas.style.backgroundPosition = 'center';
+                            this.saveState();
+                            this.closeModal('bgModal');
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                };
+                input.click();
+            },
+
+            addShadow() {
+                if (!this.sel) {
+                    alert('⚠️ Select an element first');
+                    return;
+                }
+                
+                const shadow = prompt('Enter shadow (e.g., "0 4px 8px rgba(0,0,0,0.2)"):', '0 4px 12px rgba(0,0,0,0.15)');
+                if (shadow) {
+                    this.sel.style.boxShadow = shadow;
+                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                    if (el) {
+                        el.shadow = shadow;
+                        this.saveState();
+                    }
+                }
+            },
+
+            showAnimations() {
+                if (!this.sel) {
+                    alert('⚠️ Select an element first');
+                    return;
+                }
+                document.getElementById('animModal').classList.add('show');
+            },
+
+            applyAnimation(animation) {
+                if (!this.sel) return;
+                
+                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                if (el) {
+                    el.animation = animation;
+                    this.saveState();
+                    this.closeModal('animModal');
+                    alert(`✅ Animation "${animation}" applied! Preview in Presentation Mode`);
+                }
+            },
+
+            presentMode() {
+                this.presenting = true;
+                this.presentSlide = 0;
+                
+                const presentDiv = document.createElement('div');
+                presentDiv.className = 'present-mode active';
+                presentDiv.innerHTML = `
+                    <div class="present-slide">
+                        <div class="present-canvas" id="presentCanvas"></div>
+                    </div>
+                    <div class="present-controls">
+                        <button class="present-btn" onclick="app.prevPresentSlide()">◀</button>
+                        <div class="present-counter"><span id="presentCounter">1 / ${this.data.length}</span></div>
+                        <button class="present-btn" onclick="app.nextPresentSlide()">▶</button>
+                        <button class="present-btn" onclick="app.exitPresent()">✕</button>
+                    </div>
+                `;
+                document.body.appendChild(presentDiv);
+                
+                this.renderPresentSlide();
+                
+                document.addEventListener('keydown', this.presentKeyHandler = (e) => {
+                    if (e.key === 'Escape') this.exitPresent();
+                    if (e.key === 'ArrowRight' || e.key === ' ') this.nextPresentSlide();
+                    if (e.key === 'ArrowLeft') this.prevPresentSlide();
+                });
+            },
+
+            renderPresentSlide() {
+                const canvas = document.getElementById('presentCanvas');
+                if (!canvas) return;
+                
+                const slide = this.data[this.presentSlide];
+                canvas.innerHTML = '';
+                canvas.style.width = '960px';
+                canvas.style.height = '540px';
+                canvas.style.background = slide.bg || '#ffffff';
+                canvas.style.position = 'relative';
+                
+                if (slide.bg && slide.bg.startsWith('url(')) {
+                    canvas.style.backgroundImage = slide.bg;
+                    canvas.style.backgroundSize = 'cover';
+                    canvas.style.backgroundPosition = 'center';
+                }
+                
+                const transition = slide.transition || 'fade';
+                canvas.className = 'present-canvas slide-transition-' + transition;
+                
+                slide.els.forEach((el, index) => {
+                    const div = this.createEl(el);
+                    if (el.animation && el.animation !== 'none') {
+                        setTimeout(() => {
+                            div.classList.add('animate-' + el.animation);
+                        }, index * 200);
+                    }
+                    canvas.appendChild(div);
+                });
+                
+                document.getElementById('presentCounter').textContent = `${this.presentSlide + 1} / ${this.data.length}`;
+            },
+
+            nextPresentSlide() {
+                if (this.presentSlide < this.data.length - 1) {
+                    this.presentSlide++;
+                    this.renderPresentSlide();
+                }
+            },
+
+            prevPresentSlide() {
+                if (this.presentSlide > 0) {
+                    this.presentSlide--;
+                    this.renderPresentSlide();
+                }
+            },
+
+            exitPresent() {
+                this.presenting = false;
+                document.querySelector('.present-mode')?.remove();
+                document.removeEventListener('keydown', this.presentKeyHandler);
+            },
+
+            closeModal(id) {
+                document.getElementById(id).classList.remove('show');
+            }
         };
-      }
 
-      function applyShapeVariant(element, variant) {
-        const preset = SHAPE_PRESETS[variant] || SHAPE_PRESETS.rectangle;
-        const previousVariant = element.variant || 'rectangle';
-        element.variant = variant;
-
-        if (variant === 'circle') {
-          const size = Math.max(element.width || preset.width, element.height || preset.height, preset.width);
-          element.width = size;
-          element.height = size;
-          element.borderRadius = preset.borderRadius;
-        } else if (variant === 'line') {
-          element.height = preset.height;
-          element.width = element.width || preset.width;
-          element.borderRadius = 0;
-          element.fill = 'none';
-        } else {
-          element.width = element.width || preset.width;
-          element.height = element.height || preset.height;
-          element.borderRadius = preset.borderRadius ?? 0;
-        }
-
-        if (previousVariant === 'line' && variant !== 'line') {
-          element.fill = preset.fill;
-        } else if (!element.fill || element.fill === 'none') {
-          element.fill = preset.fill;
-        }
-
-        element.stroke = element.stroke || preset.stroke;
-        element.strokeWidth = element.strokeWidth ?? preset.strokeWidth ?? 2;
-      }
-
-      function createShapeSVG(element) {
-        const variant = element.variant || 'rectangle';
-        const preset = SHAPE_PRESETS[variant] || SHAPE_PRESETS.rectangle;
-        const ns = 'http://www.w3.org/2000/svg';
-        const svg = document.createElementNS(ns, 'svg');
-        svg.classList.add('stage-shape-body');
-        svg.setAttribute('viewBox', variant === 'line' ? '0 0 100 10' : '0 0 100 100');
-        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-        svg.dataset.variant = variant;
-
-        let shapeNode;
-        const fill = variant === 'line' ? 'none' : (element.fill ?? preset.fill ?? '#e2e8f0');
-        const stroke = element.stroke ?? preset.stroke ?? '#0ea5e9';
-        const strokeWidth = element.strokeWidth ?? preset.strokeWidth ?? 2;
-
-        switch (variant) {
-          case 'circle': {
-            shapeNode = document.createElementNS(ns, 'circle');
-            shapeNode.setAttribute('cx', '50');
-            shapeNode.setAttribute('cy', '50');
-            shapeNode.setAttribute('r', '44');
-            break;
-          }
-          case 'triangle': {
-            shapeNode = document.createElementNS(ns, 'polygon');
-            shapeNode.setAttribute('points', '50,6 5,94 95,94');
-            break;
-          }
-          case 'diamond': {
-            shapeNode = document.createElementNS(ns, 'polygon');
-            shapeNode.setAttribute('points', '50,4 96,50 50,96 4,50');
-            break;
-          }
-          case 'arrow': {
-            shapeNode = document.createElementNS(ns, 'polygon');
-            shapeNode.setAttribute('points', '6,40 58,40 58,20 94,50 58,80 58,60 6,60');
-            break;
-          }
-          case 'line': {
-            shapeNode = document.createElementNS(ns, 'line');
-            shapeNode.setAttribute('x1', '4');
-            shapeNode.setAttribute('y1', '5');
-            shapeNode.setAttribute('x2', '96');
-            shapeNode.setAttribute('y2', '5');
-            break;
-          }
-          case 'rectangle':
-          default: {
-            shapeNode = document.createElementNS(ns, 'rect');
-            shapeNode.setAttribute('x', '5');
-            shapeNode.setAttribute('y', '5');
-            shapeNode.setAttribute('width', '90');
-            shapeNode.setAttribute('height', '90');
-            const width = element.width || preset.width || 200;
-            const height = element.height || preset.height || 200;
-            const minDimension = Math.max(1, Math.min(width, height));
-            const radiusRatio = (element.borderRadius ?? preset.borderRadius ?? 16) / minDimension;
-            const radius = Math.max(0, Math.min(45, radiusRatio * 90));
-            shapeNode.setAttribute('rx', radius);
-            shapeNode.setAttribute('ry', radius);
-            break;
-          }
-        }
-
-        shapeNode.setAttribute('fill', fill === 'none' ? 'none' : fill);
-        shapeNode.setAttribute('stroke', stroke);
-        shapeNode.setAttribute('stroke-width', variant === 'line' ? strokeWidth : Math.max(1, strokeWidth));
-        shapeNode.setAttribute('stroke-linejoin', 'round');
-        shapeNode.setAttribute('stroke-linecap', 'round');
-        shapeNode.setAttribute('vector-effect', 'non-scaling-stroke');
-        svg.appendChild(shapeNode);
-        return svg;
-      }
-
-      function syncShapeProperties(element) {
-        if (!element || element.type !== 'shape') return;
-        const variantSelect = document.getElementById('prop-shape-variant');
-        if (variantSelect) {
-          variantSelect.value = element.variant || 'rectangle';
-        }
-        const widthInput = document.getElementById('prop-shape-width');
-        if (widthInput && document.activeElement !== widthInput) {
-          widthInput.value = Math.round(element.width || 0);
-        }
-        const heightInput = document.getElementById('prop-shape-height');
-        if (heightInput && document.activeElement !== heightInput) {
-          heightInput.value = Math.round(element.height || 0);
-        }
-        if ((element.variant || 'rectangle') !== 'line') {
-          const fillInput = document.getElementById('prop-shape-fill');
-          if (fillInput) {
-            fillInput.value = element.fill || '#e2e8f0';
-          }
-          const fillHexInput = document.getElementById('prop-shape-fill-hex');
-          if (fillHexInput && document.activeElement !== fillHexInput) {
-            fillHexInput.value = (element.fill || '#e2e8f0').toUpperCase();
-          }
-        }
-        const strokeInput = document.getElementById('prop-shape-stroke');
-        if (strokeInput) {
-          strokeInput.value = element.stroke || '#0ea5e9';
-        }
-        const strokeHexInput = document.getElementById('prop-shape-stroke-hex');
-        if (strokeHexInput && document.activeElement !== strokeHexInput) {
-          strokeHexInput.value = (element.stroke || '#0ea5e9').toUpperCase();
-        }
-        const strokeWidthInput = document.getElementById('prop-shape-stroke-width');
-        if (strokeWidthInput && document.activeElement !== strokeWidthInput) {
-          strokeWidthInput.value = element.strokeWidth ?? 2;
-        }
-        const radiusInput = document.getElementById('prop-shape-radius');
-        if (radiusInput && document.activeElement !== radiusInput) {
-          radiusInput.value = element.borderRadius ?? 16;
-        }
-      }
-
-      function renderStage() {
-        const slide = state.slides[state.current];
-        stage.querySelectorAll('[data-element]').forEach((el) => el.remove());
-
-        if (!slide.elements.length) {
-          stagePlaceholder.classList.remove('hidden');
-          return;
-        }
-        stagePlaceholder.classList.add('hidden');
-
-        slide.elements.forEach((element) => {
-          const node = document.createElement('div');
-          node.className = 'stage-element';
-          node.dataset.element = element.id;
-          node.dataset.type = element.type;
-          node.style.left = \`\${element.x}px\`;
-          node.style.top = \`\${element.y}px\`;
-          node.dataset.selected = state.selected === element.id;
-
-          let textNode = null;
-
-          if (element.type === 'text') {
-            node.style.width = 'auto';
-            node.style.height = 'auto';
-            textNode = document.createElement('div');
-            textNode.className = 'stage-text';
-            textNode.textContent = element.text;
-            textNode.style.fontSize = \`\${element.fontSize || 18}px\`;
-            textNode.style.fontFamily = element.fontFamily || 'Inter, sans-serif';
-            textNode.style.fontWeight = element.fontWeight || 600;
-            textNode.style.color = element.color || '#1f2937';
-            textNode.style.textAlign = element.textAlign || 'left';
-            node.appendChild(textNode);
-          } else if (element.type === 'shape') {
-            const variant = element.variant || 'rectangle';
-            node.style.width = \`\${element.width || SHAPE_PRESETS[variant]?.width || 200}px\`;
-            node.style.height = \`\${element.height || SHAPE_PRESETS[variant]?.height || 120}px\`;
-            const shapeBody = createShapeSVG(element);
-            node.appendChild(shapeBody);
-
-            if (variant !== 'line') {
-              const resizeHandle = document.createElement('span');
-              resizeHandle.className = 'resize-handle';
-              resizeHandle.addEventListener('mousedown', (event) => startResize(event, element, node));
-              node.appendChild(resizeHandle);
+        window.onload = () => {
+            app.init();
+            
+            const params = new URLSearchParams(window.location.search);
+            const shared = params.get('data');
+            if (shared) {
+                try {
+                    const d = JSON.parse(atob(shared));
+                    app.data = d.slides;
+                    document.getElementById('title').value = d.title || '';
+                    app.renderSlides();
+                    app.loadCanvas();
+                    app.saveState();
+                } catch (e) {
+                    console.error('Failed to load shared presentation');
+                }
             }
-          }
-
-          node.addEventListener('mousedown', (event) => {
-            if (event.target.classList.contains('resize-handle')) return;
-            startDrag(event, element, node);
-          });
-          node.addEventListener('click', (event) => {
-            event.stopPropagation();
-            state.selected = element.id;
-            renderStage();
-            renderProperties();
-            openPropertiesPanel();
-          });
-
-          if (element.type === 'text' && textNode) {
-            node.addEventListener('dblclick', (event) => {
-              event.stopPropagation();
-              state.selected = element.id;
-              beginEditingText(element.id);
-              renderProperties();
-              openPropertiesPanel();
-            });
-            textNode.addEventListener('blur', () => {
-              textNode.contentEditable = 'false';
-              element.text = textNode.textContent || 'Text';
-              state.isEditing = false;
-              renderProperties();
-            });
-            textNode.addEventListener('keydown', (event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault();
-                textNode.blur();
-              }
-            });
-          }
-
-          stage.appendChild(node);
-        });
-      }
-
-      function beginEditingText(elementId) {
-        const node = stage.querySelector(\`[data-element="\${elementId}"]\`);
-        if (!node) return;
-        const textNode = node.querySelector('.stage-text');
-        if (!textNode) return;
-        state.isEditing = true;
-        textNode.contentEditable = 'true';
-        textNode.focus();
-        const range = document.createRange();
-        range.selectNodeContents(textNode);
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
-
-      function stageBounds(node) {
-        const rect = stage.getBoundingClientRect();
-        const width = node.offsetWidth;
-        const height = node.offsetHeight;
-        return { rect, width, height };
-      }
-
-      function startDrag(event, element, node) {
-        if (state.isEditing || event.target.isContentEditable) return;
-        event.preventDefault();
-        state.selected = element.id;
-        node.dataset.selected = 'true';
-        renderProperties();
-        openPropertiesPanel();
-        const startX = event.clientX;
-        const startY = event.clientY;
-        const originX = element.x;
-        const originY = element.y;
-        const { rect, width, height } = stageBounds(node);
-
-        function onMove(moveEvent) {
-          if (state.isEditing) {
-            onUp();
-            return;
-          }
-          const deltaX = moveEvent.clientX - startX;
-          const deltaY = moveEvent.clientY - startY;
-          let nextX = originX + deltaX;
-          let nextY = originY + deltaY;
-          nextX = Math.max(0, Math.min(nextX, rect.width - width));
-          nextY = Math.max(0, Math.min(nextY, rect.height - height));
-          element.x = nextX;
-          element.y = nextY;
-          node.style.left = \`\${nextX}px\`;
-          node.style.top = \`\${nextY}px\`;
-          if (element.type === 'shape') {
-            syncShapeProperties(element);
-          }
-        }
-
-        function onUp() {
-          document.removeEventListener('mousemove', onMove);
-          document.removeEventListener('mouseup', onUp);
-        }
-
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('mouseup', onUp);
-      }
-
-      function startResize(event, element, node) {
-        event.stopPropagation();
-        event.preventDefault();
-        state.selected = element.id;
-        state.isEditing = false;
-        node.dataset.selected = 'true';
-        renderProperties();
-        openPropertiesPanel();
-
-        const startX = event.clientX;
-        const startY = event.clientY;
-        const startWidth = element.width || node.offsetWidth;
-        const startHeight = element.height || node.offsetHeight;
-        const { rect } = stageBounds(node);
-
-        function onMove(moveEvent) {
-          const deltaX = moveEvent.clientX - startX;
-          const deltaY = moveEvent.clientY - startY;
-          let nextWidth = clamp(startWidth + deltaX, 60, rect.width - element.x);
-          let nextHeight = clamp(startHeight + deltaY, 40, rect.height - element.y);
-          if ((element.variant || 'rectangle') === 'circle') {
-            const side = Math.max(nextWidth, nextHeight);
-            nextWidth = side;
-            nextHeight = side;
-          }
-          element.width = nextWidth;
-          element.height = nextHeight;
-          node.style.width = \`\${nextWidth}px\`;
-          node.style.height = \`\${nextHeight}px\`;
-          syncShapeProperties(element);
-        }
-
-        function onUp() {
-          document.removeEventListener('mousemove', onMove);
-          document.removeEventListener('mouseup', onUp);
-          renderStage();
-        }
-
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('mouseup', onUp);
-      }
-
-      function renderProperties() {
-        if (!state.selected) {
-          propertiesContent.innerHTML = '<div class="properties-empty">Select an element to edit properties</div>';
-          propertiesSubtitle.textContent = 'No selection';
-          return;
-        }
-
-        const slide = state.slides[state.current];
-        const element = slide.elements.find((el) => el.id === state.selected);
-        if (!element) {
-          propertiesContent.innerHTML = '<div class="properties-empty">Select an element to edit properties</div>';
-          propertiesSubtitle.textContent = 'No selection';
-          return;
-        }
-
-        if (element.type === 'text') {
-          propertiesSubtitle.textContent = 'Text element';
-          propertiesContent.innerHTML = \`
-            <div>
-              <label>Font family</label>
-              <select id="prop-font-family">
-                <option value="Inter, sans-serif">Inter</option>
-                <option value="Arial, sans-serif">Arial</option>
-                <option value="Georgia, serif">Georgia</option>
-                <option value="'Courier New', monospace">Courier New</option>
-                <option value="'Times New Roman', serif">Times New Roman</option>
-              </select>
-            </div>
-            <div class="properties-grid">
-              <div>
-                <label>Font size</label>
-                <input id="prop-font-size" type="number" min="8" max="200" value="\${element.fontSize || 18}" />
-              </div>
-              <div>
-                <label>Font weight</label>
-                <select id="prop-font-weight">
-                  <option value="300"\${(element.fontWeight || 600) === 300 ? ' selected' : ''}>Light</option>
-                  <option value="400"\${(element.fontWeight || 600) === 400 ? ' selected' : ''}>Regular</option>
-                  <option value="600"\${(element.fontWeight || 600) === 600 ? ' selected' : ''}>Semibold</option>
-                  <option value="700"\${(element.fontWeight || 600) === 700 ? ' selected' : ''}>Bold</option>
-                </select>
-              </div>
-            </div>
-            <div>
-              <label>Text color</label>
-              <div class="properties-grid">
-                <input id="prop-text-color" type="color" value="\${element.color || '#1f2937'}" />
-                <input id="prop-text-color-hex" type="text" value="\${(element.color || '#1f2937').toUpperCase()}" />
-              </div>
-            </div>
-            <div>
-              <label>Alignment</label>
-              <div class="align-buttons">
-                <button data-align="left" class="\${(element.textAlign || 'left') === 'left' ? 'active' : ''}">Left</button>
-                <button data-align="center" class="\${(element.textAlign || 'left') === 'center' ? 'active' : ''}">Center</button>
-                <button data-align="right" class="\${(element.textAlign || 'left') === 'right' ? 'active' : ''}">Right</button>
-              </div>
-            </div>
-          \`;
-
-          const fontFamilySelect = document.getElementById('prop-font-family');
-          if (element.fontFamily) fontFamilySelect.value = element.fontFamily;
-          fontFamilySelect?.addEventListener('change', (e) => {
-            element.fontFamily = e.target.value;
-            renderStage();
-          });
-
-          document.getElementById('prop-font-size')?.addEventListener('input', (e) => {
-            element.fontSize = parseInt(e.target.value, 10) || 18;
-            renderStage();
-          });
-
-          document.getElementById('prop-font-weight')?.addEventListener('change', (e) => {
-            element.fontWeight = parseInt(e.target.value, 10) || 600;
-            renderStage();
-          });
-
-          const colorInput = document.getElementById('prop-text-color');
-          const colorHexInput = document.getElementById('prop-text-color-hex');
-          colorInput?.addEventListener('input', (e) => {
-            element.color = e.target.value;
-            colorHexInput.value = e.target.value.toUpperCase();
-            renderStage();
-          });
-          colorHexInput?.addEventListener('input', (e) => {
-            const val = e.target.value.trim();
-            if (/^#[0-9A-F]{6}$/i.test(val)) {
-              element.color = val;
-              colorInput.value = val;
-              renderStage();
-            }
-          });
-
-          document.querySelectorAll('.align-buttons button').forEach((btn) => {
-            btn.addEventListener('click', () => {
-              element.textAlign = btn.dataset.align;
-              renderProperties();
-              renderStage();
-            });
-          });
-        } else if (element.type === 'shape') {
-          const variant = element.variant || 'rectangle';
-          const preset = SHAPE_PRESETS[variant] || SHAPE_PRESETS.rectangle;
-          const fill = element.fill || preset.fill || '#e2e8f0';
-          const stroke = element.stroke || preset.stroke || '#0ea5e9';
-          const supportsFill = variant !== 'line';
-          const supportsRadius = variant === 'rectangle';
-
-          propertiesSubtitle.textContent = 'Shape element';
-          propertiesContent.innerHTML = \`
-            <div>
-              <label>Shape type</label>
-              <select id="prop-shape-variant">
-                \${Object.entries(SHAPE_PRESETS)
-                  .map(([key, cfg]) => \`<option value="\${key}"\${variant === key ? ' selected' : ''}>\${cfg.label}</option>\`)
-                  .join('')}
-              </select>
-            </div>
-            <div>
-              <label>\${variant === 'line' ? 'Length' : 'Dimensions'}</label>
-              <div class="\${variant === 'line' ? '' : 'properties-grid'}">
-                <div>
-                  <input id="prop-shape-width" type="number" min="40" max="1600" value="\${Math.round(element.width || preset.width)}" />
-                </div>
-                \${variant === 'line'
-                  ? ''
-                  : \`<div><input id="prop-shape-height" type="number" min="40" max="1200" value="\${Math.round(element.height || preset.height)}" /></div>\`}
-              </div>
-            </div>
-            \${supportsFill
-              ? \`<div>
-                  <label>Fill color</label>
-                  <div class="properties-grid">
-                    <input id="prop-shape-fill" type="color" value="\${fill}" />
-                    <input id="prop-shape-fill-hex" type="text" value="\${fill.toUpperCase()}" />
-                  </div>
-                </div>\`
-              : ''}
-            <div>
-              <label>\${variant === 'line' ? 'Stroke color' : 'Border color'}</label>
-              <div class="properties-grid">
-                <input id="prop-shape-stroke" type="color" value="\${stroke}" />
-                <input id="prop-shape-stroke-hex" type="text" value="\${stroke.toUpperCase()}" />
-              </div>
-            </div>
-            <div class="properties-grid">
-              <div>
-                <label>\${variant === 'line' ? 'Stroke width' : 'Border width'}</label>
-                <input id="prop-shape-stroke-width" type="number" min="1" max="40" value="\${element.strokeWidth ?? preset.strokeWidth ?? 2}" />
-              </div>
-              \${supportsRadius
-                ? \`<div>
-                    <label>Corner radius</label>
-                    <input id="prop-shape-radius" type="number" min="0" max="200" value="\${element.borderRadius ?? preset.borderRadius ?? 16}" />
-                  </div>\`
-                : ''}
-            </div>
-          \`;
-
-          const hexPattern = /^#[0-9A-F]{6}$/i;
-
-          document.getElementById('prop-shape-variant')?.addEventListener('change', (e) => {
-            applyShapeVariant(element, e.target.value);
-            renderStage();
-            renderProperties();
-          });
-
-          document.getElementById('prop-shape-width')?.addEventListener('input', (e) => {
-            const raw = parseInt(e.target.value, 10);
-            const maxWidth = Math.max(40, stage.clientWidth - element.x);
-            element.width = clamp(isNaN(raw) ? element.width : raw, 40, maxWidth);
-            if ((element.variant || 'rectangle') === 'circle') {
-              element.height = element.width;
-            }
-            renderStage();
-            syncShapeProperties(element);
-          });
-
-          document.getElementById('prop-shape-height')?.addEventListener('input', (e) => {
-            const raw = parseInt(e.target.value, 10);
-            const maxHeight = Math.max(40, stage.clientHeight - element.y);
-            element.height = clamp(isNaN(raw) ? element.height : raw, 40, maxHeight);
-            if ((element.variant || 'rectangle') === 'circle') {
-              element.width = element.height;
-            }
-            renderStage();
-            syncShapeProperties(element);
-          });
-
-          const fillInput = document.getElementById('prop-shape-fill');
-          const fillHexInput = document.getElementById('prop-shape-fill-hex');
-          fillInput?.addEventListener('input', (e) => {
-            element.fill = e.target.value;
-            if (fillHexInput) fillHexInput.value = e.target.value.toUpperCase();
-            renderStage();
-          });
-          fillHexInput?.addEventListener('input', (e) => {
-            const val = e.target.value.trim();
-            if (hexPattern.test(val)) {
-              element.fill = val.startsWith('#') ? val : \`#\${val}\`;
-              if (fillInput) fillInput.value = element.fill;
-              renderStage();
-            }
-          });
-
-          const strokeInput = document.getElementById('prop-shape-stroke');
-          const strokeHexInput = document.getElementById('prop-shape-stroke-hex');
-          strokeInput?.addEventListener('input', (e) => {
-            element.stroke = e.target.value;
-            if (strokeHexInput) strokeHexInput.value = e.target.value.toUpperCase();
-            renderStage();
-          });
-          strokeHexInput?.addEventListener('input', (e) => {
-            const val = e.target.value.trim();
-            if (hexPattern.test(val)) {
-              element.stroke = val.startsWith('#') ? val : \`#\${val}\`;
-              if (strokeInput) strokeInput.value = element.stroke;
-              renderStage();
-            }
-          });
-
-          document.getElementById('prop-shape-stroke-width')?.addEventListener('input', (e) => {
-            const raw = parseInt(e.target.value, 10);
-            element.strokeWidth = clamp(isNaN(raw) ? element.strokeWidth || 1 : raw, 1, 40);
-            if ((element.variant || 'rectangle') === 'line') {
-              element.height = Math.max(element.strokeWidth + 4, 6);
-            }
-            renderStage();
-            syncShapeProperties(element);
-          });
-
-          document.getElementById('prop-shape-radius')?.addEventListener('input', (e) => {
-            const raw = parseInt(e.target.value, 10);
-            element.borderRadius = clamp(isNaN(raw) ? element.borderRadius || 0 : raw, 0, 200);
-            renderStage();
-            syncShapeProperties(element);
-          });
-
-          syncShapeProperties(element);
-        }
-      }
-
-      function addTextElement() {
-        const slide = state.slides[state.current];
-        const id = \`el-\${++state.counter}\`;
-        slide.elements.push({
-          id,
-          type: 'text',
-          text: 'Click to edit',
-          x: 160,
-          y: 140,
-          fontSize: 24,
-          fontFamily: 'Inter, sans-serif',
-          fontWeight: 600,
-          color: '#1f2937',
-          textAlign: 'left',
-        });
-        state.selected = id;
-        renderStage();
-        renderProperties();
-        openPropertiesPanel();
-        requestAnimationFrame(() => beginEditingText(id));
-      }
-
-      function addShapeElement(variant = 'rectangle') {
-        const slide = state.slides[state.current];
-        const id = \`el-\${++state.counter}\`;
-        slide.elements.push({
-          id,
-          type: 'shape',
-          x: 180,
-          y: 160,
-          ...createShapeConfig(variant),
-        });
-        state.selected = id;
-        state.isEditing = false;
-        renderStage();
-        renderProperties();
-        openPropertiesPanel();
-      }
-
-      function addSlide() {
-        const id = \`slide-\${state.slides.length + 1}\`;
-        state.slides.push({ id, elements: [] });
-        state.isEditing = false;
-        state.current = state.slides.length - 1;
-        state.selected = null;
-        renderSlides();
-        renderStage();
-        renderProperties();
-      }
-
-      function toggleShapeMenu() {
-        if (!shapeMenu) return;
-        if (shapeMenu.classList.contains('hidden')) {
-          shapeMenu.classList.remove('hidden');
-          addShapeBtn?.setAttribute('aria-expanded', 'true');
-        } else {
-          shapeMenu.classList.add('hidden');
-          addShapeBtn?.setAttribute('aria-expanded', 'false');
-        }
-      }
-
-      function closeShapeMenu() {
-        if (!shapeMenu || shapeMenu.classList.contains('hidden')) return;
-        shapeMenu.classList.add('hidden');
-        addShapeBtn?.setAttribute('aria-expanded', 'false');
-      }
-
-      stage.addEventListener('mousedown', (event) => {
-        if (event.target === stage || event.target === stagePlaceholder) {
-          state.isEditing = false;
-          state.selected = null;
-          renderStage();
-          renderProperties();
-        }
-      });
-
-      addTextBtn?.addEventListener('click', addTextElement);
-      addSlideBtn?.addEventListener('click', addSlide);
-      addShapeBtn?.addEventListener('click', (event) => {
-        event.stopPropagation();
-        if (event.shiftKey) {
-          closeShapeMenu();
-          addShapeElement('rectangle');
-          return;
-        }
-        toggleShapeMenu();
-      });
-      shapeMenu?.querySelectorAll('button').forEach((btn) => {
-        btn.addEventListener('click', (event) => {
-          event.stopPropagation();
-          const variant = btn.dataset.shape;
-          closeShapeMenu();
-          addShapeElement(variant);
-        });
-      });
-      document.addEventListener('click', (event) => {
-        if (!shapeMenu || shapeMenu.classList.contains('hidden')) return;
-        if (event.target === addShapeBtn || addShapeBtn?.contains(event.target)) return;
-        if (shapeMenu.contains(event.target)) return;
-        closeShapeMenu();
-      });
-      document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') {
-          closeShapeMenu();
-          closePropertiesPanel();
-        }
-      });
-
-      // Placeholder handlers for the zoom controls
-      document.querySelectorAll('.dock-right button').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          // Future zoom implementation could go here
-        });
-      });
-
-      renderSlides();
-      renderStage();
-      renderProperties();
+        };
     </script>
-  </body>
+</body>
 </html>
-
+                
