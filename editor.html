@@ -4,616 +4,1685 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Editor - Presentation Maker</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      :root { color-scheme: light; }
-      @keyframes floatBlob {
-        0% { transform: translate3d(-10px,-6px,0) scale(1); }
-        50% { transform: translate3d(6px,4px,0) scale(1.05); }
-        100% { transform: translate3d(-6px,10px,0) scale(1.02); }
+      :root {
+        color-scheme: light;
+        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --emerald: #0fb981;
+        --emerald-dark: #0a8f63;
+        --sky: #0ea5e9;
+        --navy: #0f172a;
+        --slate-100: #f1f5f9;
+        --slate-200: #e2e8f0;
+        --slate-300: #cbd5f5;
+        --slate-400: #94a3b8;
+        --slate-500: #64748b;
+        --slate-600: #475569;
       }
-      @keyframes shimmer {
-        0% { opacity: 0.25; transform: translateX(-40%); }
-        100% { opacity: 0.45; transform: translateX(60%); }
+      * {
+        box-sizing: border-box;
       }
-      .blob-motion { animation: floatBlob 22s ease-in-out infinite alternate; }
-      .toolbar-glow { position: relative; }
-      .toolbar-glow::after {
-        content: "";
-        position: absolute;
-        inset: 4px;
-        border-radius: 28px;
-        background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(14,165,233,0.08));
-        opacity: 0.6;
-        filter: blur(22px);
-        pointer-events: none;
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #f7fafc 0%, #eef2fb 70%);
+        color: var(--slate-700, #1f2937);
+      }
+      .app-shell {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 32px;
+        padding: 18px 32px;
+        color: #fff;
+        background: linear-gradient(100deg, var(--sky) 5%, #38bdf8 45%, var(--emerald) 100%);
+        box-shadow: 0 22px 48px -24px rgba(14, 165, 233, 0.55);
+      }
+      .topbar-group {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      .menu-button {
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.08);
+        transition: background 0.18s ease, transform 0.18s ease;
+        cursor: pointer;
+      }
+      .menu-button:hover {
+        background: rgba(255, 255, 255, 0.16);
+        transform: translateY(-1px);
+      }
+      .topbar-title {
+        font-weight: 600;
+        font-size: 15px;
+      }
+      .topbar-nav {
+        display: flex;
+        gap: 16px;
+        font-size: 13px;
+        opacity: 0.92;
+      }
+      .topbar-nav span {
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+      }
+      .topbar-nav span:hover {
+        opacity: 1;
+      }
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .circle-button {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        display: grid;
+        place-items: center;
+        color: #fff;
+        cursor: pointer;
+        transition: background 0.18s ease, transform 0.18s ease;
+      }
+      .circle-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-1px);
+      }
+      .pill-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 999px;
+        padding: 8px 18px;
+        font-weight: 500;
+        font-size: 13px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.14);
+        color: #fff;
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      }
+      .pill-button:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.24);
+        box-shadow: 0 12px 30px -20px rgba(13, 148, 136, 0.5);
+      }
+      .primary-button {
+        background: linear-gradient(120deg, rgba(32, 201, 151, 0.9), rgba(14, 165, 233, 0.9));
+        border: none;
+        box-shadow: 0 16px 34px -18px rgba(14, 165, 233, 0.6);
+      }
+      .primary-button:hover {
+        box-shadow: 0 18px 40px -16px rgba(15, 118, 110, 0.55);
+        background: linear-gradient(120deg, rgba(15, 185, 129, 0.95), rgba(14, 165, 233, 0.95));
+      }
+      .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.18);
+        display: grid;
+        place-items: center;
+        font-weight: 600;
+      }
+      .workspace {
+        display: flex;
+        flex: 1;
+        min-height: 0;
+      }
+      .left-rail {
+        width: 80px;
+        background: rgba(255, 255, 255, 0.95);
+        border-right: 1px solid rgba(148, 163, 184, 0.18);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 26px 0;
+        gap: 14px;
+        box-shadow: 8px 0 30px -28px rgba(15, 118, 110, 0.45);
+      }
+      .rail-button {
+        width: 46px;
+        height: 46px;
+        border-radius: 16px;
+        border: 1px solid transparent;
+        background: rgba(248, 250, 252, 0.85);
+        display: grid;
+        place-items: center;
+        color: var(--slate-500);
+        cursor: pointer;
+        transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+      }
+      .rail-button:hover,
+      .rail-button.active {
+        border-color: rgba(14, 165, 233, 0.45);
+        background: rgba(219, 234, 254, 0.95);
+        color: var(--navy);
+        transform: translateY(-1px);
+      }
+      .editor-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        position: relative;
+      }
+      .editor-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 28px;
+        background: rgba(255, 255, 255, 0.92);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+        backdrop-filter: blur(12px);
+      }
+      .toolbar-left,
+      .toolbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .toolbar-search {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(248, 250, 252, 0.95);
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        padding: 6px 12px;
+        font-size: 13px;
+        color: var(--slate-500);
+      }
+      .toolbar-divider {
+        width: 1px;
+        height: 24px;
+        background: rgba(148, 163, 184, 0.35);
       }
       .toolbar-button {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 6px 12px;
+        padding: 6px 14px;
         border-radius: 999px;
-        border: 1px solid rgba(148,163,184,0.4);
-        background: rgba(255,255,255,0.9);
-        box-shadow: 0 6px 18px -12px rgba(16,118,110,0.45);
-        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        background: rgba(255, 255, 255, 0.9);
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--slate-600);
+        cursor: pointer;
+        transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, color 0.18s ease;
       }
       .toolbar-button:hover {
+        border-color: rgba(14, 165, 233, 0.45);
+        box-shadow: 0 12px 26px -18px rgba(14, 165, 233, 0.6);
+        color: var(--navy);
         transform: translateY(-1px);
-        border-color: rgba(16,185,129,0.35);
-        box-shadow: 0 10px 30px -18px rgba(16,118,110,0.45);
       }
-      .toolbar-button svg { width: 16px; height: 16px; stroke-width: 1.7; }
-      .stage-element {
-        position: absolute;
-        min-width: 160px;
-        padding: 10px 18px;
-        border-radius: 14px;
-        background: rgba(255,255,255,0.95);
-        border: 1px solid rgba(148,163,184,0.4);
-        box-shadow: 0 18px 45px -30px rgba(16,118,110,0.55);
-        cursor: move;
-        transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+      .toolbar-button svg {
+        width: 15px;
+        height: 15px;
       }
-      .stage-element[data-selected="true"] {
-        border-color: rgba(16,185,129,0.7);
-        box-shadow: 0 24px 60px -28px rgba(16,118,110,0.6);
+      .board-area {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px 28px 24px;
+        min-height: 0;
       }
-      .stage-element:hover { transform: translateY(-1px); }
-      .stage-text { outline: none; font-weight: 600; color: #1f2937; }
-      .stage-placeholder {
+      .canvas-wrapper {
+        width: min(82vw, 1100px);
+        aspect-ratio: 16/9;
+        background: #fff;
+        border-radius: 32px;
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        box-shadow: 0 38px 80px -55px rgba(15, 118, 110, 0.55);
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #slide-stage {
+        position: relative;
+        width: 94%;
+        height: 90%;
+        background: #fff;
+        border-radius: 22px;
+        box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.9);
+        overflow: hidden;
+      }
+      #stage-placeholder {
         position: absolute;
         inset: 0;
         display: grid;
         place-items: center;
-        color: rgba(71,85,105,0.55);
-        font-size: 0.95rem;
+        color: rgba(100, 116, 139, 0.6);
+        font-size: 15px;
         pointer-events: none;
       }
-      .slide-card::after {
-        content: "";
-        position: absolute;
-        inset: 4px;
-        border-radius: 12px;
-        border: 1px dashed transparent;
-        opacity: 0;
-        transition: opacity 0.2s;
+      .slide-dock {
+        padding: 20px 28px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
       }
-      .slide-card:hover::after { border-color: rgba(16,185,129,0.45); opacity: 0.5; }
-      .slide-handles {
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.2s;
+      .dock-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
       }
-      .slide-card:hover .slide-handles { opacity: 1; }
-      .canvas-shell {
-        position: relative;
-        border-radius: 26px;
-        border: 1px solid rgba(148,163,184,0.35);
-        background: rgba(255,255,255,0.88);
-        backdrop-filter: blur(16px);
-        box-shadow: 0 50px 120px -70px rgba(16,118,110,0.55), inset 0 1px 0 rgba(255,255,255,0.7);
-      }
-      .canvas-shell::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        border-radius: inherit;
-        background: linear-gradient(135deg, rgba(255,255,255,0.0), rgba(16,185,129,0.08));
-        mix-blend-mode: soft-light;
-        pointer-events: none;
-      }
-      .notes-card {
+      #btn-add-slide {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 52px;
         border-radius: 18px;
-        border: 1px solid rgba(148,163,184,0.35);
-        background: rgba(255,255,255,0.8);
-        backdrop-filter: blur(20px);
-        box-shadow: 0 25px 70px -40px rgba(16,118,110,0.45);
+        border: 1px dashed rgba(14, 165, 233, 0.45);
+        background: rgba(236, 254, 255, 0.65);
+        color: var(--sky);
+        font-size: 28px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.2s ease;
+      }
+      #btn-add-slide:hover {
+        background: rgba(13, 148, 136, 0.12);
+        transform: translateY(-1px);
+      }
+      .slide-strip {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        max-width: min(50vw, 600px);
+        overflow-x: auto;
+        scrollbar-width: thin;
+      }
+      .slide-thumb {
+        position: relative;
+        flex: 0 0 auto;
+        width: 96px;
+        border-radius: 16px;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .slide-thumb:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 36px -26px rgba(15, 118, 110, 0.6);
+      }
+      .slide-thumb .thumb-canvas {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #fff 0%, #e2f7ff 100%);
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        overflow: hidden;
+      }
+      .slide-thumb .thumb-canvas::after {
+        content: "";
+        position: absolute;
+        inset: 6px;
+        border-radius: 10px;
+        border: 1px dashed rgba(14, 165, 233, 0.2);
+      }
+      .slide-thumb .thumb-label {
+        text-align: center;
+        color: var(--slate-500);
+        font-size: 11px;
+        margin-top: 6px;
+      }
+      .slide-thumb.active {
+        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.45);
+      }
+      .dock-center {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        min-width: 200px;
       }
       .progress-track {
         position: relative;
+        width: 220px;
+        height: 6px;
+        background: rgba(148, 163, 184, 0.18);
+        border-radius: 999px;
         overflow: hidden;
       }
-      .progress-track::after {
-        content: "";
+      .progress-fill {
         position: absolute;
         inset: 0;
-        background: linear-gradient(120deg, rgba(16,185,129,0.4), rgba(14,165,233,0.4));
-        animation: shimmer 3s linear infinite;
-        opacity: 0.35;
+        width: 20%;
+        border-radius: inherit;
+        background: linear-gradient(120deg, rgba(16, 185, 129, 0.9), rgba(14, 165, 233, 0.9));
+      }
+      .progress-label {
+        font-size: 12px;
+        color: var(--slate-500);
+        font-weight: 500;
+      }
+      .dock-right {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.24);
+        padding: 6px 12px;
+      }
+      .dock-right button {
+        border: none;
+        background: transparent;
+        color: var(--slate-500);
+        font-size: 16px;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 8px;
+        transition: background 0.18s ease, color 0.18s ease;
+      }
+      .dock-right button:hover {
+        background: rgba(14, 165, 233, 0.12);
+        color: var(--navy);
+      }
+      .zoom-display {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--slate-600);
+      }
+
+      /* Stage elements and shape tooling */
+      .stage-element {
+        position: absolute;
+        min-width: 160px;
+        padding: 12px 18px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid rgba(148, 163, 184, 0.42);
+        box-shadow: 0 28px 45px -32px rgba(15, 118, 110, 0.6);
+        cursor: move;
+        transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+      }
+      .stage-element:hover {
+        transform: translateY(-1px);
+      }
+      .stage-element[data-selected="true"] {
+        border-color: rgba(14, 165, 233, 0.65);
+        box-shadow: 0 34px 60px -28px rgba(14, 165, 233, 0.55);
+      }
+      .stage-text {
+        outline: none;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--navy);
+      }
+      .stage-element[data-type="shape"] {
+        padding: 0;
+        min-width: 60px;
+        min-height: 40px;
+      }
+      .stage-element[data-type="shape"] .stage-text {
+        display: none;
+      }
+      .stage-element[data-type="shape"]::after {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        border-radius: 22px;
+        border: 1px solid transparent;
+        pointer-events: none;
+        transition: border-color 0.18s ease, box-shadow 0.18s ease;
+      }
+      .stage-element[data-type="shape"][data-selected="true"]::after {
+        border-color: rgba(14, 165, 233, 0.6);
+        box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+      }
+      .stage-shape-body {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      .stage-shape-body * {
+        pointer-events: none;
+      }
+      .resize-handle {
+        position: absolute;
+        right: -6px;
+        bottom: -6px;
+        width: 16px;
+        height: 16px;
+        border-radius: 6px;
+        border: 1px solid rgba(14, 165, 233, 0.55);
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.85), rgba(14, 165, 233, 0.75));
+        box-shadow: 0 12px 24px -14px rgba(14, 165, 233, 0.7);
+        cursor: nwse-resize;
+      }
+      .resize-handle::after {
+        content: "";
+        position: absolute;
+        inset: 4px;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.95);
+      }
+
+      .shape-menu {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        width: 180px;
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        box-shadow: 0 35px 70px -32px rgba(15, 118, 110, 0.45);
+        padding: 12px;
+        display: grid;
+        gap: 6px;
+        z-index: 40;
+      }
+      .shape-menu.hidden {
+        display: none;
+      }
+      .shape-menu::before {
+        content: "";
+        position: absolute;
+        top: -8px;
+        right: 26px;
+        width: 16px;
+        height: 16px;
+        background: inherit;
+        border-left: 1px solid rgba(148, 163, 184, 0.35);
+        border-top: 1px solid rgba(148, 163, 184, 0.35);
+        transform: rotate(45deg);
+        z-index: -1;
+      }
+      .shape-menu button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 12px;
+        border: 1px solid transparent;
+        background: rgba(248, 250, 252, 0.95);
+        color: var(--slate-600);
+        font-size: 12px;
+        cursor: pointer;
+        transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
+      }
+      .shape-menu button:hover {
+        border-color: rgba(16, 185, 129, 0.45);
+        background: rgba(236, 253, 245, 0.95);
+        transform: translateX(-1px);
+      }
+
+      .properties-panel {
+        position: fixed;
+        top: 110px;
+        right: 24px;
+        width: min(340px, 90vw);
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 22px;
+        border: 1px solid rgba(148, 163, 184, 0.24);
+        box-shadow: 0 35px 90px -45px rgba(15, 118, 110, 0.55);
+        padding: 18px 20px 22px;
+        transform: translateX(120%);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.25s ease, opacity 0.25s ease;
+        z-index: 50;
+      }
+      .properties-panel.open {
+        transform: translateX(0);
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .properties-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .properties-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--navy);
+      }
+      .properties-subtitle {
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: var(--slate-500);
+      }
+      .properties-close {
+        border: none;
+        background: transparent;
+        color: var(--slate-400);
+        font-size: 20px;
+        cursor: pointer;
+      }
+      .properties-content {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        max-height: min(60vh, 520px);
+        overflow-y: auto;
+      }
+      .properties-content label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--slate-600);
+        display: block;
+        margin-bottom: 6px;
+      }
+      .properties-content input,
+      .properties-content select {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        padding: 10px 12px;
+        font-size: 13px;
+        color: var(--slate-600);
+        background: rgba(248, 250, 252, 0.9);
+      }
+      .properties-content input:focus,
+      .properties-content select:focus {
+        border-color: rgba(14, 165, 233, 0.6);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.18);
+      }
+      .properties-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .properties-empty {
+        text-align: center;
+        padding: 32px 0;
+        font-size: 13px;
+        color: var(--slate-400);
+      }
+      .align-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .align-buttons button {
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        background: rgba(248, 250, 252, 0.9);
+        font-size: 11px;
+        color: var(--slate-600);
+        cursor: pointer;
+        transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+      }
+      .align-buttons button.active,
+      .align-buttons button:hover {
+        border-color: rgba(16, 185, 129, 0.5);
+        background: rgba(236, 253, 245, 0.9);
+        color: var(--navy);
+      }
+
+      @media (max-width: 1180px) {
+        .topbar {
+          flex-wrap: wrap;
+          gap: 18px;
+        }
+        .left-rail {
+          display: none;
+        }
+        .canvas-wrapper {
+          width: min(90vw, 960px);
+        }
+        .slide-dock {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .dock-left {
+          justify-content: center;
+        }
+        .dock-center {
+          align-items: center;
+        }
+        .dock-right {
+          align-self: center;
+        }
+      }
+      @media (max-width: 720px) {
+        .editor-toolbar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .toolbar-right {
+          justify-content: flex-start;
+        }
+        .properties-panel {
+          top: 80px;
+          right: 12px;
+        }
       }
     </style>
   </head>
-  <body class="min-h-screen bg-[#eef3fb] text-slate-900">
-    <div class="relative flex h-screen flex-col overflow-hidden">
-      <div class="pointer-events-none absolute inset-0 -z-10">
-        <div class="blob-motion absolute -top-32 left-1/3 h-96 w-96 rounded-full bg-emerald-200/40 blur-3xl"></div>
-        <div class="blob-motion absolute top-1/2 -left-20 h-80 w-80 rounded-full bg-sky-200/30 blur-[140px]"></div>
-        <div class="blob-motion absolute bottom-0 right-0 h-96 w-96 translate-x-1/3 rounded-full bg-emerald-100/50 blur-[150px]"></div>
-      </div>
-      <!-- Primary menu bar -->
-      <header class="border-b border-white/60 bg-white/80 backdrop-blur">
-        <div class="toolbar-glow mx-auto flex w-full max-w-7xl items-center justify-between rounded-[30px] px-6 py-3">
-          <div class="flex items-center gap-4">
-            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-sky-400 text-sm font-semibold text-white shadow-lg shadow-emerald-200/60">PM</div>
-            <div>
-              <div class="text-sm font-semibold tracking-tight text-slate-800">Untitled presentation</div>
-              <nav class="flex items-center gap-3 text-xs text-slate-500">
-                <span class="font-medium text-emerald-600">File</span>
-                <span class="hover:text-emerald-600">Edit</span>
-                <span class="hover:text-emerald-600">View</span>
-                <span class="hover:text-emerald-600">Insert</span>
-                <span class="hover:text-emerald-600">Format</span>
-                <span class="hover:text-emerald-600">Slide</span>
-                <span class="hover:text-emerald-600">Arrange</span>
-                <span class="hover:text-emerald-600">Tools</span>
-                <span class="hover:text-emerald-600">Extensions</span>
-                <span class="hover:text-emerald-600">Help</span>
-              </nav>
-              <div class="mt-1 flex items-center gap-2 text-[11px] text-emerald-600">
-                <span class="relative flex h-2 w-2">
-                  <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-75"></span>
-                  <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-                </span>
-                <span>Live collaboration enabled</span>
-            </div>
-            </div>
-          </div>
-          <div class="flex items-center gap-3 text-sm">
-            <button class="rounded-full border border-slate-200 bg-white/80 px-4 py-1 text-slate-600 shadow-sm transition hover:border-emerald-300 hover:text-emerald-600">Share</button>
-            <div class="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-emerald-500 to-sky-500 text-sm font-semibold text-white shadow-lg">H</div>
-              </div>
-            </div>
-      </header>
-
-      <!-- Secondary toolbar -->
-      <div class="border-b border-white/60 bg-white/65 backdrop-blur">
-        <div class="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-3 px-6 py-3 text-slate-600">
-          <div class="flex items-center gap-2 rounded-full border border-slate-200 bg-white/90 px-3 py-1.5 shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4 text-slate-400"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M18 10.5A7.5 7.5 0 1 1 3 10.5a7.5 7.5 0 0 1 15 0Z"/></svg>
-            <input placeholder="Search the editor" class="w-40 bg-transparent text-xs text-slate-500 focus:outline-none" />
-          </div>
-          <div class="hidden h-5 w-px bg-slate-200 sm:block"></div>
-          <div class="flex flex-wrap items-center gap-2">
-            <button class="toolbar-button text-xs text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12h12"/><path stroke-linecap="round" stroke-linejoin="round" d="m8 7-5 5 5 5"/></svg><span>Undo</span></button>
-            <button class="toolbar-button text-xs text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12H9"/><path stroke-linecap="round" stroke-linejoin="round" d="m16 7 5 5-5 5"/></svg><span>Redo</span></button>
-            <button id="btn-add-text" class="toolbar-button text-xs text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M5 6h14"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 6v12"/><path stroke-linecap="round" stroke-linejoin="round" d="M16 6v12"/><path stroke-linecap="round" stroke-linejoin="round" d="M5 18h14"/></svg><span>Text box</span></button>
-            <button class="toolbar-button text-xs text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19V5"/><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/></svg><span>Line</span></button>
-            <button class="toolbar-button text-xs text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="5" width="14" height="14" rx="2"/></svg><span>Shape</span></button>
-            <button class="toolbar-button text-xs text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" d="M4 6h16"/><path stroke-linecap="round" d="M4 12h16"/><path stroke-linecap="round" d="M4 18h16"/></svg><span>Guides</span></button>
-            <button class="toolbar-button text-xs text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16v16H4z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 13 2-2 3 4"/></svg><span>Image</span></button>
-          </div>
-          <div class="ml-auto flex items-center gap-2 text-xs">
-            <button class="toolbar-button text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 19h16"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 5v14"/></svg><span>Layout</span></button>
-            <button class="toolbar-button text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="m3 3 18 18"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 3 3 21"/></svg><span>Theme</span></button>
-            <button class="toolbar-button text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="m4 4 7.5 7.5L4 19"/><path stroke-linecap="round" stroke-linejoin="round" d="M20 4l-7.5 7.5L20 19"/></svg><span>Transition</span></button>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="topbar-group">
+          <button class="menu-button" title="Menu">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <div>
+            <div class="topbar-title">Untitled design – Presentation</div>
+            <div class="topbar-nav">
+              <span>File</span>
+              <span>Resize</span>
+              <span>Design</span>
+              <span>Insert</span>
+              <span>Animate</span>
+              <span>View</span>
             </div>
           </div>
         </div>
-
-      <!-- Workspace -->
-      <div class="mx-auto flex w-full max-w-7xl flex-1 gap-4 px-6 py-4">
-        <!-- Slides panel -->
-        <aside class="flex w-48 flex-col">
-          <button id="btn-add-slide" class="mb-3 flex h-20 items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-white text-sm font-semibold text-emerald-600 shadow-sm transition hover:border-emerald-400 hover:bg-emerald-50">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14"/><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/></svg>
-            <span>Add slide</span>
+        <div class="topbar-actions">
+          <button class="circle-button" title="Undo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v6h6M21 17a9 9 0 0 0-15.52-6.11L3 13" />
+            </svg>
           </button>
-          <ol id="slide-list" class="flex-1 space-y-3 overflow-y-auto pr-1 text-xs scrollbar-thin scrollbar-track-transparent scrollbar-thumb-emerald-200/70"></ol>
-          </aside>
+          <button class="circle-button" title="Redo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 7v6h-6M3 17a9 9 0 0 1 15.52-6.11L21 13" />
+            </svg>
+          </button>
+          <button class="pill-button">Share</button>
+          <button class="pill-button primary-button">Send to reviewer</button>
+          <div class="avatar">H</div>
+        </div>
+      </header>
 
-        <!-- Canvas area -->
-        <section class="relative flex flex-1 flex-col items-center">
-          <!-- horizontal ruler -->
-          <div class="mt-1 flex h-6 w-full max-w-4xl items-end border-b border-slate-300 bg-white">
-            <div class="flex flex-1 justify-between"></div>
-              </div>
-          <div class="flex w-full max-w-4xl flex-1">
-            <!-- vertical ruler -->
-            <div class="flex w-6 flex-col border-r border-slate-300 bg-white">
-              <div class="flex flex-1 flex-col justify-between"></div>
-            </div>
-            <!-- slide -->
-            <div class="relative flex flex-1 items-start justify-center bg-gradient-to-br from-slate-100 via-white to-emerald-50 py-6">
-              <div class="canvas-shell mt-0 aspect-[4/3] w-[85%] max-w-3xl overflow-hidden">
-                <div id="slide-stage" class="relative h-full w-full select-none">
-                  <div id="stage-placeholder" class="stage-placeholder">
-                    Use "Text box" or "Add slide" to start designing ⚡️
-                  </div>
-                </div>
-              </div>
-                  </div>
-                </div>
-          <div class="mt-4 flex w-full max-w-3xl items-center gap-3">
-            <div class="progress-track relative h-2 flex-1 overflow-hidden rounded-full bg-white/70 shadow-inner">
-              <div id="progress-fill" class="relative h-full rounded-full bg-gradient-to-r from-emerald-400 to-sky-400"></div>
-                </div>
-            <span id="progress-label" class="text-xs font-medium text-slate-500">Slide 1 of 6</span>
-                </div>
-        </section>
+      <div class="workspace">
+        <nav class="left-rail">
+          <button class="rail-button active" title="Design">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="18" height="18">
+              <rect x="4" y="4" width="7" height="7" rx="1.5" />
+              <rect x="13" y="4" width="7" height="7" rx="1.5" />
+              <rect x="4" y="13" width="7" height="7" rx="1.5" />
+              <rect x="13" y="13" width="7" height="7" rx="1.5" />
+            </svg>
+          </button>
+          <button class="rail-button" title="Elements">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="18" height="18">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+            </svg>
+          </button>
+          <button class="rail-button" title="Text">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="18" height="18">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M7 7v10m10-10-3 10" />
+            </svg>
+          </button>
+          <button class="rail-button" title="Uploads">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="18" height="18">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m4 16 4-4 4 4 4-4 4 4" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 20h16" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v6" />
+            </svg>
+          </button>
+          <button class="rail-button" title="Photos">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="18" height="18">
+              <circle cx="8.5" cy="8.5" r="2.5" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 20V7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v13" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m4 15 3.5-3.5a1 1 0 0 1 1.5.1L12 15l2.5-2.5a1 1 0 0 1 1.5.1L20 17" />
+            </svg>
+          </button>
+          <button class="rail-button" title="Apps">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="18" height="18">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16M12 4v16" />
+            </svg>
+          </button>
+        </nav>
 
-        <!-- Properties panel -->
-        <aside id="properties-panel" class="w-64 flex-shrink-0">
-          <div class="sticky top-4 rounded-xl border border-white/60 bg-white/85 backdrop-blur shadow-lg">
-            <div class="border-b border-slate-200/60 px-4 py-3">
-              <h3 class="text-sm font-semibold text-slate-700">Properties</h3>
-              <p id="properties-subtitle" class="mt-0.5 text-xs text-slate-500">No selection</p>
-            </div>
-            <div id="properties-content" class="p-4 space-y-4">
-              <div class="text-center py-8 text-sm text-slate-400">
-                Select an element to edit properties
+        <main class="editor-area">
+          <div class="editor-toolbar">
+            <div class="toolbar-left">
+              <div class="toolbar-search">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M18 10.5a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" />
+                </svg>
+                <span>Search the editor</span>
               </div>
+              <div class="toolbar-divider"></div>
+              <button id="btn-add-text" class="toolbar-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 6h14M8 6v12M16 6v12M5 18h14" />
+                </svg>
+                <span>Text box</span>
+              </button>
+              <button class="toolbar-button" id="btn-add-line">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16" />
+                </svg>
+                <span>Line</span>
+              </button>
+              <div class="toolbar-divider"></div>
+              <div style="position: relative;">
+                <button id="btn-add-shape" class="toolbar-button" aria-haspopup="menu" aria-expanded="false">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                    <rect x="5" y="5" width="14" height="14" rx="2" />
+                  </svg>
+                  <span>Shape</span>
+                </button>
+                <div id="shape-menu" class="shape-menu hidden" role="menu" aria-labelledby="btn-add-shape">
+                  <button data-shape="rectangle" role="menuitem">▭ Rectangle</button>
+                  <button data-shape="circle" role="menuitem">◯ Circle</button>
+                  <button data-shape="triangle" role="menuitem">△ Triangle</button>
+                  <button data-shape="diamond" role="menuitem">◇ Diamond</button>
+                  <button data-shape="arrow" role="menuitem">➤ Arrow</button>
+                  <button data-shape="line" role="menuitem">━ Line</button>
+                </div>
+              </div>
+              <button class="toolbar-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <span>Guides</span>
+              </button>
+              <button class="toolbar-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16v16H4z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m9 13 2-2 3 4" />
+                </svg>
+                <span>Image</span>
+              </button>
+            </div>
+            <div class="toolbar-right">
+              <button class="toolbar-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16M4 12h16M4 19h16" />
+                </svg>
+                <span>Layout</span>
+              </button>
+              <button class="toolbar-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m3 3 18 18M21 3 3 21" />
+                </svg>
+                <span>Theme</span>
+              </button>
+              <button class="toolbar-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4 4 8 8-8 8M12 12h8" />
+                </svg>
+                <span>Transitions</span>
+              </button>
+              <button id="toggle-properties" class="toolbar-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12M6 12h12" />
+                </svg>
+                <span>Properties</span>
+              </button>
             </div>
           </div>
-        </aside>
-              </div>
 
-      <!-- Speaker notes -->
-      <footer class="border-t border-white/60 bg-white/75 backdrop-blur">
-        <div class="mx-auto w-full max-w-4xl px-6 py-4 text-sm text-slate-500">
-          <div class="notes-card flex items-center gap-3 px-4 py-3">
-            <div class="grid h-8 w-8 place-items-center rounded-full bg-emerald-100 text-emerald-600">📝</div>
-                <div>
-              <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">Speaker notes</div>
-              <div class="text-sm text-slate-500">Click to add speaker notes</div>
-                </div>
+          <section class="board-area">
+            <div class="canvas-wrapper">
+              <div id="slide-stage">
+                <div id="stage-placeholder">Use “Text box” or “Shape” to start designing ⚡️</div>
               </div>
             </div>
-      </footer>
+          </section>
+
+          <div class="slide-dock">
+            <div class="dock-left">
+              <button id="btn-add-slide" title="Add slide">+</button>
+              <ol id="slide-list" class="slide-strip"></ol>
+            </div>
+            <div class="dock-center">
+              <div class="progress-track">
+                <div id="progress-fill" class="progress-fill"></div>
+              </div>
+              <span id="progress-label" class="progress-label">Slide 1 of 1</span>
+            </div>
+            <div class="dock-right">
+              <button title="Zoom out">−</button>
+              <span class="zoom-display">100%</span>
+              <button title="Zoom in">+</button>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <aside id="properties-panel" class="properties-panel" aria-live="polite">
+        <div class="properties-header">
+          <div>
+            <span class="properties-title">Properties</span>
+            <p id="properties-subtitle" class="properties-subtitle">No selection</p>
+          </div>
+          <button class="properties-close" id="close-properties" title="Close properties">×</button>
+        </div>
+        <div id="properties-content" class="properties-content">
+          <div class="properties-empty">Select an element to edit properties</div>
+        </div>
+      </aside>
     </div>
 
     <template id="slide-template">
-      <li class="slide-card relative group rounded-xl border border-transparent bg-white/90 shadow-sm transition hover:border-emerald-300 hover:shadow-lg">
-        <div class="relative aspect-[4/3] overflow-hidden rounded-lg bg-gradient-to-br from-white via-emerald-50 to-sky-50">
-          <div class="absolute inset-1 rounded-lg border border-emerald-200/80"></div>
-          <div class="slide-handles pointer-events-none absolute inset-1 flex items-center justify-between px-1">
-            <span class="h-2 w-2 rounded-sm border border-white/70 bg-emerald-300/80 shadow"></span>
-            <span class="h-2 w-2 rounded-sm border border-white/70 bg-emerald-300/80 shadow"></span>
-          </div>
-          <div class="slide-handles pointer-events-none absolute inset-1 flex flex-col justify-between py-1">
-            <span class="mx-auto h-2 w-2 rounded-sm border border-white/70 bg-emerald-300/80 shadow"></span>
-            <span class="mx-auto h-2 w-2 rounded-sm border border-white/70 bg-emerald-300/80 shadow"></span>
-          </div>
-        </div>
-        <div class="flex items-center justify-between px-2 py-1 text-[11px]">
-          <span class="font-medium text-slate-600">Slide <span data-index></span></span>
-          <div class="flex gap-1 opacity-0 transition group-hover:opacity-100">
-            <button class="rounded px-1 text-slate-500 hover:bg-emerald-50 hover:text-emerald-600">⧉</button>
-            <button class="rounded px-1 text-slate-500 hover:bg-emerald-50 hover:text-rose-500">✕</button>
-          </div>
-        </div>
+      <li class="slide-thumb">
+        <div class="thumb-canvas"></div>
+        <div class="thumb-label">Slide <span data-index></span></div>
       </li>
     </template>
 
     <script>
-      const slideList = document.getElementById('slide-list')
-      const slideTemplate = document.getElementById('slide-template')
-      const progressFill = document.getElementById('progress-fill')
-      const progressLabel = document.getElementById('progress-label')
-      const addSlideBtn = document.getElementById('btn-add-slide')
-      const addTextBtn = document.getElementById('btn-add-text')
-      const stage = document.getElementById('slide-stage')
-      const stagePlaceholder = document.getElementById('stage-placeholder')
-      const propertiesContent = document.getElementById('properties-content')
-      const propertiesSubtitle = document.getElementById('properties-subtitle')
+      const slideList = document.getElementById('slide-list');
+      const slideTemplate = document.getElementById('slide-template');
+      const progressFill = document.getElementById('progress-fill');
+      const progressLabel = document.getElementById('progress-label');
+      const addSlideBtn = document.getElementById('btn-add-slide');
+      const addTextBtn = document.getElementById('btn-add-text');
+      const addShapeBtn = document.getElementById('btn-add-shape');
+      const shapeMenu = document.getElementById('shape-menu');
+      const stage = document.getElementById('slide-stage');
+      const stagePlaceholder = document.getElementById('stage-placeholder');
+      const propertiesPanel = document.getElementById('properties-panel');
+      const propertiesContent = document.getElementById('properties-content');
+      const propertiesSubtitle = document.getElementById('properties-subtitle');
+      const togglePropertiesBtn = document.getElementById('toggle-properties');
+      const closePropertiesBtn = document.getElementById('close-properties');
 
       const state = {
-        slides: [ { id: 'slide-1', elements: [] } ],
+        slides: [{ id: 'slide-1', elements: [] }],
         current: 0,
         selected: null,
         counter: 0,
-        isEditing: false
+        isEditing: false,
+      };
+
+      const SHAPE_PRESETS = {
+        rectangle: { label: 'Rectangle', width: 260, height: 180, fill: '#e2e8f0', stroke: '#0ea5e9', strokeWidth: 2, borderRadius: 28 },
+        circle: { label: 'Circle', width: 200, height: 200, fill: '#bae6fd', stroke: '#0284c7', strokeWidth: 2, borderRadius: 999 },
+        triangle: { label: 'Triangle', width: 240, height: 200, fill: '#fde68a', stroke: '#f59e0b', strokeWidth: 2, borderRadius: 0 },
+        diamond: { label: 'Diamond', width: 240, height: 180, fill: '#f5d0fe', stroke: '#d946ef', strokeWidth: 2, borderRadius: 0 },
+        arrow: { label: 'Arrow', width: 280, height: 180, fill: '#c7d2fe', stroke: '#6562f0', strokeWidth: 2, borderRadius: 0 },
+        line: { label: 'Line', width: 320, height: 14, fill: 'none', stroke: '#0f172a', strokeWidth: 6, borderRadius: 0 },
+      };
+
+      function clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
       }
 
+      function openPropertiesPanel() {
+        propertiesPanel?.classList.add('open');
+      }
+      function closePropertiesPanel() {
+        propertiesPanel?.classList.remove('open');
+      }
+
+      togglePropertiesBtn?.addEventListener('click', () => {
+        propertiesPanel.classList.toggle('open');
+      });
+      closePropertiesBtn?.addEventListener('click', closePropertiesPanel);
+
       function updateProgress() {
-        const total = state.slides.length || 1
-        const active = state.current + 1
-        const ratio = Math.max(active / total, 1 / total)
-        progressFill.style.width = `${ratio * 100}%`
-        progressLabel.textContent = `Slide ${active} of ${total}`
+        const total = state.slides.length || 1;
+        const active = state.current + 1;
+        const ratio = Math.max(active / total, 1 / total);
+        progressFill.style.width = \`\${ratio * 100}%\`;
+        progressLabel.textContent = \`Slide \${active} of \${total}\`;
       }
 
       function renderSlides() {
-        slideList.innerHTML = ''
+        slideList.innerHTML = '';
         state.slides.forEach((slide, index) => {
-          const clone = slideTemplate.content.firstElementChild.cloneNode(true)
-          clone.dataset.index = index
-          clone.querySelector('[data-index]').textContent = index + 1
+          const clone = slideTemplate.content.firstElementChild.cloneNode(true);
+          clone.dataset.index = index;
+          clone.querySelector('[data-index]').textContent = index + 1;
           if (index === state.current) {
-            clone.classList.add('ring-2', 'ring-emerald-400')
+            clone.classList.add('active');
           }
           clone.addEventListener('click', () => {
-            state.isEditing = false
-            state.current = index
-            state.selected = null
-            renderSlides()
-            renderStage()
-            renderProperties()
-          })
-          slideList.appendChild(clone)
-        })
-        updateProgress()
+            state.isEditing = false;
+            state.current = index;
+            state.selected = null;
+            renderSlides();
+            renderStage();
+            renderProperties();
+          });
+          slideList.appendChild(clone);
+        });
+        updateProgress();
+      }
+
+      function createShapeConfig(variant = 'rectangle') {
+        const preset = SHAPE_PRESETS[variant] || SHAPE_PRESETS.rectangle;
+        return {
+          variant,
+          width: preset.width,
+          height: preset.height,
+          fill: preset.fill,
+          stroke: preset.stroke,
+          strokeWidth: preset.strokeWidth,
+          borderRadius: preset.borderRadius,
+        };
+      }
+
+      function applyShapeVariant(element, variant) {
+        const preset = SHAPE_PRESETS[variant] || SHAPE_PRESETS.rectangle;
+        const previousVariant = element.variant || 'rectangle';
+        element.variant = variant;
+
+        if (variant === 'circle') {
+          const size = Math.max(element.width || preset.width, element.height || preset.height, preset.width);
+          element.width = size;
+          element.height = size;
+          element.borderRadius = preset.borderRadius;
+        } else if (variant === 'line') {
+          element.height = preset.height;
+          element.width = element.width || preset.width;
+          element.borderRadius = 0;
+          element.fill = 'none';
+        } else {
+          element.width = element.width || preset.width;
+          element.height = element.height || preset.height;
+          element.borderRadius = preset.borderRadius ?? 0;
+        }
+
+        if (previousVariant === 'line' && variant !== 'line') {
+          element.fill = preset.fill;
+        } else if (!element.fill || element.fill === 'none') {
+          element.fill = preset.fill;
+        }
+
+        element.stroke = element.stroke || preset.stroke;
+        element.strokeWidth = element.strokeWidth ?? preset.strokeWidth ?? 2;
+      }
+
+      function createShapeSVG(element) {
+        const variant = element.variant || 'rectangle';
+        const preset = SHAPE_PRESETS[variant] || SHAPE_PRESETS.rectangle;
+        const ns = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(ns, 'svg');
+        svg.classList.add('stage-shape-body');
+        svg.setAttribute('viewBox', variant === 'line' ? '0 0 100 10' : '0 0 100 100');
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        svg.dataset.variant = variant;
+
+        let shapeNode;
+        const fill = variant === 'line' ? 'none' : (element.fill ?? preset.fill ?? '#e2e8f0');
+        const stroke = element.stroke ?? preset.stroke ?? '#0ea5e9';
+        const strokeWidth = element.strokeWidth ?? preset.strokeWidth ?? 2;
+
+        switch (variant) {
+          case 'circle': {
+            shapeNode = document.createElementNS(ns, 'circle');
+            shapeNode.setAttribute('cx', '50');
+            shapeNode.setAttribute('cy', '50');
+            shapeNode.setAttribute('r', '44');
+            break;
+          }
+          case 'triangle': {
+            shapeNode = document.createElementNS(ns, 'polygon');
+            shapeNode.setAttribute('points', '50,6 5,94 95,94');
+            break;
+          }
+          case 'diamond': {
+            shapeNode = document.createElementNS(ns, 'polygon');
+            shapeNode.setAttribute('points', '50,4 96,50 50,96 4,50');
+            break;
+          }
+          case 'arrow': {
+            shapeNode = document.createElementNS(ns, 'polygon');
+            shapeNode.setAttribute('points', '6,40 58,40 58,20 94,50 58,80 58,60 6,60');
+            break;
+          }
+          case 'line': {
+            shapeNode = document.createElementNS(ns, 'line');
+            shapeNode.setAttribute('x1', '4');
+            shapeNode.setAttribute('y1', '5');
+            shapeNode.setAttribute('x2', '96');
+            shapeNode.setAttribute('y2', '5');
+            break;
+          }
+          case 'rectangle':
+          default: {
+            shapeNode = document.createElementNS(ns, 'rect');
+            shapeNode.setAttribute('x', '5');
+            shapeNode.setAttribute('y', '5');
+            shapeNode.setAttribute('width', '90');
+            shapeNode.setAttribute('height', '90');
+            const width = element.width || preset.width || 200;
+            const height = element.height || preset.height || 200;
+            const minDimension = Math.max(1, Math.min(width, height));
+            const radiusRatio = (element.borderRadius ?? preset.borderRadius ?? 16) / minDimension;
+            const radius = Math.max(0, Math.min(45, radiusRatio * 90));
+            shapeNode.setAttribute('rx', radius);
+            shapeNode.setAttribute('ry', radius);
+            break;
+          }
+        }
+
+        shapeNode.setAttribute('fill', fill === 'none' ? 'none' : fill);
+        shapeNode.setAttribute('stroke', stroke);
+        shapeNode.setAttribute('stroke-width', variant === 'line' ? strokeWidth : Math.max(1, strokeWidth));
+        shapeNode.setAttribute('stroke-linejoin', 'round');
+        shapeNode.setAttribute('stroke-linecap', 'round');
+        shapeNode.setAttribute('vector-effect', 'non-scaling-stroke');
+        svg.appendChild(shapeNode);
+        return svg;
+      }
+
+      function syncShapeProperties(element) {
+        if (!element || element.type !== 'shape') return;
+        const variantSelect = document.getElementById('prop-shape-variant');
+        if (variantSelect) {
+          variantSelect.value = element.variant || 'rectangle';
+        }
+        const widthInput = document.getElementById('prop-shape-width');
+        if (widthInput && document.activeElement !== widthInput) {
+          widthInput.value = Math.round(element.width || 0);
+        }
+        const heightInput = document.getElementById('prop-shape-height');
+        if (heightInput && document.activeElement !== heightInput) {
+          heightInput.value = Math.round(element.height || 0);
+        }
+        if ((element.variant || 'rectangle') !== 'line') {
+          const fillInput = document.getElementById('prop-shape-fill');
+          if (fillInput) {
+            fillInput.value = element.fill || '#e2e8f0';
+          }
+          const fillHexInput = document.getElementById('prop-shape-fill-hex');
+          if (fillHexInput && document.activeElement !== fillHexInput) {
+            fillHexInput.value = (element.fill || '#e2e8f0').toUpperCase();
+          }
+        }
+        const strokeInput = document.getElementById('prop-shape-stroke');
+        if (strokeInput) {
+          strokeInput.value = element.stroke || '#0ea5e9';
+        }
+        const strokeHexInput = document.getElementById('prop-shape-stroke-hex');
+        if (strokeHexInput && document.activeElement !== strokeHexInput) {
+          strokeHexInput.value = (element.stroke || '#0ea5e9').toUpperCase();
+        }
+        const strokeWidthInput = document.getElementById('prop-shape-stroke-width');
+        if (strokeWidthInput && document.activeElement !== strokeWidthInput) {
+          strokeWidthInput.value = element.strokeWidth ?? 2;
+        }
+        const radiusInput = document.getElementById('prop-shape-radius');
+        if (radiusInput && document.activeElement !== radiusInput) {
+          radiusInput.value = element.borderRadius ?? 16;
+        }
       }
 
       function renderStage() {
-        const slide = state.slides[state.current]
-        // remove current elements
-        stage.querySelectorAll('[data-element]').forEach((el) => el.remove())
+        const slide = state.slides[state.current];
+        stage.querySelectorAll('[data-element]').forEach((el) => el.remove());
 
         if (!slide.elements.length) {
-          stagePlaceholder.classList.remove('hidden')
-          return
+          stagePlaceholder.classList.remove('hidden');
+          return;
         }
-        stagePlaceholder.classList.add('hidden')
+        stagePlaceholder.classList.add('hidden');
 
         slide.elements.forEach((element) => {
-          const node = document.createElement('div')
-          node.className = 'stage-element'
-          node.dataset.element = element.id
-          node.style.left = `${element.x}px`
-          node.style.top = `${element.y}px`
-          node.dataset.selected = state.selected === element.id
+          const node = document.createElement('div');
+          node.className = 'stage-element';
+          node.dataset.element = element.id;
+          node.dataset.type = element.type;
+          node.style.left = \`\${element.x}px\`;
+          node.style.top = \`\${element.y}px\`;
+          node.dataset.selected = state.selected === element.id;
 
-          const textNode = document.createElement('div')
-          textNode.className = 'stage-text'
-          textNode.textContent = element.text
-          textNode.style.fontSize = `${element.fontSize || 16}px`
-          textNode.style.fontFamily = element.fontFamily || 'Inter, sans-serif'
-          textNode.style.fontWeight = element.fontWeight || 600
-          textNode.style.color = element.color || '#1f2937'
-          textNode.style.textAlign = element.textAlign || 'left'
-          node.appendChild(textNode)
+          let textNode = null;
 
-          node.addEventListener('mousedown', (event) => startDrag(event, element, node))
-          node.addEventListener('click', (event) => {
-            event.stopPropagation()
-            state.selected = element.id
-            renderStage()
-            renderProperties()
-          })
-          node.addEventListener('dblclick', (event) => {
-            event.stopPropagation()
-            state.selected = element.id
-            beginEditingText(element.id)
-            renderProperties()
-          })
-          textNode.addEventListener('blur', () => {
-            textNode.contentEditable = 'false'
-            element.text = textNode.textContent || 'Text'
-            state.isEditing = false
-            renderProperties()
-          })
-          textNode.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-              event.preventDefault()
-              textNode.blur()
+          if (element.type === 'text') {
+            node.style.width = 'auto';
+            node.style.height = 'auto';
+            textNode = document.createElement('div');
+            textNode.className = 'stage-text';
+            textNode.textContent = element.text;
+            textNode.style.fontSize = \`\${element.fontSize || 18}px\`;
+            textNode.style.fontFamily = element.fontFamily || 'Inter, sans-serif';
+            textNode.style.fontWeight = element.fontWeight || 600;
+            textNode.style.color = element.color || '#1f2937';
+            textNode.style.textAlign = element.textAlign || 'left';
+            node.appendChild(textNode);
+          } else if (element.type === 'shape') {
+            const variant = element.variant || 'rectangle';
+            node.style.width = \`\${element.width || SHAPE_PRESETS[variant]?.width || 200}px\`;
+            node.style.height = \`\${element.height || SHAPE_PRESETS[variant]?.height || 120}px\`;
+            const shapeBody = createShapeSVG(element);
+            node.appendChild(shapeBody);
+
+            if (variant !== 'line') {
+              const resizeHandle = document.createElement('span');
+              resizeHandle.className = 'resize-handle';
+              resizeHandle.addEventListener('mousedown', (event) => startResize(event, element, node));
+              node.appendChild(resizeHandle);
             }
-          })
+          }
 
-          stage.appendChild(node)
-        })
+          node.addEventListener('mousedown', (event) => {
+            if (event.target.classList.contains('resize-handle')) return;
+            startDrag(event, element, node);
+          });
+          node.addEventListener('click', (event) => {
+            event.stopPropagation();
+            state.selected = element.id;
+            renderStage();
+            renderProperties();
+            openPropertiesPanel();
+          });
+
+          if (element.type === 'text' && textNode) {
+            node.addEventListener('dblclick', (event) => {
+              event.stopPropagation();
+              state.selected = element.id;
+              beginEditingText(element.id);
+              renderProperties();
+              openPropertiesPanel();
+            });
+            textNode.addEventListener('blur', () => {
+              textNode.contentEditable = 'false';
+              element.text = textNode.textContent || 'Text';
+              state.isEditing = false;
+              renderProperties();
+            });
+            textNode.addEventListener('keydown', (event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                textNode.blur();
+              }
+            });
+          }
+
+          stage.appendChild(node);
+        });
       }
 
-  function beginEditingText(elementId) {
-    const node = stage.querySelector(`[data-element="${elementId}"]`)
-    if (!node) return
-    const textNode = node.querySelector('.stage-text')
-    if (!textNode) return
-    state.isEditing = true
-    textNode.contentEditable = 'true'
-    textNode.focus()
-    const range = document.createRange()
-    range.selectNodeContents(textNode)
-    const selection = window.getSelection()
-    selection.removeAllRanges()
-    selection.addRange(range)
-  }
+      function beginEditingText(elementId) {
+        const node = stage.querySelector(\`[data-element="\${elementId}"]\`);
+        if (!node) return;
+        const textNode = node.querySelector('.stage-text');
+        if (!textNode) return;
+        state.isEditing = true;
+        textNode.contentEditable = 'true';
+        textNode.focus();
+        const range = document.createRange();
+        range.selectNodeContents(textNode);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
 
       function stageBounds(node) {
-        const rect = stage.getBoundingClientRect()
-        const width = node.offsetWidth
-        const height = node.offsetHeight
-        return { rect, width, height }
+        const rect = stage.getBoundingClientRect();
+        const width = node.offsetWidth;
+        const height = node.offsetHeight;
+        return { rect, width, height };
       }
 
       function startDrag(event, element, node) {
-        if (state.isEditing || event.target.isContentEditable) return
-        event.preventDefault()
-        state.selected = element.id
-        node.dataset.selected = 'true'
-        renderProperties()
-        const startX = event.clientX
-        const startY = event.clientY
-        const originX = element.x
-        const originY = element.y
-        const { rect, width, height } = stageBounds(node)
+        if (state.isEditing || event.target.isContentEditable) return;
+        event.preventDefault();
+        state.selected = element.id;
+        node.dataset.selected = 'true';
+        renderProperties();
+        openPropertiesPanel();
+        const startX = event.clientX;
+        const startY = event.clientY;
+        const originX = element.x;
+        const originY = element.y;
+        const { rect, width, height } = stageBounds(node);
 
         function onMove(moveEvent) {
           if (state.isEditing) {
-            onUp()
-            return
+            onUp();
+            return;
           }
-          const deltaX = moveEvent.clientX - startX
-          const deltaY = moveEvent.clientY - startY
-          let nextX = originX + deltaX
-          let nextY = originY + deltaY
-          nextX = Math.max(0, Math.min(nextX, rect.width - width))
-          nextY = Math.max(0, Math.min(nextY, rect.height - height))
-          element.x = nextX
-          element.y = nextY
-          node.style.left = `${nextX}px`
-          node.style.top = `${nextY}px`
+          const deltaX = moveEvent.clientX - startX;
+          const deltaY = moveEvent.clientY - startY;
+          let nextX = originX + deltaX;
+          let nextY = originY + deltaY;
+          nextX = Math.max(0, Math.min(nextX, rect.width - width));
+          nextY = Math.max(0, Math.min(nextY, rect.height - height));
+          element.x = nextX;
+          element.y = nextY;
+          node.style.left = \`\${nextX}px\`;
+          node.style.top = \`\${nextY}px\`;
+          if (element.type === 'shape') {
+            syncShapeProperties(element);
+          }
         }
 
         function onUp() {
-          document.removeEventListener('mousemove', onMove)
-          document.removeEventListener('mouseup', onUp)
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
         }
 
-        document.addEventListener('mousemove', onMove)
-        document.addEventListener('mouseup', onUp)
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      }
+
+      function startResize(event, element, node) {
+        event.stopPropagation();
+        event.preventDefault();
+        state.selected = element.id;
+        state.isEditing = false;
+        node.dataset.selected = 'true';
+        renderProperties();
+        openPropertiesPanel();
+
+        const startX = event.clientX;
+        const startY = event.clientY;
+        const startWidth = element.width || node.offsetWidth;
+        const startHeight = element.height || node.offsetHeight;
+        const { rect } = stageBounds(node);
+
+        function onMove(moveEvent) {
+          const deltaX = moveEvent.clientX - startX;
+          const deltaY = moveEvent.clientY - startY;
+          let nextWidth = clamp(startWidth + deltaX, 60, rect.width - element.x);
+          let nextHeight = clamp(startHeight + deltaY, 40, rect.height - element.y);
+          if ((element.variant || 'rectangle') === 'circle') {
+            const side = Math.max(nextWidth, nextHeight);
+            nextWidth = side;
+            nextHeight = side;
+          }
+          element.width = nextWidth;
+          element.height = nextHeight;
+          node.style.width = \`\${nextWidth}px\`;
+          node.style.height = \`\${nextHeight}px\`;
+          syncShapeProperties(element);
+        }
+
+        function onUp() {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+          renderStage();
+        }
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
       }
 
       function renderProperties() {
         if (!state.selected) {
-          propertiesContent.innerHTML = '<div class="text-center py-8 text-sm text-slate-400">Select an element to edit properties</div>'
-          propertiesSubtitle.textContent = 'No selection'
-          return
+          propertiesContent.innerHTML = '<div class="properties-empty">Select an element to edit properties</div>';
+          propertiesSubtitle.textContent = 'No selection';
+          return;
         }
 
-        const slide = state.slides[state.current]
-        const element = slide.elements.find((el) => el.id === state.selected)
+        const slide = state.slides[state.current];
+        const element = slide.elements.find((el) => el.id === state.selected);
         if (!element) {
-          propertiesContent.innerHTML = '<div class="text-center py-8 text-sm text-slate-400">Select an element to edit properties</div>'
-          propertiesSubtitle.textContent = 'No selection'
-          return
+          propertiesContent.innerHTML = '<div class="properties-empty">Select an element to edit properties</div>';
+          propertiesSubtitle.textContent = 'No selection';
+          return;
         }
 
         if (element.type === 'text') {
-          propertiesSubtitle.textContent = 'Text element'
-          propertiesContent.innerHTML = `
-            <div class="space-y-4">
+          propertiesSubtitle.textContent = 'Text element';
+          propertiesContent.innerHTML = \`
+            <div>
+              <label>Font family</label>
+              <select id="prop-font-family">
+                <option value="Inter, sans-serif">Inter</option>
+                <option value="Arial, sans-serif">Arial</option>
+                <option value="Georgia, serif">Georgia</option>
+                <option value="'Courier New', monospace">Courier New</option>
+                <option value="'Times New Roman', serif">Times New Roman</option>
+              </select>
+            </div>
+            <div class="properties-grid">
               <div>
-                <label class="mb-1.5 block text-xs font-medium text-slate-600">Font family</label>
-                <select id="prop-font-family" class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400">
-                  <option value="Inter, sans-serif">Inter</option>
-                  <option value="Arial, sans-serif">Arial</option>
-                  <option value="Georgia, serif">Georgia</option>
-                  <option value="'Courier New', monospace">Courier New</option>
-                  <option value="'Times New Roman', serif">Times New Roman</option>
+                <label>Font size</label>
+                <input id="prop-font-size" type="number" min="8" max="200" value="\${element.fontSize || 18}" />
+              </div>
+              <div>
+                <label>Font weight</label>
+                <select id="prop-font-weight">
+                  <option value="300"\${(element.fontWeight || 600) === 300 ? ' selected' : ''}>Light</option>
+                  <option value="400"\${(element.fontWeight || 600) === 400 ? ' selected' : ''}>Regular</option>
+                  <option value="600"\${(element.fontWeight || 600) === 600 ? ' selected' : ''}>Semibold</option>
+                  <option value="700"\${(element.fontWeight || 600) === 700 ? ' selected' : ''}>Bold</option>
                 </select>
-              </div>
-              <div>
-                <label class="mb-1.5 block text-xs font-medium text-slate-600">Font size</label>
-                <div class="flex items-center gap-2">
-                  <input id="prop-font-size" type="number" min="8" max="200" value="${element.fontSize || 16}" class="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400" />
-                  <span class="text-xs text-slate-500">px</span>
-                </div>
-              </div>
-              <div>
-                <label class="mb-1.5 block text-xs font-medium text-slate-600">Font weight</label>
-                <select id="prop-font-weight" class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400">
-                  <option value="300" ${(element.fontWeight || 600) === 300 ? 'selected' : ''}>Light</option>
-                  <option value="400" ${(element.fontWeight || 600) === 400 ? 'selected' : ''}>Regular</option>
-                  <option value="600" ${(element.fontWeight || 600) === 600 ? 'selected' : ''}>Semibold</option>
-                  <option value="700" ${(element.fontWeight || 600) === 700 ? 'selected' : ''}>Bold</option>
-                </select>
-              </div>
-              <div>
-                <label class="mb-1.5 block text-xs font-medium text-slate-600">Text color</label>
-                <div class="flex items-center gap-2">
-                  <input id="prop-text-color" type="color" value="${element.color || '#1f2937'}" class="h-10 w-16 rounded-lg border border-slate-200 cursor-pointer" />
-                  <input id="prop-text-color-hex" type="text" value="${element.color || '#1f2937'}" class="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400" />
-                </div>
-              </div>
-              <div>
-                <label class="mb-1.5 block text-xs font-medium text-slate-600">Text align</label>
-                <div class="grid grid-cols-3 gap-2">
-                  <button data-align="left" class="prop-align-btn rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 transition hover:border-emerald-400 hover:bg-emerald-50 ${(element.textAlign || 'left') === 'left' ? 'border-emerald-400 bg-emerald-50' : ''}">Left</button>
-                  <button data-align="center" class="prop-align-btn rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 transition hover:border-emerald-400 hover:bg-emerald-50 ${(element.textAlign || 'left') === 'center' ? 'border-emerald-400 bg-emerald-50' : ''}">Center</button>
-                  <button data-align="right" class="prop-align-btn rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 transition hover:border-emerald-400 hover:bg-emerald-50 ${(element.textAlign || 'left') === 'right' ? 'border-emerald-400 bg-emerald-50' : ''}">Right</button>
-                </div>
               </div>
             </div>
-          `
-          
-          // Set current values
-          const fontFamilySelect = document.getElementById('prop-font-family')
-          if (element.fontFamily) fontFamilySelect.value = element.fontFamily
-          
-          // Event listeners
+            <div>
+              <label>Text color</label>
+              <div class="properties-grid">
+                <input id="prop-text-color" type="color" value="\${element.color || '#1f2937'}" />
+                <input id="prop-text-color-hex" type="text" value="\${(element.color || '#1f2937').toUpperCase()}" />
+              </div>
+            </div>
+            <div>
+              <label>Alignment</label>
+              <div class="align-buttons">
+                <button data-align="left" class="\${(element.textAlign || 'left') === 'left' ? 'active' : ''}">Left</button>
+                <button data-align="center" class="\${(element.textAlign || 'left') === 'center' ? 'active' : ''}">Center</button>
+                <button data-align="right" class="\${(element.textAlign || 'left') === 'right' ? 'active' : ''}">Right</button>
+              </div>
+            </div>
+          \`;
+
+          const fontFamilySelect = document.getElementById('prop-font-family');
+          if (element.fontFamily) fontFamilySelect.value = element.fontFamily;
           fontFamilySelect?.addEventListener('change', (e) => {
-            element.fontFamily = e.target.value
-            renderStage()
-          })
-          
+            element.fontFamily = e.target.value;
+            renderStage();
+          });
+
           document.getElementById('prop-font-size')?.addEventListener('input', (e) => {
-            element.fontSize = parseInt(e.target.value) || 16
-            renderStage()
-          })
-          
+            element.fontSize = parseInt(e.target.value, 10) || 18;
+            renderStage();
+          });
+
           document.getElementById('prop-font-weight')?.addEventListener('change', (e) => {
-            element.fontWeight = parseInt(e.target.value) || 600
-            renderStage()
-          })
-          
-          const colorInput = document.getElementById('prop-text-color')
-          const colorHexInput = document.getElementById('prop-text-color-hex')
-          
+            element.fontWeight = parseInt(e.target.value, 10) || 600;
+            renderStage();
+          });
+
+          const colorInput = document.getElementById('prop-text-color');
+          const colorHexInput = document.getElementById('prop-text-color-hex');
           colorInput?.addEventListener('input', (e) => {
-            element.color = e.target.value
-            colorHexInput.value = e.target.value
-            renderStage()
-          })
-          
+            element.color = e.target.value;
+            colorHexInput.value = e.target.value.toUpperCase();
+            renderStage();
+          });
           colorHexInput?.addEventListener('input', (e) => {
-            const val = e.target.value
+            const val = e.target.value.trim();
             if (/^#[0-9A-F]{6}$/i.test(val)) {
-              element.color = val
-              colorInput.value = val
-              renderStage()
+              element.color = val;
+              colorInput.value = val;
+              renderStage();
             }
-          })
-          
-          document.querySelectorAll('.prop-align-btn').forEach((btn) => {
+          });
+
+          document.querySelectorAll('.align-buttons button').forEach((btn) => {
             btn.addEventListener('click', () => {
-              element.textAlign = btn.dataset.align
-              renderProperties()
-              renderStage()
-            })
-          })
+              element.textAlign = btn.dataset.align;
+              renderProperties();
+              renderStage();
+            });
+          });
+        } else if (element.type === 'shape') {
+          const variant = element.variant || 'rectangle';
+          const preset = SHAPE_PRESETS[variant] || SHAPE_PRESETS.rectangle;
+          const fill = element.fill || preset.fill || '#e2e8f0';
+          const stroke = element.stroke || preset.stroke || '#0ea5e9';
+          const supportsFill = variant !== 'line';
+          const supportsRadius = variant === 'rectangle';
+
+          propertiesSubtitle.textContent = 'Shape element';
+          propertiesContent.innerHTML = \`
+            <div>
+              <label>Shape type</label>
+              <select id="prop-shape-variant">
+                \${Object.entries(SHAPE_PRESETS)
+                  .map(([key, cfg]) => \`<option value="\${key}"\${variant === key ? ' selected' : ''}>\${cfg.label}</option>\`)
+                  .join('')}
+              </select>
+            </div>
+            <div>
+              <label>\${variant === 'line' ? 'Length' : 'Dimensions'}</label>
+              <div class="\${variant === 'line' ? '' : 'properties-grid'}">
+                <div>
+                  <input id="prop-shape-width" type="number" min="40" max="1600" value="\${Math.round(element.width || preset.width)}" />
+                </div>
+                \${variant === 'line'
+                  ? ''
+                  : \`<div><input id="prop-shape-height" type="number" min="40" max="1200" value="\${Math.round(element.height || preset.height)}" /></div>\`}
+              </div>
+            </div>
+            \${supportsFill
+              ? \`<div>
+                  <label>Fill color</label>
+                  <div class="properties-grid">
+                    <input id="prop-shape-fill" type="color" value="\${fill}" />
+                    <input id="prop-shape-fill-hex" type="text" value="\${fill.toUpperCase()}" />
+                  </div>
+                </div>\`
+              : ''}
+            <div>
+              <label>\${variant === 'line' ? 'Stroke color' : 'Border color'}</label>
+              <div class="properties-grid">
+                <input id="prop-shape-stroke" type="color" value="\${stroke}" />
+                <input id="prop-shape-stroke-hex" type="text" value="\${stroke.toUpperCase()}" />
+              </div>
+            </div>
+            <div class="properties-grid">
+              <div>
+                <label>\${variant === 'line' ? 'Stroke width' : 'Border width'}</label>
+                <input id="prop-shape-stroke-width" type="number" min="1" max="40" value="\${element.strokeWidth ?? preset.strokeWidth ?? 2}" />
+              </div>
+              \${supportsRadius
+                ? \`<div>
+                    <label>Corner radius</label>
+                    <input id="prop-shape-radius" type="number" min="0" max="200" value="\${element.borderRadius ?? preset.borderRadius ?? 16}" />
+                  </div>\`
+                : ''}
+            </div>
+          \`;
+
+          const hexPattern = /^#[0-9A-F]{6}$/i;
+
+          document.getElementById('prop-shape-variant')?.addEventListener('change', (e) => {
+            applyShapeVariant(element, e.target.value);
+            renderStage();
+            renderProperties();
+          });
+
+          document.getElementById('prop-shape-width')?.addEventListener('input', (e) => {
+            const raw = parseInt(e.target.value, 10);
+            const maxWidth = Math.max(40, stage.clientWidth - element.x);
+            element.width = clamp(isNaN(raw) ? element.width : raw, 40, maxWidth);
+            if ((element.variant || 'rectangle') === 'circle') {
+              element.height = element.width;
+            }
+            renderStage();
+            syncShapeProperties(element);
+          });
+
+          document.getElementById('prop-shape-height')?.addEventListener('input', (e) => {
+            const raw = parseInt(e.target.value, 10);
+            const maxHeight = Math.max(40, stage.clientHeight - element.y);
+            element.height = clamp(isNaN(raw) ? element.height : raw, 40, maxHeight);
+            if ((element.variant || 'rectangle') === 'circle') {
+              element.width = element.height;
+            }
+            renderStage();
+            syncShapeProperties(element);
+          });
+
+          const fillInput = document.getElementById('prop-shape-fill');
+          const fillHexInput = document.getElementById('prop-shape-fill-hex');
+          fillInput?.addEventListener('input', (e) => {
+            element.fill = e.target.value;
+            if (fillHexInput) fillHexInput.value = e.target.value.toUpperCase();
+            renderStage();
+          });
+          fillHexInput?.addEventListener('input', (e) => {
+            const val = e.target.value.trim();
+            if (hexPattern.test(val)) {
+              element.fill = val.startsWith('#') ? val : \`#\${val}\`;
+              if (fillInput) fillInput.value = element.fill;
+              renderStage();
+            }
+          });
+
+          const strokeInput = document.getElementById('prop-shape-stroke');
+          const strokeHexInput = document.getElementById('prop-shape-stroke-hex');
+          strokeInput?.addEventListener('input', (e) => {
+            element.stroke = e.target.value;
+            if (strokeHexInput) strokeHexInput.value = e.target.value.toUpperCase();
+            renderStage();
+          });
+          strokeHexInput?.addEventListener('input', (e) => {
+            const val = e.target.value.trim();
+            if (hexPattern.test(val)) {
+              element.stroke = val.startsWith('#') ? val : \`#\${val}\`;
+              if (strokeInput) strokeInput.value = element.stroke;
+              renderStage();
+            }
+          });
+
+          document.getElementById('prop-shape-stroke-width')?.addEventListener('input', (e) => {
+            const raw = parseInt(e.target.value, 10);
+            element.strokeWidth = clamp(isNaN(raw) ? element.strokeWidth || 1 : raw, 1, 40);
+            if ((element.variant || 'rectangle') === 'line') {
+              element.height = Math.max(element.strokeWidth + 4, 6);
+            }
+            renderStage();
+            syncShapeProperties(element);
+          });
+
+          document.getElementById('prop-shape-radius')?.addEventListener('input', (e) => {
+            const raw = parseInt(e.target.value, 10);
+            element.borderRadius = clamp(isNaN(raw) ? element.borderRadius || 0 : raw, 0, 200);
+            renderStage();
+            syncShapeProperties(element);
+          });
+
+          syncShapeProperties(element);
         }
       }
 
       function addTextElement() {
-        const slide = state.slides[state.current]
-        const id = `el-${++state.counter}`
-        slide.elements.push({ 
-          id, 
-          type: 'text', 
-          text: 'Click to edit', 
-          x: 120, 
-          y: 120,
-          fontSize: 16,
+        const slide = state.slides[state.current];
+        const id = \`el-\${++state.counter}\`;
+        slide.elements.push({
+          id,
+          type: 'text',
+          text: 'Click to edit',
+          x: 160,
+          y: 140,
+          fontSize: 24,
           fontFamily: 'Inter, sans-serif',
           fontWeight: 600,
           color: '#1f2937',
-          textAlign: 'left'
-        })
-        state.selected = id
-        renderStage()
-        renderProperties()
-        requestAnimationFrame(() => beginEditingText(id))
+          textAlign: 'left',
+        });
+        state.selected = id;
+        renderStage();
+        renderProperties();
+        openPropertiesPanel();
+        requestAnimationFrame(() => beginEditingText(id));
+      }
+
+      function addShapeElement(variant = 'rectangle') {
+        const slide = state.slides[state.current];
+        const id = \`el-\${++state.counter}\`;
+        slide.elements.push({
+          id,
+          type: 'shape',
+          x: 180,
+          y: 160,
+          ...createShapeConfig(variant),
+        });
+        state.selected = id;
+        state.isEditing = false;
+        renderStage();
+        renderProperties();
+        openPropertiesPanel();
       }
 
       function addSlide() {
-        const id = `slide-${state.slides.length + 1}`
-        state.slides.push({ id, elements: [] })
-        state.isEditing = false
-        state.current = state.slides.length - 1
-        state.selected = null
-        renderSlides()
-        renderStage()
-        renderProperties()
+        const id = \`slide-\${state.slides.length + 1}\`;
+        state.slides.push({ id, elements: [] });
+        state.isEditing = false;
+        state.current = state.slides.length - 1;
+        state.selected = null;
+        renderSlides();
+        renderStage();
+        renderProperties();
+      }
+
+      function toggleShapeMenu() {
+        if (!shapeMenu) return;
+        if (shapeMenu.classList.contains('hidden')) {
+          shapeMenu.classList.remove('hidden');
+          addShapeBtn?.setAttribute('aria-expanded', 'true');
+        } else {
+          shapeMenu.classList.add('hidden');
+          addShapeBtn?.setAttribute('aria-expanded', 'false');
+        }
+      }
+
+      function closeShapeMenu() {
+        if (!shapeMenu || shapeMenu.classList.contains('hidden')) return;
+        shapeMenu.classList.add('hidden');
+        addShapeBtn?.setAttribute('aria-expanded', 'false');
       }
 
       stage.addEventListener('mousedown', (event) => {
         if (event.target === stage || event.target === stagePlaceholder) {
-          state.isEditing = false
-          state.selected = null
-          renderStage()
-          renderProperties()
+          state.isEditing = false;
+          state.selected = null;
+          renderStage();
+          renderProperties();
         }
-      })
+      });
 
-      addTextBtn?.addEventListener('click', addTextElement)
-      addSlideBtn?.addEventListener('click', addSlide)
+      addTextBtn?.addEventListener('click', addTextElement);
+      addSlideBtn?.addEventListener('click', addSlide);
+      addShapeBtn?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (event.shiftKey) {
+          closeShapeMenu();
+          addShapeElement('rectangle');
+          return;
+        }
+        toggleShapeMenu();
+      });
+      shapeMenu?.querySelectorAll('button').forEach((btn) => {
+        btn.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const variant = btn.dataset.shape;
+          closeShapeMenu();
+          addShapeElement(variant);
+        });
+      });
+      document.addEventListener('click', (event) => {
+        if (!shapeMenu || shapeMenu.classList.contains('hidden')) return;
+        if (event.target === addShapeBtn || addShapeBtn?.contains(event.target)) return;
+        if (shapeMenu.contains(event.target)) return;
+        closeShapeMenu();
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeShapeMenu();
+          closePropertiesPanel();
+        }
+      });
 
-      renderSlides()
-      renderStage()
-      renderProperties()
+      // Placeholder handlers for the zoom controls
+      document.querySelectorAll('.dock-right button').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          // Future zoom implementation could go here
+        });
+      });
+
+      renderSlides();
+      renderStage();
+      renderProperties();
     </script>
   </body>
-  </html>
+</html>
 
