@@ -1,12 +1,13 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Presentation Studio</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Presentation Studio</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
@@ -17,13 +18,15 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #22d3ee 100%);
+            background: linear-gradient(135deg, #34d399 0%, #22d3ee 50%, #60a5fa 100%);
             color: white;
             padding: 14px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 2px 12px rgba(8, 145, 178, 0.2);
+            box-shadow: 0 2px 12px rgba(52, 211, 153, 0.15);
+            position: relative;
+            z-index: 200;
         }
 
         .header-left, .header-right { display: flex; align-items: center; gap: 10px; }
@@ -110,6 +113,8 @@
             gap: 10px;
             flex-wrap: wrap;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: relative;
+            z-index: 200;
         }
 
         .tool-btn {
@@ -144,6 +149,25 @@
             gap: 12px;
             overflow-y: auto;
             box-shadow: 2px 0 8px rgba(0,0,0,0.03);
+            scroll-behavior: smooth;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
 
         .sidebar-header {
@@ -167,15 +191,15 @@
         }
 
         .sidebar-slide:hover {
-            border-color: #0891b2;
+            border-color: #5eead4;
             transform: translateX(-4px);
-            box-shadow: 0 4px 12px rgba(8, 145, 178, 0.15);
+            box-shadow: 0 4px 12px rgba(94, 234, 212, 0.15);
         }
 
         .sidebar-slide.active {
-            border-color: #0891b2;
+            border-color: #2dd4bf;
             border-width: 3px;
-            box-shadow: 0 4px 16px rgba(8, 145, 178, 0.25);
+            box-shadow: 0 4px 16px rgba(45, 212, 191, 0.25);
         }
 
         .sidebar-slide-preview {
@@ -226,10 +250,7 @@
             border: 2px dashed #cbd5e1;
             border-radius: 6px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            text-align: center;
             font-size: 13px;
             font-weight: 600;
             color: #64748b;
@@ -242,235 +263,275 @@
             color: #0891b2;
         }
 
-        .canvas-area {
+        .main-canvas {
             flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+            overflow-x: hidden;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 40px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #f0f9fb 100%);
-            overflow: auto;
             position: relative;
+            scroll-behavior: smooth;
         }
 
-        .canvas-area::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: 
-                repeating-linear-gradient(0deg, transparent, transparent 19px, #e5e7eb 19px, #e5e7eb 20px),
-                repeating-linear-gradient(90deg, transparent, transparent 19px, #e5e7eb 19px, #e5e7eb 20px);
-            opacity: 0.3;
-            pointer-events: none;
+        .main-canvas::-webkit-scrollbar {
+            width: 10px;
         }
 
-        .canvas-wrapper { transform-origin: center; transition: transform 0.3s; }
+        .main-canvas::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
 
-        .canvas {
+        .main-canvas::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 5px;
+        }
+
+        .main-canvas::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .canvas-wrapper {
+            transform-origin: center center;
+            transition: transform 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            padding: 20px;
+        }
+
+        .canvas-slide {
             width: 960px;
             height: 540px;
             background: white;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
             border-radius: 4px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-            position: relative;
             overflow: hidden;
+            transition: all 0.3s ease;
+            z-index: 1;
         }
 
-        .guide-line {
+        .canvas-slide:hover {
+            box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+            transform: translateY(-2px);
+        }
+
+        .canvas-slide.active {
+            box-shadow: 0 0 0 3px #2dd4bf, 0 12px 40px rgba(45, 212, 191, 0.3);
+        }
+
+        .slide-number-badge {
             position: absolute;
-            background: #0891b2;
-            z-index: 9999;
-            pointer-events: none;
-        }
-
-        .guide-line.horizontal {
-            height: 1px;
-            width: 100%;
-            left: 0;
-            box-shadow: 0 0 4px rgba(8, 145, 178, 0.5);
-        }
-
-        .guide-line.vertical {
-            width: 1px;
-            height: 100%;
-            top: 0;
-            box-shadow: 0 0 4px rgba(8, 145, 178, 0.5);
-        }
-
-        .snap-indicator {
-            position: absolute;
-            background: #10b981;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            z-index: 9998;
-            pointer-events: none;
-            box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
-        }
-
-        .bottom-bar {
-            background: white;
-            border-top: 1px solid #e5e7eb;
-            padding: 18px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
-
-        .slides-section {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .slide-controls {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            overflow-x: auto;
-            flex: 1;
-            padding: 4px;
-        }
-
-        .slide-preview {
-            min-width: 130px;
-            height: 74px;
-            border: 2px solid #94a3b8;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 600;
-            color: #64748b;
-            cursor: pointer;
-            background: white;
-            position: relative;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-
-        .slide-preview:hover { border-color: #0891b2; transform: translateY(-2px); }
-        .slide-preview.active { border-color: #0891b2; color: #0891b2; background: #ecfeff; box-shadow: 0 0 0 2px #0891b2; }
-
-        .slide-number {
-            position: absolute;
-            bottom: 6px;
-            left: 8px;
-            font-size: 11px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .slide-icon {
-            font-size: 14px;
-        }
-
-        .slide-delete {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            background: #ef4444;
+            top: 16px;
+            left: 16px;
+            background: rgba(0,0,0,0.7);
             color: white;
-            border: none;
-            border-radius: 5px;
-            width: 22px;
-            height: 22px;
-            font-size: 14px;
-            cursor: pointer;
-            display: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 5;
+            backdrop-filter: blur(10px);
         }
 
-        .slide-preview:hover .slide-delete { display: flex; align-items: center; justify-content: center; }
-
-        .control-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-            background: white;
-            cursor: pointer;
-            font-size: 18px;
-            color: #6b7280;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .control-btn:hover { background: #f9fafb; border-color: #0891b2; color: #0891b2; }
-
-        .zoom-control { display: flex; align-items: center; gap: 14px; }
-        .zoom-slider { width: 160px; }
-        .zoom-value { font-size: 13px; font-weight: 600; color: #6b7280; min-width: 45px; }
-
-        .canvas-element {
+        .element {
             position: absolute;
             cursor: move;
             user-select: none;
-            transition: box-shadow 0.2s;
         }
 
-        .canvas-element.selected { outline: 2px solid #0891b2; outline-offset: 2px; box-shadow: 0 4px 16px rgba(8, 145, 178, 0.2); }
+        .element.selected {
+            outline: 2px solid #2dd4bf;
+            outline-offset: 2px;
+        }
+
+        .element.text-element {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .element.shape-element {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .element.image-element img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
         .resize-handle {
             position: absolute;
-            width: 11px;
-            height: 11px;
+            width: 10px;
+            height: 10px;
             background: white;
-            border: 2px solid #0891b2;
+            border: 2px solid #2dd4bf;
             border-radius: 50%;
             display: none;
-            box-shadow: 0 2px 6px rgba(8, 145, 178, 0.3);
         }
 
-        .canvas-element.selected .resize-handle { display: block; }
-        .resize-handle.nw { top: -6px; left: -6px; cursor: nw-resize; }
-        .resize-handle.ne { top: -6px; right: -6px; cursor: ne-resize; }
-        .resize-handle.sw { bottom: -6px; left: -6px; cursor: sw-resize; }
-        .resize-handle.se { bottom: -6px; right: -6px; cursor: se-resize; }
+        .element.selected .resize-handle { display: block; }
 
-        .text-element {
-            padding: 14px;
-            min-width: 100px;
-            outline: none;
-            cursor: text;
-            line-height: 1.6;
-            border-radius: 4px;
-        }
-        
-        .text-element:not(:focus) { cursor: move; }
+        .resize-handle.nw { top: -5px; left: -5px; cursor: nw-resize; }
+        .resize-handle.ne { top: -5px; right: -5px; cursor: ne-resize; }
+        .resize-handle.sw { bottom: -5px; left: -5px; cursor: sw-resize; }
+        .resize-handle.se { bottom: -5px; right: -5px; cursor: se-resize; }
 
-        .shape-element { border: 2px solid #0891b2; }
-        .image-element { background-size: contain; background-repeat: no-repeat; background-position: center; border-radius: 4px; }
-
-        table.table-element { border-collapse: collapse; background: white; }
-        table.table-element td { border: 1px solid #e5e7eb; padding: 10px; min-width: 90px; min-height: 35px; }
-
-        .context-menu {
+        /* Zoom Control Bar - Bottom Right */
+        .zoom-control {
             position: fixed;
+            bottom: 24px;
+            right: 24px;
             background: white;
-            border: 1px solid #e5e7eb;
             border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-            padding: 6px 0;
-            display: none;
-            z-index: 1000;
-            min-width: 180px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 100;
+            border: 1px solid #e5e7eb;
         }
 
-        .context-menu-item { padding: 11px 18px; cursor: pointer; font-size: 13px; font-weight: 500; color: #374151; }
-        .context-menu-item:hover { background: #ecfeff; color: #0891b2; }
+        .zoom-divider {
+            width: 1px;
+            height: 32px;
+            background: #e5e7eb;
+        }
+
+        .present-mode-btn {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(8, 145, 178, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .present-mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+            background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%);
+        }
+
+        .present-mode-btn:active {
+            transform: translateY(0);
+        }
+
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zoom-btn:hover {
+            background: #f9fafb;
+            border-color: #0891b2;
+            color: #0891b2;
+            transform: scale(1.05);
+        }
+
+        .zoom-btn:active {
+            transform: scale(0.95);
+        }
+
+        .zoom-slider {
+            width: 120px;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e5e7eb;
+            outline: none;
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        .zoom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #0891b2;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .zoom-slider::-webkit-slider-thumb:hover {
+            background: #0e7490;
+            transform: scale(1.2);
+        }
+
+        .zoom-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #0891b2;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .zoom-slider::-moz-range-thumb:hover {
+            background: #0e7490;
+            transform: scale(1.2);
+        }
+
+        .zoom-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .zoom-reset {
+            font-size: 11px;
+            padding: 4px 8px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+
+        .zoom-reset:hover {
+            background: #f9fafb;
+            color: #0891b2;
+            border-color: #0891b2;
+        }
 
         .modal {
             display: none;
             position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
             z-index: 2000;
             align-items: center;
             justify-content: center;
@@ -480,1459 +541,1493 @@
 
         .modal-content {
             background: white;
-            padding: 28px;
             border-radius: 16px;
-            max-width: 520px;
+            padding: 32px;
+            max-width: 600px;
             width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
 
-        .modal-header { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #1f2937; }
-        .modal-body { margin-bottom: 24px; }
-        .modal-footer { display: flex; gap: 12px; justify-content: flex-end; }
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #1f2937;
+        }
 
-        .btn { padding: 11px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
-        .btn-primary { background: #0891b2; color: white; }
-        .btn-secondary { background: #e5e7eb; color: #374151; }
-
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; margin-bottom: 10px; font-size: 13px; font-weight: 600; color: #374151; }
-        .form-group input { width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 13px; }
-        
-        .color-swatch {
-            width: 100%;
-            height: 50px;
-            border-radius: 8px;
+        .modal-close {
+            float: right;
+            font-size: 28px;
+            font-weight: 300;
+            color: #9ca3af;
             cursor: pointer;
-            border: 2px solid #e5e7eb;
+            line-height: 1;
             transition: all 0.2s;
         }
-        
-        .color-swatch:hover {
-            transform: scale(1.05);
-            border-color: #0891b2;
-            box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+
+        .modal-close:hover { color: #ef4444; transform: rotate(90deg); }
+
+        .bg-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 20px;
         }
-        
-        /* Presentation Mode */
+
+        .bg-option {
+            aspect-ratio: 16/9;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 3px solid transparent;
+        }
+
+        .bg-option:hover {
+            transform: scale(1.05);
+            border-color: #2dd4bf;
+            box-shadow: 0 4px 16px rgba(45, 212, 191, 0.3);
+        }
+
+        .animation-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .animation-option {
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.2s;
+            color: #374151;
+        }
+
+        .animation-option:hover {
+            background: #ecfeff;
+            border-color: #0891b2;
+            color: #0891b2;
+            transform: translateY(-2px);
+        }
+
         .present-mode {
             position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 10000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .present-mode.active { display: flex; }
-        
-        .present-slide {
+            top: 0;
+            left: 0;
             width: 100vw;
             height: 100vh;
+            background: black;
+            z-index: 3000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .present-mode.active { display: flex; }
+
+        .present-slide {
+            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
+            width: 100%;
         }
-        
+
         .present-canvas {
-            max-width: 90vw;
-            max-height: 90vh;
             background: white;
-            box-shadow: 0 20px 80px rgba(0,0,0,0.5);
-            position: relative;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.5);
         }
-        
+
         .present-controls {
-            position: fixed;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            padding: 16px 24px;
             display: flex;
-            gap: 20px;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            padding: 16px 32px;
-            border-radius: 50px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-        }
-        
-        .present-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 20px;
-            transition: all 0.3s;
-            display: flex;
+            gap: 16px;
             align-items: center;
-            justify-content: center;
+            border-radius: 12px;
+            margin-bottom: 24px;
         }
-        
-        .present-btn:hover {
-            background: rgba(255,255,255,0.4);
-            transform: scale(1.1);
-        }
-        
-        .present-counter {
+
+        .present-btn {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
             color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
             font-size: 16px;
             font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .present-btn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.5);
+            transform: scale(1.05);
+        }
+
+        .present-counter {
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 0 16px;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideInLeft { from { transform: translateX(-50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideInRight { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideInUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideInDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+
+        .animate-fadeIn { animation: fadeIn 0.6s ease-out; }
+        .animate-slideInLeft { animation: slideInLeft 0.6s ease-out; }
+        .animate-slideInRight { animation: slideInRight 0.6s ease-out; }
+        .animate-slideInUp { animation: slideInUp 0.6s ease-out; }
+        .animate-slideInDown { animation: slideInDown 0.6s ease-out; }
+        .animate-zoomIn { animation: zoomIn 0.6s ease-out; }
+        .animate-bounce { animation: bounce 0.8s ease-in-out; }
+
+        .slide-transition-fade { animation: fadeIn 0.5s; }
+        .slide-transition-slide { animation: slideInRight 0.5s; }
+        .slide-transition-zoom { animation: zoomIn 0.5s; }
+
+        /* Professional Notifications */
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            background: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             display: flex;
             align-items: center;
-            padding: 0 20px;
+            gap: 12px;
+            z-index: 2000;
+            animation: slideInRight 0.3s ease-out;
+            border-left: 4px solid #10b981;
         }
-        
-        /* Slide Transitions */
-        .slide-transition-fade {
-            animation: fadeIn 0.5s ease;
+
+        .notification.error {
+            border-left-color: #ef4444;
         }
-        
-        .slide-transition-slide {
-            animation: slideIn 0.5s ease;
+
+        .notification.warning {
+            border-left-color: #f59e0b;
         }
-        
-        .slide-transition-zoom {
-            animation: zoomIn 0.5s ease;
+
+        .notification-icon {
+            font-size: 20px;
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
+
+        .notification-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        /* Loading Spinner */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            backdrop-filter: blur(4px);
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Professional Tooltips */
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]:hover::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 6px 12px;
+            background: #1f2937;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 6px;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            animation: tooltipFadeIn 0.2s ease-out forwards;
+        }
+
+        [data-tooltip]:hover::after {
+            content: '';
+            position: absolute;
+            bottom: calc(100% + 2px);
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #1f2937;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            animation: tooltipFadeIn 0.2s ease-out forwards;
+        }
+
+        @keyframes tooltipFadeIn {
             to { opacity: 1; }
         }
-        
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+
+        /* Professional Grid Overlay */
+        .canvas-grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
-        
-        @keyframes zoomIn {
-            from { transform: scale(0.5); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+
+        .canvas-grid-overlay.show {
+            opacity: 0.1;
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
         }
-        
-        /* Element Animations */
-        .animate-fadeIn {
-            animation: elementFadeIn 1s ease;
+
+        /* Snap Guidelines */
+        .snap-line {
+            position: absolute;
+            background: #f43f5e;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.8;
         }
-        
-        .animate-slideInLeft {
-            animation: slideInLeft 1s ease;
+
+        .snap-line.horizontal {
+            height: 1px;
+            width: 100%;
+            left: 0;
         }
-        
-        .animate-slideInRight {
-            animation: slideInRight 1s ease;
+
+        .snap-line.vertical {
+            width: 1px;
+            height: 100%;
+            top: 0;
         }
-        
-        .animate-slideInUp {
-            animation: slideInUp 1s ease;
-        }
-        
-        .animate-bounce {
-            animation: bounce 1s ease;
-        }
-        
-        @keyframes elementFadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        @keyframes slideInLeft {
-            from { transform: translateX(-100px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        @keyframes slideInRight {
-            from { transform: translateX(100px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        @keyframes slideInUp {
-            from { transform: translateY(100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-30px); }
-        }
-    </style>
+    
+
+/* ===================== FIXES OVERRIDES (Do not remove) ===================== */
+/* Keep the top bars fixed and ensure tooltips render above them */
+.header {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 4000 !important;
+}
+
+.toolbar {
+  position: fixed !important;
+  top: 60px; /* adjust if header height changes */
+  left: 0;
+  right: 0;
+  z-index: 3500 !important;
+}
+
+.container {
+  margin-top: 120px; /* header (≈60px) + toolbar (≈60px) */
+  height: calc(100vh - 130px);
+}
+
+[data-tooltip]:hover::before,
+[data-tooltip]:hover::after {
+  z-index: 5000 !important; /* render above fixed bars */
+}
+
+/* Menus & overlays should stack correctly above the fixed bars */
+.dropdown-menu {
+  z-index: 5000 !important;
+}
+
+.present-mode {
+  z-index: 6000 !important; /* presentation overlay above everything */
+}
+/* =================== END FIXES OVERRIDES =================== */
+
+
+
+/* ===================== TOOLTIP CLIP FIXES ===================== */
+/* Allow tooltips inside slides to escape the slide box */
+.canvas-slide { overflow: visible !important; }
+/* Ensure any element that shows tooltip is not clipping its pseudo-elements */
+.element, [data-tooltip] { overflow: visible !important; }
+/* Lift slide itself above toolbar if needed when hovering */
+.canvas-slide:hover { z-index: 4500; }
+/* Keep tooltips the highest */
+[data-tooltip]:hover::before, [data-tooltip]:hover::after { z-index: 5000 !important; }
+/* =================== END TOOLTIP CLIP FIXES =================== */
+
+</style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-left">
-            <button class="header-btn" onclick="app.save()">Save</button>
-            <button class="header-btn" onclick="app.load()">Load</button>
-            <button class="header-btn" onclick="app.exportPDF()">Export PDF</button>
-            <button class="header-btn" onclick="app.undo()" id="undoBtn" disabled>Undo</button>
-            <button class="header-btn" onclick="app.redo()" id="redoBtn" disabled>Redo</button>
-        </div>
-        <div class="header-right">
-            <input type="text" class="title-input" id="title" placeholder="Untitled Presentation" />
-            <div style="position: relative;">
-                <button class="share-btn" onclick="app.toggleShare()">Share</button>
-                <div class="dropdown-menu" id="shareMenu">
-                    <div class="dropdown-item" onclick="app.shareEmail()">Send via Email</div>
-                    <div class="dropdown-item" onclick="app.download()">Download to Device</div>
-                    <div class="dropdown-item" onclick="app.shareLink()">Generate Share Link</div>
+<div class="header">
+<div class="header-left">
+<button class="header-btn" onclick="app.newPresentation()">New</button>
+<button class="header-btn" onclick="app.saveJSON()">Save</button>
+<button class="header-btn" onclick="app.loadJSON()">Load</button>
+<input class="title-input" id="title" placeholder="Untitled Presentation" type="text"/>
+</div>
+<div class="header-right">
+<button class="header-btn" data-tooltip="Undo (Ctrl+Z)" disabled="" id="undoBtn" onclick="app.undo()">Undo</button>
+<button class="header-btn" data-tooltip="Redo (Ctrl+Y)" disabled="" id="redoBtn" onclick="app.redo()">Redo</button>
+<div style="position: relative;">
+<button class="share-btn" onclick="app.toggleExport()">Export ▾</button>
+<div class="dropdown-menu" id="exportMenu">
+<div class="dropdown-item" onclick="app.exportPDF()">Export as PDF</div>
+<div class="dropdown-item" onclick="app.exportImages()">Export as Images</div>
+<div class="dropdown-item" onclick="app.shareLink()">Share Link</div>
+</div>
+</div>
+</div>
+</div>
+<div class="toolbar">
+<button class="tool-btn" data-tooltip="Add Text (T)" onclick="app.addText()">Add Text</button>
+<div style="position: relative; display: inline-block;">
+<button class="tool-btn" data-tooltip="Add Shape" id="shapesBtn" onclick="app.toggleShapesMenu()">
+<span style="margin-right: 4px;">◆</span> Shapes ▾
+            </button>
+<div class="dropdown-menu" id="shapesMenu" style="min-width: 180px;">
+<div class="dropdown-item" onclick="app.addShape('rectangle')">
+<span style="margin-right: 8px;">▭</span> Rectangle
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="toolbar">
-        <button class="tool-btn" onclick="app.addText()">Text</button>
-        <button class="tool-btn" onclick="app.showShapes()">Shape</button>
-        <button class="tool-btn" onclick="app.addImage()">Image</button>
-        <button class="tool-btn" onclick="app.showTable()">Table</button>
-        
-        <div class="tool-divider"></div>
-        
-        <select class="tool-btn" id="font" onchange="app.changeFont()">
-            <option>Arial</option>
-            <option>Helvetica</option>
-            <option>Times New Roman</option>
-            <option>Georgia</option>
-            <option>Courier New</option>
-        </select>
-        
-        <input type="number" class="tool-btn" id="size" value="16" min="8" max="200" onchange="app.changeSize()" />
-        
-        <select class="tool-btn" id="weight" onchange="app.changeWeight()">
-            <option value="300">Light</option>
-            <option value="400" selected>Regular</option>
-            <option value="700">Bold</option>
-        </select>
-        
-        <input type="color" id="color" value="#000000" onchange="app.changeColor()" />
-        <input type="color" id="bg" value="#ffffff" onchange="app.changeBg()" />
-        
-        <div class="tool-divider"></div>
-        
-        <button class="tool-btn" onclick="app.align('left')">Left</button>
-        <button class="tool-btn" onclick="app.align('center')">Center</button>
-        <button class="tool-btn" onclick="app.align('right')">Right</button>
-        
-        <div class="tool-divider"></div>
-        
-        <button class="tool-btn" onclick="app.copyStyle()">Copy Style</button>
-        <button class="tool-btn" onclick="app.pasteStyle()">Paste Style</button>
-        
-        <div class="tool-divider"></div>
-        
-        <button class="tool-btn" onclick="app.setBgColor()">Background</button>
-        <button class="tool-btn" onclick="app.addShadow()">Shadow</button>
-        <button class="tool-btn" onclick="app.showAnimations()">Animate</button>
-        
-        <div class="tool-divider"></div>
-        
-        <button class="tool-btn" onclick="app.forward()">Forward</button>
-        <button class="tool-btn" onclick="app.backward()">Backward</button>
-        
-        <div class="tool-divider"></div>
-        
-        <button class="tool-btn" onclick="app.presentMode()" style="background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%); color: white; font-weight: 600;">▶ Present</button>
-    </div>
-
-    <div class="container">
-        <div class="sidebar" id="sidebarSlides">
-            <div class="sidebar-header">Slides</div>
-        </div>
-
-        <div class="canvas-area">
-            <div class="canvas-wrapper" id="wrapper">
-                <div class="canvas" id="canvas"></div>
-                <button class="add-slide-btn" onclick="app.addSlide()">
-                    <span style="font-size: 24px;">+</span>
-                    <span>Add New Slide</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div class="bottom-bar">
-        <div class="slides-section">
-            <div class="slide-controls" id="slides"></div>
-            <button class="control-btn" onclick="app.showSlideOptions()">▼</button>
-        </div>
-        <div class="zoom-control">
-            <input type="range" class="zoom-slider" min="25" max="200" value="100" oninput="app.zoom(this.value)">
-            <span class="zoom-value" id="zoom">100%</span>
-        </div>
-    </div>
-
-    <div class="context-menu" id="menu">
-        <div class="context-menu-item" onclick="app.duplicate()">Duplicate (Ctrl+D)</div>
-        <div class="context-menu-item" onclick="app.deleteEl()">Delete (Del)</div>
-        <div class="context-menu-item" onclick="app.copyStyle()">Copy Style</div>
-        <div class="context-menu-item" onclick="app.pasteStyle()">Paste Style</div>
-        <div class="context-menu-item" onclick="app.forward()">Bring Forward</div>
-        <div class="context-menu-item" onclick="app.backward()">Send Backward</div>
-    </div>
-
-    <div class="modal" id="bgModal">
-        <div class="modal-content">
-            <div class="modal-header">Choose Background</div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Solid Colors:</label>
-                    <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 12px; margin-bottom: 20px;">
-                        <div class="color-swatch" style="background: #ffffff;" onclick="app.applyBg('#ffffff')"></div>
-                        <div class="color-swatch" style="background: #f3f4f6;" onclick="app.applyBg('#f3f4f6')"></div>
-                        <div class="color-swatch" style="background: #1f2937;" onclick="app.applyBg('#1f2937')"></div>
-                        <div class="color-swatch" style="background: #ef4444;" onclick="app.applyBg('#ef4444')"></div>
-                        <div class="color-swatch" style="background: #f59e0b;" onclick="app.applyBg('#f59e0b')"></div>
-                        <div class="color-swatch" style="background: #10b981;" onclick="app.applyBg('#10b981')"></div>
-                        <div class="color-swatch" style="background: #3b82f6;" onclick="app.applyBg('#3b82f6')"></div>
-                        <div class="color-swatch" style="background: #8b5cf6;" onclick="app.applyBg('#8b5cf6')"></div>
-                    </div>
+<div class="dropdown-item" onclick="app.addShape('circle')">
+<span style="margin-right: 8px;">●</span> Circle
                 </div>
-                <div class="form-group">
-                    <label>Gradients:</label>
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
-                        <div class="color-swatch" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" onclick="app.applyBg('linear-gradient(135deg, #667eea 0%, #764ba2 100%)')"></div>
-                        <div class="color-swatch" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" onclick="app.applyBg('linear-gradient(135deg, #f093fb 0%, #f5576c 100%)')"></div>
-                        <div class="color-swatch" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);" onclick="app.applyBg('linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)')"></div>
-                        <div class="color-swatch" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);" onclick="app.applyBg('linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)')"></div>
-                        <div class="color-swatch" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);" onclick="app.applyBg('linear-gradient(135deg, #fa709a 0%, #fee140 100%)')"></div>
-                        <div class="color-swatch" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);" onclick="app.applyBg('linear-gradient(135deg, #30cfd0 0%, #330867 100%)')"></div>
-                        <div class="color-swatch" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);" onclick="app.applyBg('linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)')"></div>
-                        <div class="color-swatch" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);" onclick="app.applyBg('linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)')"></div>
-                    </div>
+<div class="dropdown-item" onclick="app.addShape('triangle')">
+<span style="margin-right: 8px;">▲</span> Triangle
                 </div>
-                <button class="btn btn-primary" onclick="app.uploadBgImage()">Upload Image</button>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="app.closeModal('bgModal')">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="animModal">
-        <div class="modal-content">
-            <div class="modal-header">Choose Animation</div>
-            <div class="modal-body">
-                <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
-                    <button class="tool-btn" onclick="app.applyAnimation('none')" style="justify-content: flex-start; padding: 16px;">
-                        <strong>No Animation</strong>
-                    </button>
-                    <button class="tool-btn" onclick="app.applyAnimation('fadeIn')" style="justify-content: flex-start; padding: 16px;">
-                        <strong>Fade In</strong> - Element fades in smoothly
-                    </button>
-                    <button class="tool-btn" onclick="app.applyAnimation('slideInLeft')" style="justify-content: flex-start; padding: 16px;">
-                        <strong>Slide In Left</strong> - Slides from left side
-                    </button>
-                    <button class="tool-btn" onclick="app.applyAnimation('slideInRight')" style="justify-content: flex-start; padding: 16px;">
-                        <strong>Slide In Right</strong> - Slides from right side
-                    </button>
-                    <button class="tool-btn" onclick="app.applyAnimation('slideInUp')" style="justify-content: flex-start; padding: 16px;">
-                        <strong>Slide In Up</strong> - Slides from bottom
-                    </button>
-                    <button class="tool-btn" onclick="app.applyAnimation('bounce')" style="justify-content: flex-start; padding: 16px;">
-                        <strong>Bounce</strong> - Bouncing effect
-                    </button>
+<div class="dropdown-item" onclick="app.addShape('star')">
+<span style="margin-right: 8px;">★</span> Star
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="app.closeModal('animModal')">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="shapeModal">
-        <div class="modal-content">
-            <div class="modal-header">Select Shape</div>
-            <div class="modal-body" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-                <button class="tool-btn" onclick="app.addShape('rect')">Rectangle</button>
-                <button class="tool-btn" onclick="app.addShape('circle')">Circle</button>
-                <button class="tool-btn" onclick="app.addShape('triangle')">Triangle</button>
-                <button class="tool-btn" onclick="app.addShape('line')">Line</button>
-                <button class="tool-btn" onclick="app.addShape('arrow')">Arrow</button>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="app.closeModal('shapeModal')">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="tableModal">
-        <div class="modal-content">
-            <div class="modal-header">Create Table</div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Rows:</label>
-                    <input type="number" id="rows" value="3" min="1" max="20" />
+<div class="dropdown-item" onclick="app.addShape('pentagon')">
+<span style="margin-right: 8px;">⬟</span> Pentagon
                 </div>
-                <div class="form-group">
-                    <label>Columns:</label>
-                    <input type="number" id="cols" value="3" min="1" max="10" />
+<div class="dropdown-item" onclick="app.addShape('hexagon')">
+<span style="margin-right: 8px;">⬢</span> Hexagon
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="app.closeModal('tableModal')">Cancel</button>
-                <button class="btn btn-primary" onclick="app.createTable()">Create</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
+<div class="dropdown-item" onclick="app.addShape('diamond')">
+<span style="margin-right: 8px;">◆</span> Diamond
+                </div>
+<div class="dropdown-item" onclick="app.addShape('arrow-right')">
+<span style="margin-right: 8px;">➜</span> Arrow Right
+                </div>
+<div class="dropdown-item" onclick="app.addShape('arrow-left')">
+<span style="margin-right: 8px;">⬅</span> Arrow Left
+                </div>
+</div>
+</div>
+<button class="tool-btn" data-tooltip="Add Image (I)" onclick="app.addImage()">Add Image</button>
+<div class="tool-divider"></div>
+<select class="tool-btn" data-tooltip="Font Family" id="fontFamily" onchange="app.changeFont()">
+<option value="Arial">Arial</option>
+<option value="Times New Roman">Times New Roman</option>
+<option value="Courier New">Courier New</option>
+<option value="Georgia">Georgia</option>
+<option value="Verdana">Verdana</option>
+</select>
+<input class="tool-btn" data-tooltip="Font Size" id="fontSize" max="200" min="8" onchange="app.changeFontSize()" placeholder="Size" type="number" value="24"/>
+<button class="tool-btn" data-tooltip="Bold (Ctrl+B)" onclick="app.toggleBold()"><strong>B</strong></button>
+<button class="tool-btn" data-tooltip="Italic (Ctrl+I)" onclick="app.toggleItalic()"><em>I</em></button>
+<button class="tool-btn" data-tooltip="Underline (Ctrl+U)" onclick="app.toggleUnderline()"><u>U</u></button>
+<input data-tooltip="Text Color" id="textColor" onchange="app.changeTextColor()" title="Text Color" type="color" value="#000000"/>
+<input data-tooltip="Background Color" id="bgColor" onchange="app.changeBgColor()" title="Background Color" type="color" value="#ffffff"/>
+<div class="tool-divider"></div>
+<button class="tool-btn" data-tooltip="Align Left" onclick="app.alignText('left')">◀ Left</button>
+<button class="tool-btn" data-tooltip="Align Center" onclick="app.alignText('center')">▬ Center</button>
+<button class="tool-btn" data-tooltip="Align Right" onclick="app.alignText('right')">▶ Right</button>
+<div class="tool-divider"></div>
+<button class="tool-btn" data-tooltip="Bring Forward" onclick="app.moveLayer('forward')">Bring Forward</button>
+<button class="tool-btn" data-tooltip="Send Backward" onclick="app.moveLayer('backward')">Send Backward</button>
+<div class="tool-divider"></div>
+<button class="tool-btn" data-tooltip="Duplicate (Ctrl+D)" onclick="app.duplicateElement()">Duplicate</button>
+<button class="tool-btn" data-tooltip="Delete (Del)" onclick="app.deleteElement()">Delete</button>
+<div class="tool-divider"></div>
+<button class="tool-btn" data-tooltip="Change Slide Background" onclick="app.setBgColor()">Slide Background</button>
+<button class="tool-btn" data-tooltip="Add Animations" onclick="app.showAnimations()">Animations</button>
+<div class="tool-divider"></div>
+<button class="tool-btn" data-tooltip="Copy Style" onclick="app.copyStyle()">Copy Style</button>
+<button class="tool-btn" data-tooltip="Paste Style" onclick="app.pasteStyle()">Paste Style</button>
+<button class="tool-btn" data-tooltip="Toggle Grid (G)" id="gridBtn" onclick="app.toggleGrid()">Grid</button>
+</div>
+<div class="container">
+<div class="sidebar" id="sidebar">
+<div class="sidebar-header">Slides</div>
+<div id="slides"></div>
+<button class="sidebar-add-slide" onclick="app.addSlide()">+ Add Slide</button>
+</div>
+<div class="main-canvas" id="mainCanvas">
+<div class="canvas-wrapper" id="canvasWrapper">
+<!-- Slides will be rendered here -->
+</div>
+</div>
+</div>
+<!-- Zoom Control Bar with Present Button -->
+<div class="zoom-control">
+<button class="present-mode-btn" data-tooltip="Start Presentation (F5)" onclick="app.presentMode()">
+<span>▶</span> Present
+        </button>
+<div class="zoom-divider"></div>
+<button class="zoom-btn" data-tooltip="Zoom Out" onclick="app.zoomOut()" title="Zoom Out">−</button>
+<input class="zoom-slider" id="zoomSlider" max="200" min="25" oninput="app.setZoom(this.value)" step="5" type="range" value="100"/>
+<div class="zoom-value" id="zoomValue">100%</div>
+<button class="zoom-btn" data-tooltip="Zoom In" onclick="app.zoomIn()" title="Zoom In">+</button>
+<button class="zoom-reset" data-tooltip="Reset Zoom" onclick="app.resetZoom()">Reset</button>
+</div>
+<!-- Background Modal -->
+<div class="modal" id="bgModal">
+<div class="modal-content">
+<span class="modal-close" onclick="app.closeModal('bgModal')">×</span>
+<div class="modal-header">Choose Slide Background</div>
+<div class="bg-grid">
+<div class="bg-option" onclick="app.applyBg('white')" style="background: white;"></div>
+<div class="bg-option" onclick="app.applyBg('#f0fdf4')" style="background: #f0fdf4;"></div>
+<div class="bg-option" onclick="app.applyBg('#ecfdf5')" style="background: #ecfdf5;"></div>
+<div class="bg-option" onclick="app.applyBg('#dcfce7')" style="background: #dcfce7;"></div>
+<div class="bg-option" onclick="app.applyBg('#d1fae5')" style="background: #d1fae5;"></div>
+<div class="bg-option" onclick="app.applyBg('#a7f3d0')" style="background: #a7f3d0;"></div>
+<div class="bg-option" onclick="app.applyBg('#e0f2fe')" style="background: #e0f2fe;"></div>
+<div class="bg-option" onclick="app.applyBg('#bae6fd')" style="background: #bae6fd;"></div>
+<div class="bg-option" onclick="app.applyBg('#7dd3fc')" style="background: #7dd3fc;"></div>
+<div class="bg-option" onclick="app.applyBg('#ccfbf1')" style="background: #ccfbf1;"></div>
+<div class="bg-option" onclick="app.applyBg('#99f6e4')" style="background: #99f6e4;"></div>
+<div class="bg-option" onclick="app.applyBg('#5eead4')" style="background: #5eead4;"></div>
+<div class="bg-option" onclick="app.applyBg('#dbeafe')" style="background: #dbeafe;"></div>
+<div class="bg-option" onclick="app.applyBg('#bfdbfe')" style="background: #bfdbfe;"></div>
+<div class="bg-option" onclick="app.applyBg('#93c5fd')" style="background: #93c5fd;"></div>
+<div class="bg-option" onclick="app.applyBg('#e0e7ff')" style="background: #e0e7ff;"></div>
+<div class="bg-option" onclick="app.applyBg('#c7d2fe')" style="background: #c7d2fe;"></div>
+<div class="bg-option" onclick="app.applyBg('#a5b4fc')" style="background: #a5b4fc;"></div>
+<div class="bg-option" onclick="app.applyBg('linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)')" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);"></div>
+<div class="bg-option" onclick="app.applyBg('linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%)')" style="background: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%);"></div>
+<div class="bg-option" onclick="app.applyBg('linear-gradient(135deg, #99f6e4 0%, #5eead4 100%)')" style="background: linear-gradient(135deg, #99f6e4 0%, #5eead4 100%);"></div>
+</div>
+<button class="tool-btn" onclick="app.uploadBgImage()" style="margin-top: 24px; width: 100%;">Upload Image</button>
+</div>
+</div>
+<!-- Animation Modal -->
+<div class="modal" id="animModal">
+<div class="modal-content">
+<span class="modal-close" onclick="app.closeModal('animModal')">×</span>
+<div class="modal-header">Choose Animation</div>
+<div class="animation-grid">
+<div class="animation-option" onclick="app.applyAnimation('none')">None</div>
+<div class="animation-option" onclick="app.applyAnimation('fadeIn')">Fade In</div>
+<div class="animation-option" onclick="app.applyAnimation('slideInLeft')">Slide In Left</div>
+<div class="animation-option" onclick="app.applyAnimation('slideInRight')">Slide In Right</div>
+<div class="animation-option" onclick="app.applyAnimation('slideInUp')">Slide In Up</div>
+<div class="animation-option" onclick="app.applyAnimation('slideInDown')">Slide In Down</div>
+<div class="animation-option" onclick="app.applyAnimation('zoomIn')">Zoom In</div>
+<div class="animation-option" onclick="app.applyAnimation('bounce')">Bounce</div>
+</div>
+</div>
+</div>
+<script>
         const app = {
-            data: [{ id: 1, els: [], bg: '#ffffff', transition: 'fade' }],
+            data: [{ els: [], bg: 'white', transition: 'fade' }],
             curr: 0,
             sel: null,
-            drag: false,
-            resize: false,
-            handle: null,
-            sx: 0, sy: 0, sw: 0, sh: 0, sl: 0, st: 0,
-            hist: [],
-            idx: -1,
-            ctr: 0,
-            snapThreshold: 8,
-            guides: [],
-            copiedStyle: null,
+            drag: null,
+            resize: null,
+            history: [],
+            historyIndex: -1,
             presenting: false,
             presentSlide: 0,
+            copiedStyle: null,
+            zoom: 100,
+            gridVisible: false,
+            snapToGrid: false,
+            snapThreshold: 10,
 
             init() {
-                this.renderSlides();
-                this.renderSidebarSlides();
                 this.loadCanvas();
-                const saved = localStorage.getItem('pres');
-                if (saved) {
-                    const d = JSON.parse(saved);
-                    this.data = d.slides;
-                    document.getElementById('title').value = d.title || '';
-                    this.renderSlides();
-                    this.renderSidebarSlides();
-                    this.loadCanvas();
-                }
+                this.renderSlides();
+                this.setupDragDrop();
+                this.setupKeyboardShortcuts();
                 this.saveState();
-                
-                document.addEventListener('click', (e) => {
-                    if (!e.target.closest('.share-btn')) {
-                        document.getElementById('shareMenu').classList.remove('show');
+            },
+
+            setupKeyboardShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    // Don't trigger shortcuts when typing in input fields
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.contentEditable === 'true') {
+                        return;
                     }
-                    if (!e.target.closest('.context-menu')) {
-                        document.getElementById('menu').style.display = 'none';
+
+                    // Presentation Mode: F5
+                    if (e.key === 'F5') {
+                        e.preventDefault();
+                        this.presentMode();
+                    }
+
+                    // Add Text: T
+                    if (e.key === 't' || e.key === 'T') {
+                        e.preventDefault();
+                        this.addText();
+                    }
+
+                    // Add Image: I
+                    if (e.key === 'i' || e.key === 'I') {
+                        e.preventDefault();
+                        this.addImage();
+                    }
+
+                    // Toggle Grid: G
+                    if (e.key === 'g' || e.key === 'G') {
+                        e.preventDefault();
+                        this.toggleGrid();
+                    }
+
+                    // Delete: Delete or Backspace
+                    if ((e.key === 'Delete' || e.key === 'Backspace') && this.sel) {
+                        e.preventDefault();
+                        this.deleteElement();
+                    }
+
+                    // Undo: Ctrl+Z
+                    if (e.ctrlKey && e.key === 'z') {
+                        e.preventDefault();
+                        this.undo();
+                    }
+
+                    // Redo: Ctrl+Y
+                    if (e.ctrlKey && e.key === 'y') {
+                        e.preventDefault();
+                        this.redo();
+                    }
+
+                    // Duplicate: Ctrl+D
+                    if (e.ctrlKey && e.key === 'd') {
+                        e.preventDefault();
+                        this.duplicateElement();
+                    }
+
+                    // Bold: Ctrl+B
+                    if (e.ctrlKey && e.key === 'b') {
+                        e.preventDefault();
+                        this.toggleBold();
+                    }
+
+                    // Italic: Ctrl+I
+                    if (e.ctrlKey && e.key === 'i') {
+                        e.preventDefault();
+                        this.toggleItalic();
+                    }
+
+                    // Underline: Ctrl+U
+                    if (e.ctrlKey && e.key === 'u') {
+                        e.preventDefault();
+                        this.toggleUnderline();
+                    }
+
+                    // Save: Ctrl+S
+                    if (e.ctrlKey && e.key === 's') {
+                        e.preventDefault();
+                        this.saveJSON();
+                    }
+
+                    // Arrow keys to move selected element
+                    if (this.sel && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                        e.preventDefault();
+                        const step = e.shiftKey ? 10 : 1;
+                        const currentLeft = parseInt(this.sel.style.left) || 0;
+                        const currentTop = parseInt(this.sel.style.top) || 0;
+
+                        switch(e.key) {
+                            case 'ArrowLeft':
+                                this.sel.style.left = Math.max(0, currentLeft - step) + 'px';
+                                break;
+                            case 'ArrowRight':
+                                this.sel.style.left = Math.min(960 - this.sel.offsetWidth, currentLeft + step) + 'px';
+                                break;
+                            case 'ArrowUp':
+                                this.sel.style.top = Math.max(0, currentTop - step) + 'px';
+                                break;
+                            case 'ArrowDown':
+                                this.sel.style.top = Math.min(540 - this.sel.offsetHeight, currentTop + step) + 'px';
+                                break;
+                        }
+                        this.saveElementPosition();
                     }
                 });
+            },
+
+            toggleGrid() {
+                this.gridVisible = !this.gridVisible;
+                const overlays = document.querySelectorAll('.canvas-grid-overlay');
+                const btn = document.getElementById('gridBtn');
                 
-                document.addEventListener('mousemove', (e) => this.onMove(e));
+                if (this.gridVisible) {
+                    overlays.forEach(overlay => overlay.classList.add('show'));
+                    btn.style.background = '#ecfeff';
+                    btn.style.color = '#0891b2';
+                } else {
+                    overlays.forEach(overlay => overlay.classList.remove('show'));
+                    btn.style.background = 'white';
+                    btn.style.color = '#374151';
+                }
+            },
+
+            snapToGridPosition(value) {
+                if (!this.snapToGrid) return value;
+                const gridSize = 20;
+                return Math.round(value / gridSize) * gridSize;
+            },
+
+            showSnapLine(type, position) {
+                const slides = document.querySelectorAll('.canvas-slide');
+                const currentSlide = slides[this.curr];
+                if (!currentSlide) return;
+                
+                const line = document.createElement('div');
+                line.className = `snap-line ${type}`;
+                if (type === 'horizontal') {
+                    line.style.top = position + 'px';
+                } else {
+                    line.style.left = position + 'px';
+                }
+                currentSlide.appendChild(line);
+                setTimeout(() => line.remove(), 500);
+            },
+
+            showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                
+                const icons = {
+                    success: '✓',
+                    error: '✕',
+                    warning: '⚠'
+                };
+                
+                notification.innerHTML = `
+                    <span class="notification-icon">${icons[type] || icons.success}</span>
+                    <span class="notification-text">${message}</span>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'slideInRight 0.3s ease-out reverse';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            },
+
+            showLoading() {
+                const overlay = document.createElement('div');
+                overlay.className = 'loading-overlay';
+                overlay.id = 'loadingOverlay';
+                overlay.innerHTML = '<div class="loading-spinner"></div>';
+                document.body.appendChild(overlay);
+            },
+
+            hideLoading() {
+                const overlay = document.getElementById('loadingOverlay');
+                if (overlay) overlay.remove();
+            },
+
+            setupDragDrop() {
+                const wrapper = document.getElementById('canvasWrapper');
+                
+                wrapper.addEventListener('mousedown', (e) => {
+                    if (e.target.classList.contains('resize-handle')) {
+                        this.resize = {
+                            el: e.target.parentElement,
+                            handle: e.target.className.split(' ')[1],
+                            startX: e.clientX,
+                            startY: e.clientY,
+                            startWidth: e.target.parentElement.offsetWidth,
+                            startHeight: e.target.parentElement.offsetHeight,
+                            startLeft: e.target.parentElement.offsetLeft,
+                            startTop: e.target.parentElement.offsetTop
+                        };
+                        return;
+                    }
+                    
+                    if (e.target.classList.contains('element') || e.target.closest('.element')) {
+                        const el = e.target.classList.contains('element') ? e.target : e.target.closest('.element');
+                        const slideIndex = parseInt(el.dataset.slideIndex);
+                        
+                        // Switch to this slide if not current
+                        if (slideIndex !== this.curr) {
+                            this.switchSlide(slideIndex);
+                            return;
+                        }
+                        
+                        this.selectElement(el);
+                        this.drag = {
+                            el: el,
+                            startX: e.clientX,
+                            startY: e.clientY,
+                            startLeft: el.offsetLeft,
+                            startTop: el.offsetTop
+                        };
+                    } else {
+                        this.deselectAll();
+                    }
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (this.drag) {
+                        const dx = (e.clientX - this.drag.startX) / (this.zoom / 100);
+                        const dy = (e.clientY - this.drag.startY) / (this.zoom / 100);
+                        
+                        let newLeft = this.drag.startLeft + dx;
+                        let newTop = this.drag.startTop + dy;
+
+                        // Snap to grid if enabled
+                        if (e.shiftKey) {
+                            newLeft = this.snapToGridPosition(newLeft);
+                            newTop = this.snapToGridPosition(newTop);
+                        }
+
+                        // Keep element within canvas bounds
+                        newLeft = Math.max(0, Math.min(960 - this.drag.el.offsetWidth, newLeft));
+                        newTop = Math.max(0, Math.min(540 - this.drag.el.offsetHeight, newTop));
+
+                        this.drag.el.style.left = newLeft + 'px';
+                        this.drag.el.style.top = newTop + 'px';
+
+                        // Show snap guidelines at center
+                        const centerX = newLeft + this.drag.el.offsetWidth / 2;
+                        const centerY = newTop + this.drag.el.offsetHeight / 2;
+                        
+                        if (Math.abs(centerX - 480) < this.snapThreshold) {
+                            this.showSnapLine('vertical', 480);
+                            this.drag.el.style.left = (480 - this.drag.el.offsetWidth / 2) + 'px';
+                        }
+                        if (Math.abs(centerY - 270) < this.snapThreshold) {
+                            this.showSnapLine('horizontal', 270);
+                            this.drag.el.style.top = (270 - this.drag.el.offsetHeight / 2) + 'px';
+                        }
+                    }
+                    
+                    if (this.resize) {
+                        const dx = (e.clientX - this.resize.startX) / (this.zoom / 100);
+                        const dy = (e.clientY - this.resize.startY) / (this.zoom / 100);
+                        
+                        if (this.resize.handle.includes('e')) {
+                            this.resize.el.style.width = Math.max(20, this.resize.startWidth + dx) + 'px';
+                        }
+                        if (this.resize.handle.includes('w')) {
+                            const newWidth = Math.max(20, this.resize.startWidth - dx);
+                            this.resize.el.style.width = newWidth + 'px';
+                            this.resize.el.style.left = (this.resize.startLeft + dx) + 'px';
+                        }
+                        if (this.resize.handle.includes('s')) {
+                            this.resize.el.style.height = Math.max(20, this.resize.startHeight + dy) + 'px';
+                        }
+                        if (this.resize.handle.includes('n')) {
+                            const newHeight = Math.max(20, this.resize.startHeight - dy);
+                            this.resize.el.style.height = newHeight + 'px';
+                            this.resize.el.style.top = (this.resize.startTop + dy) + 'px';
+                        }
+                    }
+                });
+
                 document.addEventListener('mouseup', () => {
                     if (this.drag || this.resize) {
-                        this.saveState();
-                        this.clearGuides();
+                        this.saveElementPosition();
+                        this.drag = null;
+                        this.resize = null;
                     }
-                    this.drag = false;
-                    this.resize = false;
                 });
+            },
+
+            selectElement(el) {
+                this.deselectAll();
+                el.classList.add('selected');
+                this.sel = el;
                 
-                document.addEventListener('keydown', (e) => {
-                    if (e.ctrlKey || e.metaKey) {
-                        if (e.key === 'd') {
-                            e.preventDefault();
-                            this.duplicate();
-                        }
-                    }
-                    if (e.key === 'Delete' && this.sel) {
-                        this.deleteEl();
-                    }
-                    if (e.key === 'Escape') {
-                        if (this.sel) {
-                            this.sel.classList.remove('selected');
-                            this.sel = null;
-                        }
-                    }
-                });
-                
-                document.getElementById('canvas').addEventListener('click', (e) => {
-                    if (e.target === document.getElementById('canvas') && this.sel) {
-                        this.sel.classList.remove('selected');
-                        this.sel = null;
-                    }
-                });
-            },
-
-            saveState() {
-                const s = { data: JSON.parse(JSON.stringify(this.data)), curr: this.curr };
-                this.hist = this.hist.slice(0, this.idx + 1);
-                this.hist.push(s);
-                this.idx++;
-                if (this.hist.length > 50) {
-                    this.hist.shift();
-                    this.idx--;
-                }
-                document.getElementById('undoBtn').disabled = this.idx <= 0;
-                document.getElementById('redoBtn').disabled = this.idx >= this.hist.length - 1;
-            },
-
-            undo() {
-                if (this.idx > 0) {
-                    this.idx--;
-                    const s = this.hist[this.idx];
-                    this.data = JSON.parse(JSON.stringify(s.data));
-                    this.curr = s.curr;
-                    this.renderSlides();
-                    this.loadCanvas();
-                    document.getElementById('undoBtn').disabled = this.idx <= 0;
-                    document.getElementById('redoBtn').disabled = this.idx >= this.hist.length - 1;
+                const data = this.data[this.curr].els.find(e => e.id == el.dataset.id);
+                if (data && data.type === 'text') {
+                    document.getElementById('fontFamily').value = data.font || 'Arial';
+                    document.getElementById('fontSize').value = data.size || 24;
+                    document.getElementById('textColor').value = data.color || '#000000';
+                    document.getElementById('bgColor').value = data.bg || '#ffffff';
                 }
             },
 
-            redo() {
-                if (this.idx < this.hist.length - 1) {
-                    this.idx++;
-                    const s = this.hist[this.idx];
-                    this.data = JSON.parse(JSON.stringify(s.data));
-                    this.curr = s.curr;
-                    this.renderSlides();
-                    this.loadCanvas();
-                    document.getElementById('undoBtn').disabled = this.idx <= 0;
-                    document.getElementById('redoBtn').disabled = this.idx >= this.hist.length - 1;
-                }
+            deselectAll() {
+                document.querySelectorAll('.element').forEach(el => el.classList.remove('selected'));
+                this.sel = null;
             },
 
             addText() {
+                const id = Date.now();
                 const el = {
-                    id: ++this.ctr,
+                    id: id,
                     type: 'text',
-                    text: 'Double-click to edit',
-                    x: 100, y: 100, w: 250, h: 60,
-                    font: 'Arial', size: 20, weight: 400,
-                    color: '#000000', bg: 'transparent', align: 'left'
+                    content: 'Double-click to edit',
+                    x: 100,
+                    y: 100,
+                    width: 300,
+                    height: 50,
+                    font: 'Arial',
+                    size: 24,
+                    color: '#000000',
+                    bg: 'transparent',
+                    weight: 'normal',
+                    align: 'left',
+                    animation: 'none'
                 };
                 this.data[this.curr].els.push(el);
                 this.saveState();
                 this.loadCanvas();
             },
 
-            showShapes() {
-                document.getElementById('shapeModal').classList.add('show');
-            },
-
-            addShape(type) {
-                this.closeModal('shapeModal');
+            addShape(shape) {
+                const id = Date.now();
                 const el = {
-                    id: ++this.ctr,
+                    id: id,
                     type: 'shape',
-                    shape: type,
-                    x: 150, y: 150, w: 150, h: 150,
-                    border: '#0891b2', thick: 2, bg: 'transparent'
+                    shape: shape,
+                    x: 200,
+                    y: 150,
+                    width: 200,
+                    height: 150,
+                    bg: '#3b82f6',
+                    border: '#1e40af',
+                    thick: 2,
+                    animation: 'none'
                 };
                 this.data[this.curr].els.push(el);
                 this.saveState();
                 this.loadCanvas();
+                this.closeModal('shapesMenu');
+            },
+
+            toggleShapesMenu() {
+                const menu = document.getElementById('shapesMenu');
+                menu.classList.toggle('show');
             },
 
             addImage() {
-                const inp = document.createElement('input');
-                inp.type = 'file';
-                inp.accept = 'image/*';
-                inp.onchange = (e) => {
-                    const f = e.target.files[0];
-                    if (f) {
-                        const r = new FileReader();
-                        r.onload = (ev) => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            const id = Date.now();
                             const el = {
-                                id: ++this.ctr,
-                                type: 'img',
+                                id: id,
+                                type: 'image',
                                 src: ev.target.result,
-                                x: 100, y: 100, w: 300, h: 300
+                                x: 150,
+                                y: 100,
+                                width: 300,
+                                height: 200,
+                                animation: 'none'
                             };
                             this.data[this.curr].els.push(el);
                             this.saveState();
                             this.loadCanvas();
                         };
-                        r.readAsDataURL(f);
+                        reader.readAsDataURL(file);
                     }
                 };
-                inp.click();
+                input.click();
             },
 
-            showTable() {
-                document.getElementById('tableModal').classList.add('show');
-            },
+            createEl(data, slideIndex) {
+                const div = document.createElement('div');
+                div.className = 'element ' + data.type + '-element';
+                div.dataset.id = data.id;
+                div.dataset.slideIndex = slideIndex;
+                div.style.left = data.x + 'px';
+                div.style.top = data.y + 'px';
+                div.style.width = data.width + 'px';
+                div.style.height = data.height + 'px';
 
-            createTable() {
-                const r = parseInt(document.getElementById('rows').value);
-                const c = parseInt(document.getElementById('cols').value);
-                this.closeModal('tableModal');
-                const el = {
-                    id: ++this.ctr,
-                    type: 'table',
-                    rows: r, cols: c,
-                    x: 100, y: 100,
-                    cw: 100, ch: 40,
-                    data: Array(r).fill().map(() => Array(c).fill(''))
-                };
-                this.data[this.curr].els.push(el);
-                this.saveState();
-                this.loadCanvas();
+                if (data.shadow) {
+                    div.style.boxShadow = data.shadow;
+                }
+
+                if (data.type === 'text') {
+                    div.contentEditable = true;
+                    div.textContent = data.content;
+                    div.style.fontFamily = data.font || 'Arial';
+                    div.style.fontSize = (data.size || 24) + 'px';
+                    div.style.color = data.color || '#000000';
+                    div.style.backgroundColor = data.bg || 'transparent';
+                    div.style.fontWeight = data.weight || 'normal';
+                    div.style.textAlign = data.align || 'left';
+                    div.style.padding = '8px';
+                    
+                    div.addEventListener('blur', () => {
+                        const el = this.data[slideIndex].els.find(e => e.id == data.id);
+                        if (el) {
+                            el.content = div.textContent;
+                            this.saveState();
+                        }
+                    });
+
+                    div.addEventListener('focus', () => {
+                        // Switch to this slide when editing
+                        if (this.curr !== slideIndex) {
+                            this.switchSlide(slideIndex);
+                        }
+                    });
+                }
+
+                if (data.type === 'shape') {
+                    div.style.backgroundColor = data.bg || '#3b82f6';
+                    div.style.border = `${data.thick || 2}px solid ${data.border || '#1e40af'}`;
+                    
+                    // Apply shape styles
+                    switch(data.shape) {
+                        case 'circle':
+                            div.style.borderRadius = '50%';
+                            break;
+                        case 'rectangle':
+                            div.style.borderRadius = '4px';
+                            break;
+                        case 'triangle':
+                            div.style.backgroundColor = 'transparent';
+                            div.style.borderLeft = `${data.width / 2}px solid transparent`;
+                            div.style.borderRight = `${data.width / 2}px solid transparent`;
+                            div.style.borderBottom = `${data.height}px solid ${data.bg || '#3b82f6'}`;
+                            div.style.width = '0';
+                            div.style.height = '0';
+                            div.style.border = 'none';
+                            break;
+                        case 'star':
+                            div.style.borderRadius = '4px';
+                            div.style.clipPath = 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)';
+                            break;
+                        case 'pentagon':
+                            div.style.clipPath = 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)';
+                            break;
+                        case 'hexagon':
+                            div.style.clipPath = 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)';
+                            break;
+                        case 'diamond':
+                            div.style.clipPath = 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)';
+                            break;
+                        case 'arrow-right':
+                            div.style.clipPath = 'polygon(0% 25%, 60% 25%, 60% 0%, 100% 50%, 60% 100%, 60% 75%, 0% 75%)';
+                            break;
+                        case 'arrow-left':
+                            div.style.clipPath = 'polygon(40% 25%, 100% 25%, 100% 75%, 40% 75%, 40% 100%, 0% 50%, 40% 0%)';
+                            break;
+                        default:
+                            div.style.borderRadius = '4px';
+                    }
+                }
+
+                if (data.type === 'image') {
+                    const img = document.createElement('img');
+                    img.src = data.src;
+                    div.appendChild(img);
+                }
+
+                // Only show resize handles on active slide
+                if (slideIndex === this.curr) {
+                    ['nw', 'ne', 'sw', 'se'].forEach(pos => {
+                        const handle = document.createElement('div');
+                        handle.className = 'resize-handle ' + pos;
+                        div.appendChild(handle);
+                    });
+                }
+
+                return div;
             },
 
             loadCanvas() {
-                const can = document.getElementById('canvas');
-                can.innerHTML = '';
-                can.style.backgroundColor = this.data[this.curr].bg || '#ffffff';
+                const wrapper = document.getElementById('canvasWrapper');
+                wrapper.innerHTML = '';
                 
-                this.data[this.curr].els.forEach(el => {
-                    const div = this.createEl(el);
-                    can.appendChild(div);
-                });
-            },
-
-            createEl(el) {
-                const d = document.createElement('div');
-                d.className = 'canvas-element';
-                d.dataset.id = el.id;
-                d.style.left = el.x + 'px';
-                d.style.top = el.y + 'px';
-                d.style.width = el.w + 'px';
-                d.style.height = el.h + 'px';
-
-                if (el.type === 'text') {
-                    d.className += ' text-element';
-                    d.contentEditable = true;
-                    d.textContent = el.text;
-                    d.style.fontSize = el.size + 'px';
-                    d.style.fontFamily = el.font;
-                    d.style.fontWeight = el.weight;
-                    d.style.color = el.color;
-                    d.style.backgroundColor = el.bg;
-                    d.style.textAlign = el.align;
-                    d.style.whiteSpace = 'pre-wrap';
-                    d.style.wordWrap = 'break-word';
-                    
-                    d.addEventListener('blur', () => {
-                        el.text = d.textContent;
-                        this.saveState();
-                    });
-                    
-                    d.addEventListener('dblclick', (e) => {
-                        e.stopPropagation();
-                        d.focus();
-                        const range = document.createRange();
-                        range.selectNodeContents(d);
-                        const sel = window.getSelection();
-                        sel.removeAllRanges();
-                        sel.addRange(range);
-                    });
-                    
-                    d.addEventListener('focus', () => {
-                        d.dataset.editing = 'true';
-                    });
-                    
-                    d.addEventListener('blur', () => {
-                        delete d.dataset.editing;
-                    });
-                    if (el.shadow) {
-                        d.style.boxShadow = el.shadow;
-                    }
-                } else if (el.type === 'shape') {
-                    d.className += ' shape-element';
-                    d.style.borderColor = el.border;
-                    d.style.borderWidth = el.thick + 'px';
-                    d.style.borderStyle = 'solid';
-                    d.style.backgroundColor = el.bg;
-                    
-                    if (el.shape === 'circle') {
-                        d.style.borderRadius = '50%';
-                    } else if (el.shape === 'triangle') {
-                        d.style.width = '0';
-                        d.style.height = '0';
-                        d.style.borderLeft = (el.w/2) + 'px solid transparent';
-                        d.style.borderRight = (el.w/2) + 'px solid transparent';
-                        d.style.borderBottom = el.h + 'px solid ' + el.border;
-                        d.style.backgroundColor = 'transparent';
-                        d.style.borderTop = 'none';
-                    } else if (el.shape === 'line') {
-                        d.style.height = el.thick + 'px';
-                        d.style.backgroundColor = el.border;
-                        d.style.border = 'none';
-                    } else if (el.shape === 'arrow') {
-                        d.style.height = el.thick + 'px';
-                        d.style.backgroundColor = el.border;
-                        d.style.border = 'none';
-                        d.innerHTML = '<div style="position:absolute;right:-10px;top:-' + (5+el.thick/2) + 'px;width:0;height:0;border-left:10px solid ' + el.border + ';border-top:5px solid transparent;border-bottom:5px solid transparent;"></div>';
-                    }
-                } else if (el.type === 'img') {
-                    d.className += ' image-element';
-                    d.style.backgroundImage = `url(${el.src})`;
-                } else if (el.type === 'table') {
-                    const t = document.createElement('table');
-                    t.className = 'table-element';
-                    for (let i = 0; i < el.rows; i++) {
-                        const tr = document.createElement('tr');
-                        for (let j = 0; j < el.cols; j++) {
-                            const td = document.createElement('td');
-                            td.contentEditable = true;
-                            td.textContent = el.data[i][j];
-                            td.style.width = el.cw + 'px';
-                            td.style.height = el.ch + 'px';
-                            td.addEventListener('blur', () => {
-                                el.data[i][j] = td.textContent;
-                                this.saveState();
-                            });
-                            tr.appendChild(td);
-                        }
-                        t.appendChild(tr);
-                    }
-                    d.appendChild(t);
-                }
-
-                ['nw', 'ne', 'sw', 'se'].forEach(p => {
-                    const h = document.createElement('div');
-                    h.className = 'resize-handle ' + p;
-                    h.addEventListener('mousedown', (e) => this.startResize(e, d, p));
-                    d.appendChild(h);
-                });
-
-                d.addEventListener('mousedown', (e) => {
-                    e.stopPropagation();
-                    this.startDrag(e, d);
-                });
-                
-                d.addEventListener('contextmenu', (e) => this.showMenu(e, d));
-
-                return d;
-            },
-
-            startDrag(e, d) {
-                if (e.target.classList.contains('resize-handle')) return;
-                
-                const isText = d.classList.contains('text-element');
-                const isEditing = d.dataset.editing === 'true';
-                
-                if (isEditing) return;
-                
-                if (this.sel && this.sel !== d) {
-                    this.sel.classList.remove('selected');
-                }
-                
-                this.sel = d;
-                this.sel.classList.add('selected');
-                
-                if (isText && e.detail === 2) return;
-                
-                this.drag = true;
-                this.sx = e.offsetX;
-                this.sy = e.offsetY;
-            },
-
-            startResize(e, d, p) {
-                e.stopPropagation();
-                if (this.sel) this.sel.classList.remove('selected');
-                this.sel = d;
-                this.sel.classList.add('selected');
-                this.resize = true;
-                this.handle = p;
-                this.sx = e.clientX;
-                this.sy = e.clientY;
-                this.sw = d.offsetWidth;
-                this.sh = d.offsetHeight;
-                this.sl = d.offsetLeft;
-                this.st = d.offsetTop;
-                e.preventDefault();
-            },
-
-            onMove(e) {
-                if (this.drag && this.sel) {
-                    const cr = document.getElementById('canvas').getBoundingClientRect();
-                    let nl = e.clientX - cr.left - this.sx;
-                    let nt = e.clientY - cr.top - this.sy;
-                    
-                    const maxL = cr.width - this.sel.offsetWidth;
-                    const maxT = cr.height - this.sel.offsetHeight;
-                    
-                    // Clear old guides
-                    this.clearGuides();
-                    
-                    // Smart snapping
-                    const snapResult = this.getSnapPosition(nl, nt, this.sel.offsetWidth, this.sel.offsetHeight);
-                    nl = snapResult.x;
-                    nt = snapResult.y;
-                    
-                    // Draw guides
-                    snapResult.guides.forEach(guide => this.drawGuide(guide));
-                    
-                    this.sel.style.left = Math.max(0, Math.min(nl, maxL)) + 'px';
-                    this.sel.style.top = Math.max(0, Math.min(nt, maxT)) + 'px';
-                    
-                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                    if (el) {
-                        el.x = parseInt(this.sel.style.left);
-                        el.y = parseInt(this.sel.style.top);
-                    }
-                } else if (this.resize && this.sel) {
-                    const dx = e.clientX - this.sx;
-                    const dy = e.clientY - this.sy;
-                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                    
-                    if (this.handle === 'se') {
-                        const nw = Math.max(50, this.sw + dx);
-                        const nh = Math.max(50, this.sh + dy);
-                        this.sel.style.width = nw + 'px';
-                        this.sel.style.height = nh + 'px';
-                        if (el) { el.w = nw; el.h = nh; }
-                    } else if (this.handle === 'sw') {
-                        const nw = Math.max(50, this.sw - dx);
-                        const nh = Math.max(50, this.sh + dy);
-                        this.sel.style.width = nw + 'px';
-                        this.sel.style.height = nh + 'px';
-                        this.sel.style.left = (this.sl + dx) + 'px';
-                        if (el) { el.w = nw; el.h = nh; el.x = parseInt(this.sel.style.left); }
-                    } else if (this.handle === 'ne') {
-                        const nw = Math.max(50, this.sw + dx);
-                        const nh = Math.max(50, this.sh - dy);
-                        this.sel.style.width = nw + 'px';
-                        this.sel.style.height = nh + 'px';
-                        this.sel.style.top = (this.st + dy) + 'px';
-                        if (el) { el.w = nw; el.h = nh; el.y = parseInt(this.sel.style.top); }
-                    } else if (this.handle === 'nw') {
-                        const nw = Math.max(50, this.sw - dx);
-                        const nh = Math.max(50, this.sh - dy);
-                        this.sel.style.width = nw + 'px';
-                        this.sel.style.height = nh + 'px';
-                        this.sel.style.left = (this.sl + dx) + 'px';
-                        this.sel.style.top = (this.st + dy) + 'px';
-                        if (el) { el.w = nw; el.h = nh; el.x = parseInt(this.sel.style.left); el.y = parseInt(this.sel.style.top); }
-                    }
-                }
-            },
-
-            getSnapPosition(x, y, w, h) {
-                const canvas = document.getElementById('canvas');
-                const canvasW = 960;
-                const canvasH = 540;
-                const threshold = this.snapThreshold;
-                const guides = [];
-                
-                let snapX = x;
-                let snapY = y;
-                
-                // Canvas center lines
-                const centerX = canvasW / 2;
-                const centerY = canvasH / 2;
-                const elCenterX = x + w / 2;
-                const elCenterY = y + h / 2;
-                
-                // Snap to canvas center
-                if (Math.abs(elCenterX - centerX) < threshold) {
-                    snapX = centerX - w / 2;
-                    guides.push({ type: 'vertical', pos: centerX });
-                }
-                if (Math.abs(elCenterY - centerY) < threshold) {
-                    snapY = centerY - h / 2;
-                    guides.push({ type: 'horizontal', pos: centerY });
-                }
-                
-                // Snap to edges
-                if (Math.abs(x) < threshold) {
-                    snapX = 0;
-                    guides.push({ type: 'vertical', pos: 0 });
-                }
-                if (Math.abs(y) < threshold) {
-                    snapY = 0;
-                    guides.push({ type: 'horizontal', pos: 0 });
-                }
-                if (Math.abs(x + w - canvasW) < threshold) {
-                    snapX = canvasW - w;
-                    guides.push({ type: 'vertical', pos: canvasW });
-                }
-                if (Math.abs(y + h - canvasH) < threshold) {
-                    snapY = canvasH - h;
-                    guides.push({ type: 'horizontal', pos: canvasH });
-                }
-                
-                // Snap to other elements
-                this.data[this.curr].els.forEach(el => {
-                    if (this.sel && el.id == this.sel.dataset.id) return;
-                    
-                    const ex = el.x;
-                    const ey = el.y;
-                    const ew = el.w;
-                    const eh = el.h;
-                    
-                    // Left edges align
-                    if (Math.abs(x - ex) < threshold) {
-                        snapX = ex;
-                        guides.push({ type: 'vertical', pos: ex });
-                    }
-                    // Right edges align
-                    if (Math.abs((x + w) - (ex + ew)) < threshold) {
-                        snapX = ex + ew - w;
-                        guides.push({ type: 'vertical', pos: ex + ew });
-                    }
-                    // Top edges align
-                    if (Math.abs(y - ey) < threshold) {
-                        snapY = ey;
-                        guides.push({ type: 'horizontal', pos: ey });
-                    }
-                    // Bottom edges align
-                    if (Math.abs((y + h) - (ey + eh)) < threshold) {
-                        snapY = ey + eh - h;
-                        guides.push({ type: 'horizontal', pos: ey + eh });
-                    }
-                    
-                    // Center alignment with other elements
-                    const elOtherCenterX = ex + ew / 2;
-                    const elOtherCenterY = ey + eh / 2;
-                    
-                    if (Math.abs(elCenterX - elOtherCenterX) < threshold) {
-                        snapX = elOtherCenterX - w / 2;
-                        guides.push({ type: 'vertical', pos: elOtherCenterX });
-                    }
-                    if (Math.abs(elCenterY - elOtherCenterY) < threshold) {
-                        snapY = elOtherCenterY - h / 2;
-                        guides.push({ type: 'horizontal', pos: elOtherCenterY });
-                    }
-                });
-                
-                // Grid snapping (20px grid)
-                const gridSize = 20;
-                const gridSnapX = Math.round(x / gridSize) * gridSize;
-                const gridSnapY = Math.round(y / gridSize) * gridSize;
-                
-                if (Math.abs(x - gridSnapX) < threshold && guides.length === 0) {
-                    snapX = gridSnapX;
-                }
-                if (Math.abs(y - gridSnapY) < threshold && guides.length === 0) {
-                    snapY = gridSnapY;
-                }
-                
-                return { x: snapX, y: snapY, guides };
-            },
-
-            drawGuide(guide) {
-                const canvas = document.getElementById('canvas');
-                const line = document.createElement('div');
-                line.className = 'guide-line ' + guide.type;
-                
-                if (guide.type === 'horizontal') {
-                    line.style.top = guide.pos + 'px';
-                } else {
-                    line.style.left = guide.pos + 'px';
-                }
-                
-                canvas.appendChild(line);
-                this.guides.push(line);
-                
-                // Auto remove after 1 second
-                setTimeout(() => {
-                    if (line.parentNode) line.remove();
-                }, 1000);
-            },
-
-            clearGuides() {
-                this.guides.forEach(g => {
-                    if (g.parentNode) g.remove();
-                });
-                this.guides = [];
-            },
-
-            showMenu(e, d) {
-                e.preventDefault();
-                if (this.sel) this.sel.classList.remove('selected');
-                this.sel = d;
-                this.sel.classList.add('selected');
-                const m = document.getElementById('menu');
-                m.style.display = 'block';
-                m.style.left = e.clientX + 'px';
-                m.style.top = e.clientY + 'px';
-            },
-
-            duplicate() {
-                if (this.sel) {
-                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                    if (el) {
-                        const dup = JSON.parse(JSON.stringify(el));
-                        dup.id = ++this.ctr;
-                        dup.x += 20;
-                        dup.y += 20;
-                        this.data[this.curr].els.push(dup);
-                        this.saveState();
-                        this.loadCanvas();
-                    }
-                }
-            },
-
-            deleteEl() {
-                if (this.sel) {
-                    this.data[this.curr].els = this.data[this.curr].els.filter(e => e.id != this.sel.dataset.id);
-                    this.sel = null;
-                    this.saveState();
-                    this.loadCanvas();
-                }
-            },
-
-            forward() {
-                if (this.sel) this.sel.style.zIndex = 1000;
-            },
-
-            backward() {
-                if (this.sel) this.sel.style.zIndex = 1;
-            },
-
-            changeFont() {
-                if (this.sel) {
-                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                    if (el && el.type === 'text') {
-                        el.font = document.getElementById('font').value;
-                        this.sel.style.fontFamily = el.font;
-                        this.saveState();
-                    }
-                }
-            },
-
-            changeSize() {
-                if (this.sel) {
-                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                    if (el && el.type === 'text') {
-                        el.size = parseInt(document.getElementById('size').value);
-                        this.sel.style.fontSize = el.size + 'px';
-                        this.saveState();
-                    }
-                }
-            },
-
-            changeWeight() {
-                if (this.sel) {
-                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                    if (el && el.type === 'text') {
-                        el.weight = parseInt(document.getElementById('weight').value);
-                        this.sel.style.fontWeight = el.weight;
-                        this.saveState();
-                    }
-                }
-            },
-
-            changeColor() {
-                if (this.sel) {
-                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                    if (el) {
-                        if (el.type === 'text') {
-                            el.color = document.getElementById('color').value;
-                            this.sel.style.color = el.color;
-                        } else if (el.type === 'shape') {
-                            el.border = document.getElementById('color').value;
-                            this.sel.style.borderColor = el.border;
-                        }
-                        this.saveState();
-                    }
-                }
-            },
-
-            changeBg() {
-                if (this.sel) {
-                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                    if (el) {
-                        el.bg = document.getElementById('bg').value;
-                        this.sel.style.backgroundColor = el.bg;
-                        this.saveState();
-                    }
-                }
-            },
-
-            align(dir) {
-                if (this.sel) {
-                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                    if (el && el.type === 'text') {
-                        el.align = dir;
-                        this.sel.style.textAlign = dir;
-                        this.saveState();
-                    }
-                }
-            },
-
-            zoom(v) {
-                document.getElementById('zoom').textContent = v + '%';
-                document.getElementById('wrapper').style.transform = `scale(${v / 100})`;
-            },
-
-            addSlide() {
-                this.data.push({ id: this.data.length + 1, els: [], bg: '#ffffff', transition: 'fade' });
-                this.curr = this.data.length - 1;
-                this.saveState();
-                this.renderSlides();
-                this.renderSidebarSlides();
-                this.loadCanvas();
-            },
-
-            selectSlide(i) {
-                this.curr = i;
-                this.renderSlides();
-                this.renderSidebarSlides();
-                this.loadCanvas();
-            },
-
-            deleteSlide(i) {
-                if (this.data.length > 1) {
-                    this.data.splice(i, 1);
-                    if (this.curr >= this.data.length) this.curr = this.data.length - 1;
-                    this.saveState();
-                    this.renderSlides();
-                    this.renderSidebarSlides();
-                    this.loadCanvas();
-                }
-            },
-
-            renderSidebarSlides() {
-                const sidebar = document.getElementById('sidebarSlides');
-                const header = sidebar.querySelector('.sidebar-header');
-                sidebar.innerHTML = '';
-                sidebar.appendChild(header);
-                
-                this.data.forEach((slide, i) => {
+                this.data.forEach((slide, slideIndex) => {
                     const slideDiv = document.createElement('div');
-                    slideDiv.className = 'sidebar-slide' + (i === this.curr ? ' active' : '');
-                    slideDiv.onclick = () => this.selectSlide(i);
-                    
-                    const preview = document.createElement('div');
-                    preview.className = 'sidebar-slide-preview';
-                    preview.style.background = slide.bg || '#ffffff';
+                    slideDiv.className = 'canvas-slide' + (slideIndex === this.curr ? ' active' : '');
+                    slideDiv.dataset.slideIndex = slideIndex;
+                    slideDiv.style.background = slide.bg || 'white';
                     
                     if (slide.bg && slide.bg.startsWith('url(')) {
-                        preview.style.backgroundImage = slide.bg;
-                        preview.style.backgroundSize = 'cover';
-                        preview.style.backgroundPosition = 'center';
+                        slideDiv.style.backgroundImage = slide.bg;
+                        slideDiv.style.backgroundSize = 'cover';
+                        slideDiv.style.backgroundPosition = 'center';
+                    } else {
+                        slideDiv.style.backgroundImage = 'none';
                     }
-                    
-                    // Render mini elements
+
+                    // Add slide number badge
+                    const badge = document.createElement('div');
+                    badge.className = 'slide-number-badge';
+                    badge.textContent = `Slide ${slideIndex + 1}`;
+                    slideDiv.appendChild(badge);
+
+                    // Add grid overlay for this slide
+                    const gridOverlay = document.createElement('div');
+                    gridOverlay.className = 'canvas-grid-overlay';
+                    if (this.gridVisible) {
+                        gridOverlay.classList.add('show');
+                    }
+                    slideDiv.appendChild(gridOverlay);
+
+                    // Add elements to this slide
                     slide.els.forEach(el => {
-                        const miniEl = document.createElement('div');
-                        miniEl.style.position = 'absolute';
-                        miniEl.style.left = (el.x / 960 * 100) + '%';
-                        miniEl.style.top = (el.y / 540 * 100) + '%';
-                        miniEl.style.width = (el.w / 960 * 100) + '%';
-                        miniEl.style.height = (el.h / 540 * 100) + '%';
-                        
-                        if (el.type === 'text') {
-                            miniEl.style.background = el.bg || 'transparent';
-                            miniEl.style.border = '1px solid #e5e7eb';
-                        } else if (el.type === 'shape') {
-                            miniEl.style.background = el.bg || 'transparent';
-                            miniEl.style.border = '1px solid ' + (el.border || '#0891b2');
-                            if (el.shape === 'circle') {
-                                miniEl.style.borderRadius = '50%';
-                            }
-                        } else if (el.type === 'img') {
-                            miniEl.style.backgroundImage = `url(${el.src})`;
-                            miniEl.style.backgroundSize = 'cover';
-                        }
-                        
-                        preview.appendChild(miniEl);
+                        const element = this.createEl(el, slideIndex);
+                        slideDiv.appendChild(element);
                     });
-                    
-                    const number = document.createElement('div');
-                    number.className = 'sidebar-slide-number';
-                    number.textContent = i + 1;
-                    preview.appendChild(number);
-                    
-                    if (this.data.length > 1) {
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.className = 'sidebar-slide-delete';
-                        deleteBtn.textContent = '×';
-                        deleteBtn.onclick = (e) => {
-                            e.stopPropagation();
-                            this.deleteSlide(i);
-                        };
-                        preview.appendChild(deleteBtn);
-                    }
-                    
-                    slideDiv.appendChild(preview);
-                    sidebar.appendChild(slideDiv);
+
+                    // Click to select slide
+                    slideDiv.addEventListener('click', (e) => {
+                        if (e.target === slideDiv || e.target === badge || e.target === gridOverlay) {
+                            this.switchSlide(slideIndex);
+                        }
+                    });
+
+                    wrapper.appendChild(slideDiv);
                 });
-                
-                // Add new slide button
-                const addBtn = document.createElement('div');
-                addBtn.className = 'sidebar-add-slide';
-                addBtn.innerHTML = '<span style="font-size: 18px;">+</span> New Slide';
-                addBtn.onclick = () => this.addSlide();
-                sidebar.appendChild(addBtn);
+
+                // Apply zoom to wrapper
+                wrapper.style.transform = `scale(${this.zoom / 100})`;
             },
 
             renderSlides() {
-                const cont = document.getElementById('slides');
-                cont.innerHTML = '';
-                this.data.forEach((s, i) => {
+                const container = document.getElementById('slides');
+                container.innerHTML = '';
+                
+                this.data.forEach((slide, idx) => {
                     const div = document.createElement('div');
-                    div.className = 'slide-preview' + (i === this.curr ? ' active' : '');
-                    div.onclick = () => this.selectSlide(i);
-                    
-                    const num = document.createElement('div');
-                    num.className = 'slide-number';
-                    num.innerHTML = '<span class="slide-icon">🗐</span> ' + (i + 1);
-                    div.appendChild(num);
-                    
-                    if (this.data.length > 1) {
-                        const del = document.createElement('button');
-                        del.className = 'slide-delete';
-                        del.textContent = '×';
-                        del.onclick = (e) => {
-                            e.stopPropagation();
-                            this.deleteSlide(i);
-                        };
-                        div.appendChild(del);
-                    }
-                    
-                    cont.appendChild(div);
+                    div.className = 'sidebar-slide' + (idx === this.curr ? ' active' : '');
+                    div.innerHTML = `
+                        <div class="sidebar-slide-preview" style="background: ${slide.bg || 'white'};">
+                            <div class="sidebar-slide-number">${idx + 1}</div>
+                            <button class="sidebar-slide-delete" onclick="app.deleteSlide(${idx}); event.stopPropagation();">×</button>
+                        </div>
+                    `;
+                    div.onclick = () => this.switchSlide(idx);
+                    container.appendChild(div);
                 });
             },
 
-            save() {
-                const d = {
-                    title: document.getElementById('title').value,
-                    slides: this.data
-                };
-                localStorage.setItem('pres', JSON.stringify(d));
-                alert('✅ Presentation saved successfully!');
+            addSlide() {
+                this.data.push({ els: [], bg: 'white', transition: 'fade' });
+                this.curr = this.data.length - 1;
+                this.saveState();
+                this.renderSlides();
+                this.loadCanvas();
+                
+                // Auto-scroll to the new slide
+                setTimeout(() => {
+                    const sidebar = document.getElementById('sidebar');
+                    const slides = sidebar.querySelectorAll('.sidebar-slide');
+                    const lastSlide = slides[slides.length - 1];
+                    if (lastSlide) {
+                        lastSlide.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }, 100);
             },
 
-            load() {
-                const saved = localStorage.getItem('pres');
-                if (saved) {
-                    const d = JSON.parse(saved);
-                    this.data = d.slides;
-                    document.getElementById('title').value = d.title || '';
-                    this.curr = 0;
-                    this.renderSlides();
-                    this.loadCanvas();
+            deleteSlide(idx) {
+                if (this.data.length === 1) {
+                    this.showNotification('Cannot delete the last slide', 'warning');
+                    return;
+                }
+                this.data.splice(idx, 1);
+                if (this.curr >= this.data.length) {
+                    this.curr = this.data.length - 1;
+                }
+                this.saveState();
+                this.renderSlides();
+                this.loadCanvas();
+                this.showNotification('Slide deleted successfully');
+            },
+
+            switchSlide(idx) {
+                this.curr = idx;
+                this.renderSlides();
+                this.loadCanvas();
+                this.deselectAll();
+                
+                // Auto-scroll sidebar to the active slide
+                setTimeout(() => {
+                    const sidebar = document.getElementById('sidebar');
+                    const activeSlide = sidebar.querySelector('.sidebar-slide.active');
+                    if (activeSlide) {
+                        activeSlide.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }, 50);
+
+                // Auto-scroll main canvas to the active slide
+                setTimeout(() => {
+                    const mainCanvas = document.getElementById('mainCanvas');
+                    const slides = document.querySelectorAll('.canvas-slide');
+                    const activeCanvasSlide = slides[idx];
+                    if (activeCanvasSlide) {
+                        activeCanvasSlide.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 100);
+            },
+
+            deleteElement() {
+                if (!this.sel) return;
+                
+                const id = this.sel.dataset.id;
+                this.data[this.curr].els = this.data[this.curr].els.filter(e => e.id != id);
+                this.saveState();
+                this.loadCanvas();
+                this.sel = null;
+            },
+
+            duplicateElement() {
+                if (!this.sel) return;
+                
+                const id = this.sel.dataset.id;
+                const el = this.data[this.curr].els.find(e => e.id == id);
+                if (el) {
+                    const newEl = { ...el, id: Date.now(), x: el.x + 20, y: el.y + 20 };
+                    this.data[this.curr].els.push(newEl);
                     this.saveState();
-                    alert('✅ Presentation loaded successfully!');
-                } else {
-                    alert('❌ No saved presentation found!');
-                }
-            },
-
-            async exportPDF() {
-                alert('📄 Generating PDF... This may take a moment.');
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('landscape', 'px', [960, 540]);
-                
-                for (let i = 0; i < this.data.length; i++) {
-                    this.curr = i;
                     this.loadCanvas();
-                    await new Promise(resolve => setTimeout(resolve, 200));
-                    
-                    const canvas = await html2canvas(document.getElementById('canvas'), {
-                        scale: 2,
-                        backgroundColor: '#ffffff'
-                    });
-                    
-                    const imgData = canvas.toDataURL('image/png');
-                    if (i > 0) pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, 0, 960, 540);
+                }
+            },
+
+            saveElementPosition() {
+                if (!this.sel) return;
+                
+                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                if (el) {
+                    el.x = parseInt(this.sel.style.left);
+                    el.y = parseInt(this.sel.style.top);
+                    el.width = parseInt(this.sel.style.width);
+                    el.height = parseInt(this.sel.style.height);
+                    this.saveState();
+                }
+            },
+
+            changeFont() {
+                if (!this.sel) return;
+                
+                const font = document.getElementById('fontFamily').value;
+                this.sel.style.fontFamily = font;
+                
+                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                if (el) {
+                    el.font = font;
+                    this.saveState();
+                }
+            },
+
+            changeFontSize() {
+                if (!this.sel) return;
+                
+                const size = document.getElementById('fontSize').value;
+                this.sel.style.fontSize = size + 'px';
+                
+                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                if (el) {
+                    el.size = parseInt(size);
+                    this.saveState();
+                }
+            },
+
+            toggleBold() {
+                if (!this.sel) return;
+                
+                const current = this.sel.style.fontWeight;
+                const newWeight = current === 'bold' ? 'normal' : 'bold';
+                this.sel.style.fontWeight = newWeight;
+                
+                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                if (el) {
+                    el.weight = newWeight;
+                    this.saveState();
+                }
+            },
+
+            toggleItalic() {
+                if (!this.sel) return;
+                
+                const current = this.sel.style.fontStyle;
+                this.sel.style.fontStyle = current === 'italic' ? 'normal' : 'italic';
+                this.saveState();
+            },
+
+            toggleUnderline() {
+                if (!this.sel) return;
+                
+                const current = this.sel.style.textDecoration;
+                this.sel.style.textDecoration = current === 'underline' ? 'none' : 'underline';
+                this.saveState();
+            },
+
+            changeTextColor() {
+                if (!this.sel) return;
+                
+                const color = document.getElementById('textColor').value;
+                this.sel.style.color = color;
+                
+                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                if (el) {
+                    el.color = color;
+                    this.saveState();
+                }
+            },
+
+            changeBgColor() {
+                if (!this.sel) return;
+                
+                const color = document.getElementById('bgColor').value;
+                this.sel.style.backgroundColor = color;
+                
+                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                if (el) {
+                    el.bg = color;
+                    this.saveState();
+                }
+            },
+
+            alignText(align) {
+                if (!this.sel) return;
+                
+                this.sel.style.textAlign = align;
+                
+                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                if (el) {
+                    el.align = align;
+                    this.saveState();
+                }
+            },
+
+            moveLayer(direction) {
+                if (!this.sel) return;
+                
+                const id = this.sel.dataset.id;
+                const els = this.data[this.curr].els;
+                const idx = els.findIndex(e => e.id == id);
+                
+                if (direction === 'forward' && idx < els.length - 1) {
+                    [els[idx], els[idx + 1]] = [els[idx + 1], els[idx]];
+                } else if (direction === 'backward' && idx > 0) {
+                    [els[idx], els[idx - 1]] = [els[idx - 1], els[idx]];
                 }
                 
-                const title = document.getElementById('title').value || 'presentation';
-                pdf.save(title + '.pdf');
-                alert('✅ PDF exported successfully!');
+                this.saveState();
+                this.loadCanvas();
             },
 
-            toggleShare() {
-                document.getElementById('shareMenu').classList.toggle('show');
+            saveState() {
+                const state = JSON.stringify(this.data);
+                if (this.historyIndex < this.history.length - 1) {
+                    this.history = this.history.slice(0, this.historyIndex + 1);
+                }
+                this.history.push(state);
+                this.historyIndex++;
+                
+                document.getElementById('undoBtn').disabled = this.historyIndex <= 0;
+                document.getElementById('redoBtn').disabled = this.historyIndex >= this.history.length - 1;
             },
 
-            shareEmail() {
-                const title = document.getElementById('title').value || 'Presentation';
-                const subject = encodeURIComponent(title);
-                const body = encodeURIComponent('Check out my presentation!');
-                window.location.href = `mailto:?subject=${subject}&body=${body}`;
+            undo() {
+                if (this.historyIndex > 0) {
+                    this.historyIndex--;
+                    this.data = JSON.parse(this.history[this.historyIndex]);
+                    this.loadCanvas();
+                    this.renderSlides();
+                    
+                    document.getElementById('undoBtn').disabled = this.historyIndex <= 0;
+                    document.getElementById('redoBtn').disabled = false;
+                }
             },
 
-            download() {
-                const d = {
+            redo() {
+                if (this.historyIndex < this.history.length - 1) {
+                    this.historyIndex++;
+                    this.data = JSON.parse(this.history[this.historyIndex]);
+                    this.loadCanvas();
+                    this.renderSlides();
+                    
+                    document.getElementById('undoBtn').disabled = false;
+                    document.getElementById('redoBtn').disabled = this.historyIndex >= this.history.length - 1;
+                }
+            },
+
+            newPresentation() {
+                if (confirm('Start a new presentation? Unsaved changes will be lost.')) {
+                    this.data = [{ els: [], bg: 'white', transition: 'fade' }];
+                    this.curr = 0;
+                    this.history = [];
+                    this.historyIndex = -1;
+                    document.getElementById('title').value = '';
+                    this.saveState();
+                    this.loadCanvas();
+                    this.renderSlides();
+                }
+            },
+
+            saveJSON() {
+                const json = JSON.stringify({
                     title: document.getElementById('title').value,
                     slides: this.data
-                };
-                const blob = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
+                });
+                const blob = new Blob([json], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = (d.title || 'presentation') + '.json';
+                a.download = (document.getElementById('title').value || 'presentation') + '.json';
                 a.click();
-                URL.revokeObjectURL(url);
-                alert('✅ Presentation downloaded to your device!');
+                this.showNotification('Presentation saved successfully');
+            },
+
+            loadJSON() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            try {
+                                const data = JSON.parse(ev.target.result);
+                                this.data = data.slides;
+                                document.getElementById('title').value = data.title || '';
+                                this.curr = 0;
+                                this.saveState();
+                                this.loadCanvas();
+                                this.renderSlides();
+                                this.showNotification('Presentation loaded successfully');
+                            } catch (err) {
+                                this.showNotification('Error loading file. Please check the file format.', 'error');
+                            }
+                        };
+                        reader.readAsText(file);
+                    }
+                };
+                input.click();
+            },
+
+            toggleExport() {
+                document.getElementById('exportMenu').classList.toggle('show');
+            },
+
+            async exportPDF() {
+                this.showLoading();
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF('landscape', 'px', [960, 540]);
+                    
+                    const slides = document.querySelectorAll('.canvas-slide');
+                    
+                    for (let i = 0; i < slides.length; i++) {
+                        if (i > 0) pdf.addPage([960, 540], 'landscape');
+                        
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        
+                        const canvas = await html2canvas(slides[i], {
+                            width: 960,
+                            height: 540,
+                            scale: 2
+                        });
+                        
+                        const imgData = canvas.toDataURL('image/png');
+                        pdf.addImage(imgData, 'PNG', 0, 0, 960, 540);
+                    }
+                    
+                    pdf.save((document.getElementById('title').value || 'presentation') + '.pdf');
+                    this.showNotification('PDF exported successfully');
+                } catch (error) {
+                    this.showNotification('Failed to export PDF', 'error');
+                } finally {
+                    this.hideLoading();
+                    this.closeModal('exportMenu');
+                }
+            },
+
+            async exportImages() {
+                this.showLoading();
+                try {
+                    const slides = document.querySelectorAll('.canvas-slide');
+                    
+                    for (let i = 0; i < slides.length; i++) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        
+                        const canvas = await html2canvas(slides[i], {
+                            width: 960,
+                            height: 540,
+                            scale: 2
+                        });
+                        
+                        canvas.toBlob(blob => {
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `slide-${i + 1}.png`;
+                            a.click();
+                        });
+                    }
+                    this.showNotification('Images exported successfully');
+                } catch (error) {
+                    this.showNotification('Failed to export images', 'error');
+                } finally {
+                    this.hideLoading();
+                    this.closeModal('exportMenu');
+                }
             },
 
             shareLink() {
-                const d = {
+                const data = btoa(JSON.stringify({
                     title: document.getElementById('title').value,
                     slides: this.data
-                };
-                const encoded = btoa(JSON.stringify(d));
-                const link = window.location.origin + window.location.pathname + '?data=' + encoded;
+                }));
+                const url = window.location.origin + window.location.pathname + '?data=' + data;
                 
-                navigator.clipboard.writeText(link).then(() => {
-                    alert('✅ Share link copied to clipboard!\n\n' + link);
+                navigator.clipboard.writeText(url).then(() => {
+                    this.showNotification('Share link copied to clipboard!');
                 }).catch(() => {
-                    prompt('Copy this link to share:', link);
+                    this.showNotification('Failed to copy link', 'error');
                 });
-            },
-
-            showSlideOptions() {
-                alert('Slide options menu');
-            },
-
-            startSelectionBox(e) {
-                const canvas = document.getElementById('canvas');
-                const rect = canvas.getBoundingClientRect();
-                
-                this.selectionStart = {
-                    x: e.clientX - rect.left,
-                    y: e.clientY - rect.top
-                };
-                
-                this.selectionBox = document.createElement('div');
-                this.selectionBox.className = 'selection-box';
-                this.selectionBox.style.left = this.selectionStart.x + 'px';
-                this.selectionBox.style.top = this.selectionStart.y + 'px';
-                this.selectionBox.style.width = '0px';
-                this.selectionBox.style.height = '0px';
-                canvas.appendChild(this.selectionBox);
-                
-                let hasMoved = false;
-                
-                const onMove = (e) => {
-                    if (!this.selectionBox) return;
-                    
-                    hasMoved = true;
-                    const rect = canvas.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    
-                    const w = Math.abs(x - this.selectionStart.x);
-                    const h = Math.abs(y - this.selectionStart.y);
-                    const l = Math.min(x, this.selectionStart.x);
-                    const t = Math.min(y, this.selectionStart.y);
-                    
-                    this.selectionBox.style.left = l + 'px';
-                    this.selectionBox.style.top = t + 'px';
-                    this.selectionBox.style.width = w + 'px';
-                    this.selectionBox.style.height = h + 'px';
-                };
-                
-                const onUp = () => {
-                    if (!this.selectionBox) {
-                        document.removeEventListener('mousemove', onMove);
-                        document.removeEventListener('mouseup', onUp);
-                        return;
-                    }
-                    
-                    if (hasMoved && parseInt(this.selectionBox.style.width) > 5) {
-                        const boxRect = {
-                            left: parseFloat(this.selectionBox.style.left),
-                            top: parseFloat(this.selectionBox.style.top),
-                            right: parseFloat(this.selectionBox.style.left) + parseFloat(this.selectionBox.style.width),
-                            bottom: parseFloat(this.selectionBox.style.top) + parseFloat(this.selectionBox.style.height)
-                        };
-                        
-                        document.querySelectorAll('.canvas-element').forEach(el => {
-                            const elRect = {
-                                left: parseFloat(el.style.left),
-                                top: parseFloat(el.style.top),
-                                right: parseFloat(el.style.left) + el.offsetWidth,
-                                bottom: parseFloat(el.style.top) + el.offsetHeight
-                            };
-                            
-                            if (this.intersectsBox(boxRect, elRect)) {
-                                if (!this.multiSel.includes(el)) {
-                                    this.multiSel.push(el);
-                                    el.classList.add('multi-selected');
-                                }
-                            }
-                        });
-                    }
-                    
-                    if (this.selectionBox && this.selectionBox.parentNode) {
-                        this.selectionBox.remove();
-                    }
-                    this.selectionBox = null;
-                    
-                    document.removeEventListener('mousemove', onMove);
-                    document.removeEventListener('mouseup', onUp);
-                };
-                
-                document.addEventListener('mousemove', onMove);
-                document.addEventListener('mouseup', onUp);
-            },
-
-            intersectsBox(rect1, rect2) {
-                return !(rect1.right < rect2.left || 
-                         rect1.left > rect2.right || 
-                         rect1.bottom < rect2.top || 
-                         rect1.top > rect2.bottom);
-            },
-
-            intersects(rect1, rect2) {
-                return !(rect1.right < rect2.left || 
-                         rect1.left > rect2.right || 
-                         rect1.bottom < rect2.top || 
-                         rect1.top > rect2.bottom);
-            },
-
-            intersectsBox(rect1, rect2) {
-                return !(rect1.right < rect2.left || 
-                         rect1.left > rect2.right || 
-                         rect1.bottom < rect2.top || 
-                         rect1.top > rect2.bottom);
-            },
-
-            selectAll() {
-                this.clearSelection();
-                document.querySelectorAll('.canvas-element').forEach(el => {
-                    this.multiSel.push(el);
-                    el.classList.add('multi-selected');
-                });
-            },
-
-            clearSelection() {
-                if (this.sel) {
-                    this.sel.classList.remove('selected');
-                    this.sel = null;
-                }
-                this.multiSel.forEach(el => el.classList.remove('multi-selected'));
-                this.multiSel = [];
-            },
-
-            groupElements() {
-                if (this.multiSel.length < 2) {
-                    alert('⚠️ Select at least 2 elements to group');
-                    return;
-                }
-                
-                const ids = this.multiSel.map(el => parseInt(el.dataset.id));
-                const elements = this.data[this.curr].els.filter(e => ids.includes(e.id));
-                
-                elements.forEach(el => el.grouped = true);
-                this.saveState();
-                alert('✅ Elements grouped! Use Ctrl+Shift+G to ungroup');
-            },
-
-            ungroupElements() {
-                const ids = this.multiSel.length > 0 
-                    ? this.multiSel.map(el => parseInt(el.dataset.id))
-                    : this.sel ? [parseInt(this.sel.dataset.id)] : [];
-                
-                if (ids.length === 0) {
-                    alert('⚠️ Select grouped elements first');
-                    return;
-                }
-                
-                this.data[this.curr].els.forEach(el => {
-                    if (ids.includes(el.id)) el.grouped = false;
-                });
-                this.saveState();
-                alert('✅ Elements ungrouped!');
+                this.closeModal('exportMenu');
             },
 
             copyStyle() {
                 if (!this.sel) {
-                    alert('⚠️ Select an element first');
+                    this.showNotification('Select an element first', 'warning');
                     return;
                 }
                 
@@ -1948,18 +2043,18 @@
                         border: el.border,
                         thick: el.thick
                     };
-                    alert('✅ Style copied! Select another element and click Paste Style');
+                    this.showNotification('Style copied! Select another element and click Paste Style');
                 }
             },
 
             pasteStyle() {
                 if (!this.copiedStyle) {
-                    alert('⚠️ Copy a style first');
+                    this.showNotification('Copy a style first', 'warning');
                     return;
                 }
                 
                 if (!this.sel) {
-                    alert('⚠️ Select target element');
+                    this.showNotification('Select target element', 'warning');
                     return;
                 }
                 
@@ -1982,7 +2077,7 @@
                 
                 this.saveState();
                 this.loadCanvas();
-                alert('✅ Style applied!');
+                this.showNotification('Style applied successfully');
             },
 
             setBgColor() {
@@ -1991,14 +2086,13 @@
 
             applyBg(color) {
                 this.data[this.curr].bg = color;
-                const canvas = document.getElementById('canvas');
-                canvas.style.background = color;
-                canvas.style.backgroundImage = 'none';
-                if (color.startsWith('linear-gradient')) {
-                    canvas.style.background = color;
-                }
-                this.saveState();
                 this.closeModal('bgModal');
+                
+                // Use setTimeout to prevent UI freezing
+                setTimeout(() => {
+                    this.loadCanvas();
+                    this.saveState();
+                }, 10);
             },
 
             uploadBgImage() {
@@ -2011,12 +2105,13 @@
                         const reader = new FileReader();
                         reader.onload = (ev) => {
                             this.data[this.curr].bg = `url(${ev.target.result})`;
-                            const canvas = document.getElementById('canvas');
-                            canvas.style.backgroundImage = this.data[this.curr].bg;
-                            canvas.style.backgroundSize = 'cover';
-                            canvas.style.backgroundPosition = 'center';
-                            this.saveState();
                             this.closeModal('bgModal');
+                            
+                            // Use setTimeout to prevent UI freezing
+                            setTimeout(() => {
+                                this.loadCanvas();
+                                this.saveState();
+                            }, 10);
                         };
                         reader.readAsDataURL(file);
                     }
@@ -2024,26 +2119,9 @@
                 input.click();
             },
 
-            addShadow() {
-                if (!this.sel) {
-                    alert('⚠️ Select an element first');
-                    return;
-                }
-                
-                const shadow = prompt('Enter shadow (e.g., "0 4px 8px rgba(0,0,0,0.2)"):', '0 4px 12px rgba(0,0,0,0.15)');
-                if (shadow) {
-                    this.sel.style.boxShadow = shadow;
-                    const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                    if (el) {
-                        el.shadow = shadow;
-                        this.saveState();
-                    }
-                }
-            },
-
             showAnimations() {
                 if (!this.sel) {
-                    alert('⚠️ Select an element first');
+                    this.showNotification('Select an element first', 'warning');
                     return;
                 }
                 document.getElementById('animModal').classList.add('show');
@@ -2057,7 +2135,7 @@
                     el.animation = animation;
                     this.saveState();
                     this.closeModal('animModal');
-                    alert(`✅ Animation "${animation}" applied! Preview in Presentation Mode`);
+                    this.showNotification(`Animation "${animation}" applied! Preview in Presentation Mode`);
                 }
             },
 
@@ -2110,7 +2188,82 @@
                 canvas.className = 'present-canvas slide-transition-' + transition;
                 
                 slide.els.forEach((el, index) => {
-                    const div = this.createEl(el);
+                    const div = document.createElement('div');
+                    div.className = 'element ' + el.type + '-element';
+                    div.style.left = el.x + 'px';
+                    div.style.top = el.y + 'px';
+                    div.style.width = el.width + 'px';
+                    div.style.height = el.height + 'px';
+
+                    if (el.shadow) {
+                        div.style.boxShadow = el.shadow;
+                    }
+
+                    if (el.type === 'text') {
+                        div.textContent = el.content;
+                        div.style.fontFamily = el.font || 'Arial';
+                        div.style.fontSize = (el.size || 24) + 'px';
+                        div.style.color = el.color || '#000000';
+                        div.style.backgroundColor = el.bg || 'transparent';
+                        div.style.fontWeight = el.weight || 'normal';
+                        div.style.textAlign = el.align || 'left';
+                        div.style.padding = '8px';
+                    }
+
+                    if (el.type === 'shape') {
+                        div.style.backgroundColor = el.bg || '#3b82f6';
+                        div.style.border = `${el.thick || 2}px solid ${el.border || '#1e40af'}`;
+                        
+                        // Apply shape styles for presentation
+                        switch(el.shape) {
+                            case 'circle':
+                                div.style.borderRadius = '50%';
+                                break;
+                            case 'rectangle':
+                                div.style.borderRadius = '4px';
+                                break;
+                            case 'triangle':
+                                div.style.backgroundColor = 'transparent';
+                                div.style.borderLeft = `${el.width / 2}px solid transparent`;
+                                div.style.borderRight = `${el.width / 2}px solid transparent`;
+                                div.style.borderBottom = `${el.height}px solid ${el.bg || '#3b82f6'}`;
+                                div.style.width = '0';
+                                div.style.height = '0';
+                                div.style.border = 'none';
+                                break;
+                            case 'star':
+                                div.style.borderRadius = '4px';
+                                div.style.clipPath = 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)';
+                                break;
+                            case 'pentagon':
+                                div.style.clipPath = 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)';
+                                break;
+                            case 'hexagon':
+                                div.style.clipPath = 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)';
+                                break;
+                            case 'diamond':
+                                div.style.clipPath = 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)';
+                                break;
+                            case 'arrow-right':
+                                div.style.clipPath = 'polygon(0% 25%, 60% 25%, 60% 0%, 100% 50%, 60% 100%, 60% 75%, 0% 75%)';
+                                break;
+                            case 'arrow-left':
+                                div.style.clipPath = 'polygon(40% 25%, 100% 25%, 100% 75%, 40% 75%, 40% 100%, 0% 50%, 40% 0%)';
+                                break;
+                            default:
+                                div.style.borderRadius = '4px';
+                        }
+                    }
+
+                    if (el.type === 'image') {
+                        const img = document.createElement('img');
+                        img.src = el.src;
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        img.style.objectFit = 'cover';
+                        div.appendChild(img);
+                    }
+
                     if (el.animation && el.animation !== 'none') {
                         setTimeout(() => {
                             div.classList.add('animate-' + el.animation);
@@ -2144,6 +2297,32 @@
 
             closeModal(id) {
                 document.getElementById(id).classList.remove('show');
+            },
+
+            // Zoom Functions
+            setZoom(value) {
+                this.zoom = parseInt(value);
+                document.getElementById('zoomValue').textContent = this.zoom + '%';
+                document.getElementById('canvasWrapper').style.transform = `scale(${this.zoom / 100})`;
+            },
+
+            zoomIn() {
+                const slider = document.getElementById('zoomSlider');
+                const newValue = Math.min(200, this.zoom + 10);
+                slider.value = newValue;
+                this.setZoom(newValue);
+            },
+
+            zoomOut() {
+                const slider = document.getElementById('zoomSlider');
+                const newValue = Math.max(25, this.zoom - 10);
+                slider.value = newValue;
+                this.setZoom(newValue);
+            },
+
+            resetZoom() {
+                document.getElementById('zoomSlider').value = 100;
+                this.setZoom(100);
             }
         };
 
@@ -2164,8 +2343,19 @@
                     console.error('Failed to load shared presentation');
                 }
             }
+
+            // Close export menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.header-right')) {
+                    document.getElementById('exportMenu').classList.remove('show');
+                }
+                
+                // Close shapes menu when clicking outside
+                if (!e.target.closest('#shapesBtn') && !e.target.closest('#shapesMenu')) {
+                    document.getElementById('shapesMenu').classList.remove('show');
+                }
+            });
         };
     </script>
 </body>
 </html>
-                
