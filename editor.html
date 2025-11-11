@@ -897,6 +897,219 @@
 [data-tooltip]:hover::before, [data-tooltip]:hover::after { z-index: 5000 !important; }
 /* =================== END TOOLTIP CLIP FIXES =================== */
 
+
+/* ============ JS Tooltip Portal Overrides ============ */
+[data-tooltip]::before, [data-tooltip]::after { display: none !important; }
+.js-tooltip {
+  position: fixed;
+  padding: 6px 10px;
+  background: #1f2937;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  white-space: nowrap;
+  z-index: 10000; /* above header/toolbar */
+  pointer-events: none;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  transform: translate(-50%, -6px);
+}
+.js-tooltip-arrow {
+  position: fixed;
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  border-top-color: #1f2937;
+  z-index: 10000;
+  pointer-events: none;
+  transform: translate(-50%, 0);
+}
+/* ============ End Overrides ============ */
+
+
+/* ===================== COMPACT UI PASS ===================== */
+:root{
+  --btn-h: 34px;
+  --btn-fs: 12px;
+  --btn-px: 10px;
+  --gap: 8px;
+  --radius: 10px;
+  --toolbar-top: 56px; /* header height */
+}
+
+/* Header refinement */
+.header{
+  padding: 10px 16px !important;
+  min-height: var(--toolbar-top);
+}
+.title-input{ min-width: 260px !important; font-size: 13px !important; padding: 8px 12px !important; }
+
+/* Toolbar refinement */
+.toolbar{
+  top: var(--toolbar-top) !important;
+  padding: 10px 16px !important;
+  gap: var(--gap) !important;
+}
+
+/* Button base */
+.header-btn, .tool-btn, .zoom-btn, .zoom-reset, .present-mode-btn, .share-btn {
+  height: var(--btn-h) !important;
+  padding: 0 var(--btn-px) !important;
+  font-size: var(--btn-fs) !important;
+  border-radius: var(--radius) !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e5e7eb !important;
+  background: #fff;
+  box-shadow: none !important;
+}
+
+/* Icons boldness */
+.tool-btn strong, .tool-btn em, .tool-btn u { font-size: 12px !important; }
+
+/* Selects & number inputs same height */
+select.tool-btn, input[type="number"].tool-btn {
+  height: var(--btn-h) !important;
+  padding: 0 8px !important;
+  min-width: 64px;
+}
+
+/* Color inputs smaller */
+input[type="color"]{
+  width: 30px !important;
+  height: 30px !important;
+  padding: 0 !important;
+  border-radius: 6px !important;
+}
+
+/* Divider slimmer */
+.tool-divider{ height: 26px !important; margin: 0 4px !important; background: #eef2f7 !important; }
+
+/* Dropdown menu tighter */
+.dropdown-menu{ min-width: 180px !important; }
+.dropdown-item{ padding: 10px 12px !important; font-size: 12px !important; }
+
+/* Sidebar spacing */
+.sidebar{ padding: 12px 10px !important; gap: 10px !important; }
+.sidebar-add-slide{ padding: 10px !important; font-size: 12px !important; }
+.sidebar-slide-number{ font-size: 9px !important; padding: 2px 6px !important; }
+.sidebar-slide{ border-width: 2px !important; }
+
+/* Slide badge smaller */
+.slide-number-badge{ font-size: 11px !important; padding: 4px 10px !important; }
+
+/* Zoom control smaller */
+.zoom-control{
+  padding: 10px 12px !important;
+  gap: 10px !important;
+  border-radius: 10px !important;
+}
+.zoom-slider{ width: 100px !important; }
+.zoom-value{ font-size: 12px !important; min-width: 40px !important; }
+
+/* Container offset update to match tighter bars */
+.container{ margin-top: calc(var(--toolbar-top) + 52px) !important; }
+/* =================== END COMPACT UI PASS =================== */
+
+
+
+/* ===================== KEEP HEADER AS-IS & BEAUTIFY TOOLBAR ===================== */
+:root{
+  --header-h: 60px;        /* header fixed height */
+  --toolbar-h: 52px;       /* toolbar visual height after compacting */
+}
+
+/* 1) Restore original header styling (no compact changes) */
+.header {
+  padding: 14px 24px !important;     /* original spacing */
+  min-height: unset !important;
+}
+.header .header-btn{
+  background: rgba(255,255,255,0.15) !important;
+  border: none !important;
+  color: #fff !important;
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  box-shadow: none !important;
+  height: auto !important;
+}
+.header .header-btn:hover{ background: rgba(255,255,255,0.25) !important; }
+.header .share-btn{
+  background: #fff !important;
+  color: #0891b2 !important;
+  padding: 9px 24px !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+  height: auto !important;
+}
+.title-input{
+  background: rgba(255,255,255,0.15) !important;
+  border: none !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  padding: 9px 16px !important;
+  border-radius: 8px !important;
+  min-width: 320px !important;
+}
+
+/* 2) Toolbar tidy look (smaller buttons, subtle hover) */
+.toolbar{
+  top: var(--header-h) !important;
+  padding: 10px 20px !important;
+  gap: 8px !important;
+  background: #fff !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important;
+}
+
+.tool-btn{
+  height: 34px !important;
+  padding: 0 10px !important;
+  font-size: 12.5px !important;
+  background: #f9fafb !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  color: #374151 !important;
+}
+.tool-btn:hover{
+  background: #ccfbf1 !important;
+  border-color: #22d3ee !important;
+  color: #0891b2 !important;
+}
+.tool-btn:active, .tool-btn:focus{
+  background: #a5f3fc !important;
+  color: #0369a1 !important;
+  outline: none !important;
+}
+
+/* Inputs same height as buttons */
+select.tool-btn, input[type="number"].tool-btn{
+  height: 34px !important;
+  min-width: 64px;
+}
+input[type="color"]{
+  width: 30px !important; height: 30px !important; border-radius: 6px !important;
+}
+
+/* Divider thinner */
+.tool-divider{ height: 26px !important; margin: 0 4px !important; background: #eef2f7 !important; }
+
+/* 3) Proper top offset so content doesn't hide under bars */
+.container{
+  margin-top: calc(var(--header-h) + var(--toolbar-h)) !important;
+}
+
+/* Keep tooltips over everything */
+[data-tooltip]::before, [data-tooltip]::after{ z-index: 5000 !important; }
+
+/* =================== END =================== */
+
 </style>
 </head>
 <body>
@@ -2357,5 +2570,102 @@
             });
         };
     </script>
-</body>
+<script>
+(function () {
+  let tipEl = null;
+  let arrowEl = null;
+  let activeTarget = null;
+
+  function showTooltip(target) {
+    const text = target.getAttribute('data-tooltip');
+    if (!text) return;
+
+    if (!tipEl) {
+      tipEl = document.createElement('div');
+      tipEl.className = 'js-tooltip';
+      document.body.appendChild(tipEl);
+
+      arrowEl = document.createElement('div');
+      arrowEl.className = 'js-tooltip-arrow';
+      document.body.appendChild(arrowEl);
+    }
+
+    tipEl.textContent = text;
+    tipEl.style.display = 'block';
+    arrowEl.style.display = 'block';
+
+    positionTooltip(target);
+    activeTarget = target;
+  }
+
+  function hideTooltip() {
+    if (tipEl) tipEl.style.display = 'none';
+    if (arrowEl) arrowEl.style.display = 'none';
+    activeTarget = null;
+  }
+
+  function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+  function positionTooltip(target) {
+    const rect = target.getBoundingClientRect();
+    // Initial center above the target
+    const centerX = rect.left + rect.width / 2;
+    const topY = rect.top;
+
+    // Measure tooltip size by temporarily showing it
+    tipEl.style.visibility = 'hidden';
+    tipEl.style.display = 'block';
+    const tipWidth = tipEl.offsetWidth;
+    const tipHeight = tipEl.offsetHeight;
+    tipEl.style.visibility = '';
+    // Compute final positions with viewport clamping
+    const padding = 8;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const left = clamp(centerX, padding + tipWidth / 2, vw - padding - tipWidth / 2);
+    let top = topY - padding - tipHeight;
+
+    // If not enough space above, place below
+    if (top < padding) {
+      top = rect.bottom + padding + tipHeight; // place arrow below as well
+      tipEl.style.transform = 'translate(-50%, -100%)'; // adjust transform to anchor below
+      arrowEl.style.borderTopColor = 'transparent';
+      arrowEl.style.borderBottomColor = '#1f2937';
+      arrowEl.style.top = (rect.bottom + padding) + 'px';
+    } else {
+      tipEl.style.transform = 'translate(-50%, -6px)';
+      arrowEl.style.borderBottomColor = 'transparent';
+      arrowEl.style.borderTopColor = '#1f2937';
+      arrowEl.style.top = (topY - padding) + 'px';
+    }
+
+    tipEl.style.left = left + 'px';
+    tipEl.style.top = top + 'px';
+
+    arrowEl.style.left = clamp(centerX, padding + 6, vw - padding - 6) + 'px';
+  }
+
+  // Delegate listeners
+  document.addEventListener('mouseover', function (e) {
+    const target = e.target.closest('[data-tooltip]');
+    if (!target) return;
+    showTooltip(target);
+  });
+  document.addEventListener('mouseout', function (e) {
+    const related = e.relatedTarget;
+    if (activeTarget && (!related || !related.closest('[data-tooltip]'))) {
+      hideTooltip();
+    }
+  });
+  document.addEventListener('mousemove', function () {
+    if (activeTarget) positionTooltip(activeTarget);
+  });
+  window.addEventListener('scroll', function () {
+    if (activeTarget) positionTooltip(activeTarget);
+  }, true);
+  window.addEventListener('resize', function () {
+    if (activeTarget) positionTooltip(activeTarget);
+  });
+})();
+</script></body>
 </html>
