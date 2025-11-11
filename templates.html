@@ -5,6 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Choose a Template - Presentation Maker</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+      import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+      import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+      
+      const firebaseConfig = {
+        apiKey: "AIzaSyDPzRqV-_hGNedZoeGNtorLTGWTBMmqdkc",
+        authDomain: "prj-adc-gcp-coop-test.firebaseapp.com",
+        projectId: "prj-adc-gcp-coop-test",
+        storageBucket: "prj-adc-gcp-coop-test.firebasestorage.app",
+        messagingSenderId: "472242813268",
+        appId: "1:472242813268:web:4e7b4650015fd473d4f0c1",
+        measurementId: "G-RGEPGD1T9T"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const db = getFirestore(app, 'bettercallus');
+      
+      // Make available globally
+      window.firebaseApp = app;
+      window.firebaseAnalytics = analytics;
+      window.firebaseDb = db;
+      console.log('Firebase initialized in templates with database: bettercallus');
+    </script>
     <script>
       if (localStorage.getItem('pm-logged-in') !== 'true') {
         window.location.replace('login.html')

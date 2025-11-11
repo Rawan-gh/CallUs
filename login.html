@@ -5,6 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Login - Presentation Maker</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+      import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+      import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+      import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+      
+      const firebaseConfig = {
+        apiKey: "AIzaSyDPzRqV-_hGNedZoeGNtorLTGWTBMmqdkc",
+        authDomain: "prj-adc-gcp-coop-test.firebaseapp.com",
+        projectId: "prj-adc-gcp-coop-test",
+        storageBucket: "prj-adc-gcp-coop-test.firebasestorage.app",
+        messagingSenderId: "472242813268",
+        appId: "1:472242813268:web:4e7b4650015fd473d4f0c1",
+        measurementId: "G-RGEPGD1T9T"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const db = getFirestore(app, 'bettercallus');
+      const auth = getAuth(app);
+      
+      // Make available globally
+      window.firebaseApp = app;
+      window.firebaseAnalytics = analytics;
+      window.firebaseDb = db;
+      window.firebaseAuth = auth;
+      console.log('Firebase initialized in login with database: bettercallus');
+    </script>
   </head>
   <body class="bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-900 antialiased font-sans">
     <div class="relative min-h-screen flex flex-col">
@@ -49,7 +79,10 @@
       </footer>
     </div>
 
-    <script>
+    <script type="module">
+      import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+      import { doc, setDoc, getDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
       function formatNameFromEmail(emailValue) {
         if (!emailValue) return null
         const localPart = emailValue.split('@')[0] || ''
@@ -62,19 +95,106 @@
           .join(' ')
       }
 
-      function handleLogin(event) {
+      async function handleLogin(event) {
         event.preventDefault()
         const emailInput = document.getElementById('email')
-        const formattedName = formatNameFromEmail(emailInput.value.trim())
-        localStorage.setItem('pm-logged-in', 'true')
-        if (formattedName) {
-          localStorage.setItem('pm-user-name', formattedName)
-        } else {
-          localStorage.removeItem('pm-user-name')
+        const passwordInput = document.getElementById('password')
+        const email = emailInput.value.trim()
+        const password = passwordInput.value
+        const submitBtn = event.target.querySelector('button[type="submit"]')
+        
+        if (!email || !password) {
+          alert('Please enter both email and password')
+          return
         }
-        window.location.href = 'templates.html'
+
+        // Disable button and show loading
+        submitBtn.disabled = true
+        submitBtn.textContent = 'Signing in...'
+
+        try {
+          const auth = window.firebaseAuth
+          const db = window.firebaseDb
+          
+          let userCredential
+          let isNewUser = false
+
+          // Try to sign in first
+          try {
+            userCredential = await signInWithEmailAndPassword(auth, email, password)
+          } catch (signInError) {
+            // If user doesn't exist, create new account
+            if (signInError.code === 'auth/user-not-found') {
+              userCredential = await createUserWithEmailAndPassword(auth, email, password)
+              isNewUser = true
+            } else {
+              throw signInError
+            }
+          }
+
+          const user = userCredential.user
+          const formattedName = formatNameFromEmail(email)
+
+          // Save user data to Firestore
+          const userRef = doc(db, 'users', user.uid)
+          
+          // Check if user document already exists
+          const userDoc = await getDoc(userRef)
+          const userExists = userDoc.exists()
+          
+          const userData = {
+            email: user.email,
+            displayName: formattedName || user.email.split('@')[0],
+            lastLogin: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          }
+
+          // If user exists, preserve createdAt; if new, set createdAt
+          if (isNewUser || !userExists) {
+            userData.createdAt = serverTimestamp()
+            await setDoc(userRef, userData)
+            console.log('New user account created in Firestore')
+          } else {
+            // Update existing user's lastLogin, preserve createdAt
+            await setDoc(userRef, {
+              ...userData,
+              createdAt: userDoc.data().createdAt // Preserve original creation time
+            }, { merge: true })
+            console.log('User signed in, updated Firestore')
+          }
+
+          // Store user info in localStorage for quick access
+          localStorage.setItem('pm-logged-in', 'true')
+          localStorage.setItem('pm-user-id', user.uid)
+          localStorage.setItem('pm-user-email', user.email)
+          if (formattedName) {
+            localStorage.setItem('pm-user-name', formattedName)
+          }
+
+          // Redirect to templates
+          window.location.href = 'templates.html'
+        } catch (error) {
+          console.error('Authentication error:', error)
+          let errorMessage = 'Sign in failed. Please try again.'
+          
+          if (error.code === 'auth/weak-password') {
+            errorMessage = 'Password should be at least 6 characters.'
+          } else if (error.code === 'auth/invalid-email') {
+            errorMessage = 'Invalid email address.'
+          } else if (error.code === 'auth/wrong-password') {
+            errorMessage = 'Incorrect password.'
+          } else if (error.code === 'auth/email-already-in-use') {
+            errorMessage = 'This email is already registered. Please sign in instead.'
+          }
+          
+          alert(errorMessage)
+          submitBtn.disabled = false
+          submitBtn.textContent = 'Sign in'
+        }
       }
 
+      // Make handleLogin available globally
+      window.handleLogin = handleLogin
       document.getElementById('year').textContent = new Date().getFullYear()
     </script>
   </body>

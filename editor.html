@@ -7,6 +7,62 @@
 <title>Presentation Studio</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+  import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+  
+  const firebaseConfig = {
+    apiKey: "AIzaSyDPzRqV-_hGNedZoeGNtorLTGWTBMmqdkc",
+    authDomain: "prj-adc-gcp-coop-test.firebaseapp.com",
+    projectId: "prj-adc-gcp-coop-test",
+    storageBucket: "prj-adc-gcp-coop-test.firebasestorage.app",
+    messagingSenderId: "472242813268",
+    appId: "1:472242813268:web:4e7b4650015fd473d4f0c1",
+    measurementId: "G-RGEPGD1T9T"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getFirestore(app, 'bettercallus');
+  const auth = getAuth(app);
+  
+  // Make available globally
+  window.firebaseApp = app;
+  window.firebaseAnalytics = analytics;
+  window.firebaseDb = db;
+  window.firebaseAuth = auth;
+  
+  // Set user ID from localStorage as fallback
+  const storedUserId = localStorage.getItem('pm-user-id');
+  if (storedUserId) {
+    window.currentUserId = storedUserId;
+    console.log('User ID loaded from localStorage:', storedUserId);
+  }
+  
+  // Check authentication status
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      window.currentUserId = user.uid;
+      // Update localStorage to keep it in sync
+      localStorage.setItem('pm-user-id', user.uid);
+      console.log('User authenticated:', user.uid);
+    } else {
+      // Use stored user ID if available, otherwise redirect
+      if (storedUserId) {
+        window.currentUserId = storedUserId;
+        console.log('Using stored user ID:', storedUserId);
+      } else if (localStorage.getItem('pm-logged-in') !== 'true') {
+        window.location.href = 'login.html';
+      }
+    }
+  });
+  
+  console.log('Firebase initialized in editor with database: bettercallus');
+</script>
 <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -1119,6 +1175,7 @@ input[type="color"]{
 <button class="header-btn" onclick="app.saveJSON()">Save</button>
 <button class="header-btn" onclick="app.loadJSON()">Load</button>
 <input class="title-input" id="title" placeholder="Untitled Presentation" type="text"/>
+<span id="saveIndicator" style="margin-left: 10px; font-size: 12px; color: #10b981;"></span>
 </div>
 <div class="header-right">
 <button class="header-btn" data-tooltip="Undo (Ctrl+Z)" disabled="" id="undoBtn" onclick="app.undo()">Undo</button>
@@ -1290,6 +1347,9 @@ input[type="color"]{
             gridVisible: false,
             snapToGrid: false,
             snapThreshold: 10,
+            currentPresentationId: null,
+            autoSaveTimer: null,
+            isSaving: false,
 
             init() {
                 this.loadCanvas();
@@ -2074,6 +2134,161 @@ input[type="color"]{
                 
                 document.getElementById('undoBtn').disabled = this.historyIndex <= 0;
                 document.getElementById('redoBtn').disabled = this.historyIndex >= this.history.length - 1;
+                
+                // Trigger cloud save with debouncing
+                this.scheduleCloudSave();
+            },
+
+            scheduleCloudSave() {
+                // Clear existing timer
+                if (this.autoSaveTimer) {
+                    clearTimeout(this.autoSaveTimer);
+                }
+                
+                // Schedule save after 2 seconds of inactivity
+                this.autoSaveTimer = setTimeout(() => {
+                    this.saveToCloud();
+                }, 2000);
+            },
+
+            async saveToCloud() {
+                if (this.isSaving || !window.currentUserId || !window.firebaseDb) {
+                    return;
+                }
+
+                this.isSaving = true;
+                const saveIndicator = document.getElementById('saveIndicator');
+                if (saveIndicator) {
+                    saveIndicator.textContent = 'Saving...';
+                    saveIndicator.style.color = '#0891b2';
+                }
+
+                try {
+                    const { doc, setDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                    const db = window.firebaseDb;
+                    const userId = window.currentUserId;
+                    const title = document.getElementById('title').value || 'Untitled Presentation';
+                    
+                    // Use current presentation ID or generate new one
+                    const presentationId = this.currentPresentationId || `pres_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                    const isNewPresentation = !this.currentPresentationId;
+                    this.currentPresentationId = presentationId;
+                    
+                    const presentationRef = doc(db, 'users', userId, 'presentations', presentationId);
+                    const { getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                    
+                    // Check if presentation already exists
+                    const existingDoc = await getDoc(presentationRef);
+                    const presentationData = {
+                        title: title,
+                        slides: this.data,
+                        updatedAt: serverTimestamp()
+                    };
+                    
+                    // Only set createdAt if this is a new presentation
+                    if (isNewPresentation || !existingDoc.exists()) {
+                        presentationData.createdAt = serverTimestamp();
+                    }
+                    
+                    await setDoc(presentationRef, presentationData, { merge: true });
+
+                    // Also save to a global presentations collection for easier querying
+                    const globalPresRef = doc(db, 'presentations', presentationId);
+                    const existingGlobalDoc = await getDoc(globalPresRef);
+                    const globalData = {
+                        userId: userId,
+                        title: title,
+                        updatedAt: serverTimestamp()
+                    };
+                    
+                    // Only set createdAt if this is a new presentation
+                    if (isNewPresentation || !existingGlobalDoc.exists()) {
+                        globalData.createdAt = serverTimestamp();
+                    }
+                    
+                    await setDoc(globalPresRef, globalData, { merge: true });
+
+                    if (saveIndicator) {
+                        saveIndicator.textContent = 'Saved';
+                        saveIndicator.style.color = '#10b981';
+                        setTimeout(() => {
+                            saveIndicator.textContent = '';
+                        }, 2000);
+                    }
+                    
+                    console.log('Presentation saved to cloud:', presentationId);
+                } catch (error) {
+                    console.error('Error saving to cloud:', error);
+                    if (saveIndicator) {
+                        saveIndicator.textContent = 'Save failed';
+                        saveIndicator.style.color = '#ef4444';
+                        setTimeout(() => {
+                            saveIndicator.textContent = '';
+                        }, 3000);
+                    }
+                } finally {
+                    this.isSaving = false;
+                }
+            },
+
+            async loadFromCloud(presentationId = null) {
+                if (!window.currentUserId || !window.firebaseDb) {
+                    return null;
+                }
+
+                try {
+                    const { collection, query, orderBy, getDocs, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                    const db = window.firebaseDb;
+                    const userId = window.currentUserId;
+
+                    if (presentationId) {
+                        // Load specific presentation
+                        const presentationRef = doc(db, 'users', userId, 'presentations', presentationId);
+                        const presentationDoc = await getDoc(presentationRef);
+                        
+                        if (presentationDoc.exists()) {
+                            const data = presentationDoc.data();
+                            this.currentPresentationId = presentationId;
+                            return data;
+                        }
+                    } else {
+                        // Load most recent presentation
+                        const presentationsRef = collection(db, 'users', userId, 'presentations');
+                        const q = query(presentationsRef, orderBy('updatedAt', 'desc'));
+                        const querySnapshot = await getDocs(q);
+                        
+                        if (!querySnapshot.empty) {
+                            const latestDoc = querySnapshot.docs[0];
+                            const data = latestDoc.data();
+                            this.currentPresentationId = latestDoc.id;
+                            return data;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading from cloud:', error);
+                    // If orderBy fails (no index), try without ordering
+                    if (error.code === 'failed-precondition') {
+                        try {
+                            const { collection, getDocs, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                            const db = window.firebaseDb;
+                            const userId = window.currentUserId;
+                            const presentationsRef = collection(db, 'users', userId, 'presentations');
+                            const querySnapshot = await getDocs(presentationsRef);
+                            
+                            if (!querySnapshot.empty) {
+                                // Get the first document (no ordering)
+                                const firstDoc = querySnapshot.docs[0];
+                                const data = firstDoc.data();
+                                this.currentPresentationId = firstDoc.id;
+                                return data;
+                            }
+                        } catch (fallbackError) {
+                            console.error('Fallback load error:', fallbackError);
+                        }
+                    }
+                }
+                
+                return null;
             },
 
             undo() {
@@ -2113,7 +2328,17 @@ input[type="color"]{
                 }
             },
 
-            saveJSON() {
+            async saveJSON() {
+                // Save to cloud first
+                if (window.currentUserId && window.firebaseDb) {
+                    try {
+                        await this.saveToCloud();
+                    } catch (error) {
+                        console.error('Error saving to cloud:', error);
+                    }
+                }
+                
+                // Also save as local JSON file
                 const json = JSON.stringify({
                     title: document.getElementById('title').value,
                     slides: this.data
@@ -2539,9 +2764,23 @@ input[type="color"]{
             }
         };
 
-        window.onload = () => {
+        window.onload = async () => {
             app.init();
             
+            // Try to load from cloud first
+            if (window.currentUserId) {
+                const cloudData = await app.loadFromCloud();
+                if (cloudData && cloudData.slides) {
+                    app.data = cloudData.slides;
+                    document.getElementById('title').value = cloudData.title || '';
+                    app.renderSlides();
+                    app.loadCanvas();
+                    app.saveState();
+                    console.log('Loaded presentation from cloud');
+                }
+            }
+            
+            // Check for shared presentation in URL
             const params = new URLSearchParams(window.location.search);
             const shared = params.get('data');
             if (shared) {

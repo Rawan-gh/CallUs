@@ -8,6 +8,33 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+      import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+      import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+      
+      const firebaseConfig = {
+        apiKey: "AIzaSyDPzRqV-_hGNedZoeGNtorLTGWTBMmqdkc",
+        authDomain: "prj-adc-gcp-coop-test.firebaseapp.com",
+        projectId: "prj-adc-gcp-coop-test",
+        storageBucket: "prj-adc-gcp-coop-test.firebasestorage.app",
+        messagingSenderId: "472242813268",
+        appId: "1:472242813268:web:4e7b4650015fd473d4f0c1",
+        measurementId: "G-RGEPGD1T9T"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const db = getFirestore(app, 'bettercallus');
+      
+      // Make available globally
+      window.firebaseApp = app;
+      window.firebaseAnalytics = analytics;
+      window.firebaseDb = db;
+      console.log('Firebase initialized in index with database: bettercallus');
+    </script>
   </head>
   <body class="bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-900 antialiased font-sans">
     <div class="relative">
