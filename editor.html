@@ -36,28 +36,41 @@
   window.firebaseDb = db;
   window.firebaseAuth = auth;
   
-  // Set user ID from localStorage as fallback
   const storedUserId = localStorage.getItem('pm-user-id');
   if (storedUserId) {
     window.currentUserId = storedUserId;
+  }
+
+  let lastDispatchedUserId = null;
+  const dispatchUserReady = (userId) => {
+    if (!userId || userId === lastDispatchedUserId) {
+      return;
+    }
+    lastDispatchedUserId = userId;
+    window.dispatchEvent(new CustomEvent('pm-user-ready', { detail: { userId } }));
+  };
+
+  if (storedUserId) {
+    window.setTimeout(() => dispatchUserReady(storedUserId), 0);
     console.log('User ID loaded from localStorage:', storedUserId);
   }
   
-  // Check authentication status
   onAuthStateChanged(auth, (user) => {
     if (user) {
       window.currentUserId = user.uid;
-      // Update localStorage to keep it in sync
       localStorage.setItem('pm-user-id', user.uid);
-      console.log('User authenticated:', user.uid);
-    } else {
-      // Use stored user ID if available, otherwise redirect
-      if (storedUserId) {
-        window.currentUserId = storedUserId;
-        console.log('Using stored user ID:', storedUserId);
-      } else if (localStorage.getItem('pm-logged-in') !== 'true') {
-        window.location.href = 'login.html';
+      if (user.email) {
+        localStorage.setItem('pm-user-email', user.email);
       }
+      dispatchUserReady(user.uid);
+      console.log('User authenticated:', user.uid);
+    } else if (storedUserId) {
+      window.currentUserId = storedUserId;
+      dispatchUserReady(storedUserId);
+      console.log('Using stored user ID from localStorage:', storedUserId);
+    } else {
+      localStorage.removeItem('pm-logged-in');
+      window.location.href = 'login.html';
     }
   });
   
@@ -1332,6 +1345,10 @@ input[type="color"]{
 </div>
 </div>
 <script>
+        let appInitialized = false;
+        let initialPresentationAttempted = false;
+        let initialPresentationResolving = false;
+
         const app = {
             data: [{ els: [], bg: 'white', transition: 'fade' }],
             curr: 0,
@@ -1348,6 +1365,7 @@ input[type="color"]{
             snapToGrid: false,
             snapThreshold: 10,
             currentPresentationId: null,
+            initialLoadComplete: false,
             autoSaveTimer: null,
             isSaving: false,
 
@@ -2135,8 +2153,9 @@ input[type="color"]{
                 document.getElementById('undoBtn').disabled = this.historyIndex <= 0;
                 document.getElementById('redoBtn').disabled = this.historyIndex >= this.history.length - 1;
                 
-                // Trigger cloud save with debouncing
-                this.scheduleCloudSave();
+                if (this.initialLoadComplete) {
+                    this.scheduleCloudSave();
+                }
             },
 
             scheduleCloudSave() {
@@ -2317,14 +2336,22 @@ input[type="color"]{
 
             newPresentation() {
                 if (confirm('Start a new presentation? Unsaved changes will be lost.')) {
+                    if (this.autoSaveTimer) {
+                        clearTimeout(this.autoSaveTimer);
+                        this.autoSaveTimer = null;
+                    }
+                    this.currentPresentationId = null;
                     this.data = [{ els: [], bg: 'white', transition: 'fade' }];
                     this.curr = 0;
+                    this.sel = null;
                     this.history = [];
                     this.historyIndex = -1;
                     document.getElementById('title').value = '';
-                    this.saveState();
-                    this.loadCanvas();
+                    this.initialLoadComplete = false;
                     this.renderSlides();
+                    this.loadCanvas();
+                    this.saveState();
+                    this.initialLoadComplete = true;
                 }
             },
 
@@ -2366,9 +2393,19 @@ input[type="color"]{
                                 this.data = data.slides;
                                 document.getElementById('title').value = data.title || '';
                                 this.curr = 0;
-                                this.saveState();
-                                this.loadCanvas();
+                                this.sel = null;
+                                this.history = [];
+                                this.historyIndex = -1;
+                                this.currentPresentationId = null;
+                                if (this.autoSaveTimer) {
+                                    clearTimeout(this.autoSaveTimer);
+                                    this.autoSaveTimer = null;
+                                }
+                                this.initialLoadComplete = false;
                                 this.renderSlides();
+                                this.loadCanvas();
+                                this.saveState();
+                                this.initialLoadComplete = true;
                                 this.showNotification('Presentation loaded successfully');
                             } catch (err) {
                                 this.showNotification('Error loading file. Please check the file format.', 'error');
@@ -2764,45 +2801,124 @@ input[type="color"]{
             }
         };
 
-        window.onload = async () => {
-            app.init();
-            
-            // Try to load from cloud first
-            if (window.currentUserId) {
-                const cloudData = await app.loadFromCloud();
-                if (cloudData && cloudData.slides) {
-                    app.data = cloudData.slides;
-                    document.getElementById('title').value = cloudData.title || '';
-                    app.renderSlides();
-                    app.loadCanvas();
-                    app.saveState();
-                    console.log('Loaded presentation from cloud');
-                }
-            }
-            
-            // Check for shared presentation in URL
-            const params = new URLSearchParams(window.location.search);
-            const shared = params.get('data');
-            if (shared) {
-                try {
-                    const d = JSON.parse(atob(shared));
-                    app.data = d.slides;
-                    document.getElementById('title').value = d.title || '';
-                    app.renderSlides();
-                    app.loadCanvas();
-                    app.saveState();
-                } catch (e) {
-                    console.error('Failed to load shared presentation');
-                }
+        function finalizeInitialData(slidesInput, title, presentationId) {
+            const fallbackSlides = [{ els: [], bg: 'white', transition: 'fade' }];
+            const slides = Array.isArray(slidesInput) && slidesInput.length ? slidesInput : fallbackSlides;
+            let normalizedSlides;
+            try {
+                normalizedSlides = JSON.parse(JSON.stringify(slides));
+            } catch (error) {
+                console.error('Failed to normalize slides, using fallback.', error);
+                normalizedSlides = fallbackSlides;
             }
 
-            // Close export menu when clicking outside
+            if (app.autoSaveTimer) {
+                clearTimeout(app.autoSaveTimer);
+                app.autoSaveTimer = null;
+            }
+
+            app.data = normalizedSlides;
+            app.currentPresentationId = presentationId || null;
+            app.curr = 0;
+            app.sel = null;
+            document.getElementById('title').value = title || '';
+            app.history = [];
+            app.historyIndex = -1;
+            app.initialLoadComplete = false;
+            app.renderSlides();
+            app.loadCanvas();
+            app.saveState();
+            app.initialLoadComplete = true;
+        }
+
+        async function attemptInitialCloudLoad(preferredId) {
+            if (initialPresentationAttempted || initialPresentationResolving) {
+                return;
+            }
+
+            if (!appInitialized) {
+                return;
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            const sharedParam = params.get('data');
+
+            if (!sharedParam && (!window.currentUserId || !window.firebaseDb)) {
+                return;
+            }
+
+            initialPresentationResolving = true;
+
+            try {
+                if (sharedParam) {
+                    try {
+                        const decoded = JSON.parse(atob(sharedParam));
+                        finalizeInitialData(decoded.slides, decoded.title, null);
+                        console.log('Loaded shared presentation');
+                    } catch (error) {
+                        console.error('Failed to load shared presentation, starting with a blank deck.', error);
+                        finalizeInitialData(null, null, null);
+                    }
+                    initialPresentationAttempted = true;
+                    return;
+                }
+
+                const explicitId = preferredId || params.get('presentationId');
+                const hasTemplateParam = params.has('template');
+                const startFresh = params.get('new') === '1';
+
+                let shouldLoadFromCloud = true;
+                if (startFresh || hasTemplateParam) {
+                    shouldLoadFromCloud = false;
+                }
+                if (explicitId) {
+                    shouldLoadFromCloud = true;
+                }
+
+                let presentationData = null;
+                let resolvedPresentationId = explicitId || null;
+
+                if (shouldLoadFromCloud) {
+                    try {
+                        presentationData = await app.loadFromCloud(explicitId);
+                        if (presentationData && app.currentPresentationId && !resolvedPresentationId) {
+                            resolvedPresentationId = app.currentPresentationId;
+                        }
+                    } catch (error) {
+                        console.error('Error loading presentation from cloud:', error);
+                    }
+                }
+
+                if (presentationData && presentationData.slides) {
+                    finalizeInitialData(presentationData.slides, presentationData.title, resolvedPresentationId);
+                    console.log('Loaded presentation from cloud');
+                } else {
+                    finalizeInitialData(null, null, null);
+                    if (explicitId && shouldLoadFromCloud) {
+                        console.warn('Requested presentation was not found; starting a new deck.');
+                    }
+                }
+
+                initialPresentationAttempted = true;
+            } finally {
+                initialPresentationResolving = false;
+            }
+        }
+
+        window.addEventListener('pm-user-ready', () => {
+            attemptInitialCloudLoad();
+        });
+
+        window.onload = async () => {
+            app.init();
+            appInitialized = true;
+            await attemptInitialCloudLoad();
+
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('.header-right')) {
                     document.getElementById('exportMenu').classList.remove('show');
                 }
                 
-                // Close shapes menu when clicking outside
                 if (!e.target.closest('#shapesBtn') && !e.target.closest('#shapesMenu')) {
                     document.getElementById('shapesMenu').classList.remove('show');
                 }

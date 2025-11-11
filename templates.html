@@ -10,6 +10,7 @@
       import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
       import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
       import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+      import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
       
       const firebaseConfig = {
         apiKey: "AIzaSyDPzRqV-_hGNedZoeGNtorLTGWTBMmqdkc",
@@ -25,11 +26,52 @@
       const app = initializeApp(firebaseConfig);
       const analytics = getAnalytics(app);
       const db = getFirestore(app, 'bettercallus');
+      const auth = getAuth(app);
       
       // Make available globally
       window.firebaseApp = app;
       window.firebaseAnalytics = analytics;
       window.firebaseDb = db;
+      window.firebaseAuth = auth;
+
+      const storedUserId = localStorage.getItem('pm-user-id');
+      if (storedUserId) {
+        window.currentUserId = storedUserId;
+      }
+
+      let lastDispatchedUserId = null;
+      const dispatchUserReady = (userId) => {
+        if (!userId || userId === lastDispatchedUserId) {
+          return;
+        }
+        lastDispatchedUserId = userId;
+        window.dispatchEvent(new CustomEvent('pm-user-ready', { detail: { userId } }));
+      };
+
+      if (storedUserId) {
+        window.setTimeout(() => dispatchUserReady(storedUserId), 0);
+      }
+      
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          window.currentUserId = user.uid;
+          localStorage.setItem('pm-user-id', user.uid);
+          if (user.email) {
+            localStorage.setItem('pm-user-email', user.email);
+          }
+          localStorage.setItem('pm-logged-in', 'true');
+          dispatchUserReady(user.uid);
+          console.log('User authenticated in templates:', user.uid);
+        } else if (storedUserId) {
+          window.currentUserId = storedUserId;
+          dispatchUserReady(storedUserId);
+          console.log('Using stored user ID in templates:', storedUserId);
+        } else {
+          localStorage.removeItem('pm-logged-in');
+          window.location.replace('login.html');
+        }
+      });
+      
       console.log('Firebase initialized in templates with database: bettercallus');
     </script>
     <script>
@@ -59,7 +101,7 @@
               </svg>
               Home
             </a>
-            <a href="editor.html" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-700" data-nav-link="new">
+            <a href="editor.html?new=1" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-700" data-nav-link="new">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
               </svg>
@@ -118,7 +160,7 @@
               <div class="flex flex-col items-start gap-4 rounded-2xl border border-emerald-100/70 bg-emerald-50/70 px-5 py-4 backdrop-blur">
                 <div class="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-1 text-sm font-semibold text-emerald-700">
                   <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-                  3 active decks
+                  <span data-active-count-label>0 active decks</span>
                 </div>
                 <div class="space-y-2 text-sm text-slate-700">
                   <div class="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm shadow-emerald-500/10">
@@ -186,7 +228,7 @@
                 <h3 class="font-semibold">Blank</h3>
                 <p class="mt-1 text-xs text-slate-500">Start from scratch with a clean slate.</p>
               </div>
-              <a href="editor.html?template=clean" class="inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500">Use</a>
+              <a href="editor.html?template=clean&new=1" class="inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500">Use</a>
             </div>
           </div>
 
@@ -202,7 +244,7 @@
               <div class="flex-1">
                 <h3 class="font-semibold">AD Template</h3>
               </div>
-              <a href="editor.html?template=gradient" class="inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500">Use</a>
+              <a href="editor.html?template=gradient&new=1" class="inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500">Use</a>
             </div>
           </div>
 
@@ -226,8 +268,13 @@
             </a>
           </div>
 
-          <div class="mt-6 rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
-            Recent presentations will appear here once you publish your first deck.
+          <div class="mt-6 flex items-center gap-2 text-sm text-slate-500 hidden" data-user-presentations-loading>
+            <span class="inline-flex h-2 w-2 animate-pulse rounded-full bg-emerald-500"></span>
+            Loading your saved decks...
+          </div>
+          <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 hidden" data-user-presentations-list></div>
+          <div class="mt-6 rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500" data-user-presentations-empty>
+            Saved presentations will appear here once you create your first deck.
           </div>
         </section>
 
@@ -549,7 +596,171 @@
         activateNav('recent')
       })()
     </script>
+    <script type="module">
+      import { collection, query, orderBy, limit, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+      const presentationsListEl = document.querySelector('[data-user-presentations-list]');
+      const emptyStateEl = document.querySelector('[data-user-presentations-empty]');
+      const loadingStateEl = document.querySelector('[data-user-presentations-loading]');
+      const activeCountLabel = document.querySelector('[data-active-count-label]');
+
+      let unsubscribe = null;
+      let subscriptionUserId = null;
+
+      const toDate = (value) => {
+        if (!value) return null;
+        if (value.toDate) return value.toDate();
+        if (value instanceof Date) return value;
+        return null;
+      };
+
+      const formatRelativeTime = (date) => {
+        if (!date) return 'Just now';
+        const diffMs = Date.now() - date.getTime();
+        const diffMinutes = Math.max(0, Math.round(diffMs / 60000));
+        if (diffMinutes < 1) return 'Just now';
+        if (diffMinutes < 60) return `${diffMinutes} min${diffMinutes === 1 ? '' : 's'} ago`;
+        const diffHours = Math.round(diffMinutes / 60);
+        if (diffHours < 24) return `${diffHours} hr${diffHours === 1 ? '' : 's'} ago`;
+        const diffDays = Math.round(diffHours / 24);
+        if (diffDays < 7) return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
+        return date.toLocaleDateString();
+      };
+
+      const updateActiveCount = (count) => {
+        if (!activeCountLabel) return;
+        const label = count === 1 ? '1 active deck' : `${count} active decks`;
+        activeCountLabel.textContent = label;
+      };
+
+      const clearList = () => {
+        if (!presentationsListEl) return;
+        presentationsListEl.innerHTML = '';
+      };
+
+      const createPresentationCard = (docId, data) => {
+        const title = (data?.title || '').trim() || 'Untitled presentation';
+        const updatedAt = toDate(data?.updatedAt) || toDate(data?.createdAt);
+        const updatedLabel = updatedAt ? formatRelativeTime(updatedAt) : 'Recently saved';
+        const slideCount = Array.isArray(data?.slides) ? data.slides.length : 0;
+        const slideLabel = slideCount === 1 ? 'slide' : 'slides';
+
+        const card = document.createElement('div');
+        card.className = 'group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:border-emerald-400 hover:shadow-md';
+
+        const header = document.createElement('div');
+        header.className = 'flex flex-col gap-2';
+        const titleEl = document.createElement('h3');
+        titleEl.className = 'font-semibold leading-tight text-slate-900';
+        titleEl.textContent = title;
+        header.appendChild(titleEl);
+
+        const metaEl = document.createElement('p');
+        metaEl.className = 'text-xs text-slate-500';
+        metaEl.textContent = `Updated ${updatedLabel}`;
+        header.appendChild(metaEl);
+
+        const pillRow = document.createElement('div');
+        pillRow.className = 'mt-2 flex flex-wrap items-center gap-2';
+        const slidesPill = document.createElement('span');
+        slidesPill.className = 'inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700';
+        slidesPill.textContent = `${slideCount} ${slideLabel}`;
+        pillRow.appendChild(slidesPill);
+        header.appendChild(pillRow);
+
+        const footer = document.createElement('div');
+        footer.className = 'mt-4 flex items-center justify-between gap-3';
+        const openBtn = document.createElement('a');
+        openBtn.href = `editor.html?presentationId=${encodeURIComponent(docId)}`;
+        openBtn.className = 'inline-flex items-center rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400';
+        openBtn.textContent = 'Open deck';
+        footer.appendChild(openBtn);
+
+        card.appendChild(header);
+        card.appendChild(footer);
+        return card;
+      };
+
+      const renderSnapshot = (snapshot) => {
+        updateActiveCount(snapshot?.size ?? 0);
+
+        if (!presentationsListEl || !emptyStateEl) {
+          return;
+        }
+
+        clearList();
+
+        if (!snapshot || snapshot.empty) {
+          presentationsListEl.classList.add('hidden');
+          emptyStateEl.classList.remove('hidden');
+          return;
+        }
+
+        emptyStateEl.classList.add('hidden');
+        presentationsListEl.classList.remove('hidden');
+
+        snapshot.forEach((docSnap) => {
+          const card = createPresentationCard(docSnap.id, docSnap.data());
+          presentationsListEl.appendChild(card);
+        });
+      };
+
+      const ensureSubscription = (userId) => {
+        if (!userId || subscriptionUserId === userId) {
+          return;
+        }
+        if (!window.firebaseDb) {
+          return;
+        }
+
+        if (unsubscribe) {
+          unsubscribe();
+          unsubscribe = null;
+        }
+
+        subscriptionUserId = userId;
+        loadingStateEl?.classList.remove('hidden');
+        presentationsListEl?.classList.add('hidden');
+        emptyStateEl?.classList.add('hidden');
+
+        const presentationsRef = collection(window.firebaseDb, 'users', userId, 'presentations');
+        const q = query(presentationsRef, orderBy('updatedAt', 'desc'), limit(12));
+
+        unsubscribe = onSnapshot(
+          q,
+          (snapshot) => {
+            loadingStateEl?.classList.add('hidden');
+            renderSnapshot(snapshot);
+          },
+          (error) => {
+            console.error('Failed to load presentations:', error);
+            loadingStateEl?.classList.add('hidden');
+            if (emptyStateEl) {
+              emptyStateEl.classList.remove('hidden');
+              emptyStateEl.textContent = 'We could not load your decks right now. Please try again.';
+            }
+          }
+        );
+      };
+
+      window.addEventListener('pm-user-ready', (event) => {
+        const userId = event?.detail?.userId;
+        if (userId) {
+          ensureSubscription(userId);
+        }
+      });
+
+      if (window.currentUserId) {
+        ensureSubscription(window.currentUserId);
+      }
+
+      window.addEventListener('beforeunload', () => {
+        if (unsubscribe) {
+          unsubscribe();
+        }
+      });
+    </script>
   </body>
-  </html>
+</html>
 
 
