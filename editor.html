@@ -1,3026 +1,646 @@
-<!DOCTYPE html>
-
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Presentation Studio</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<!-- Firebase SDK -->
-<script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-  import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
-  import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-  
-  const firebaseConfig = {
-    apiKey: "AIzaSyDPzRqV-_hGNedZoeGNtorLTGWTBMmqdkc",
-    authDomain: "prj-adc-gcp-coop-test.firebaseapp.com",
-    projectId: "prj-adc-gcp-coop-test",
-    storageBucket: "prj-adc-gcp-coop-test.firebasestorage.app",
-    messagingSenderId: "472242813268",
-    appId: "1:472242813268:web:4e7b4650015fd473d4f0c1",
-    measurementId: "G-RGEPGD1T9T"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-  const db = getFirestore(app, 'bettercallus');
-  const auth = getAuth(app);
-  
-  // Make available globally
-  window.firebaseApp = app;
-  window.firebaseAnalytics = analytics;
-  window.firebaseDb = db;
-  window.firebaseAuth = auth;
-  
-  const storedUserId = localStorage.getItem('pm-user-id');
-  if (storedUserId) {
-    window.currentUserId = storedUserId;
-  }
-
-  let lastDispatchedUserId = null;
-  const dispatchUserReady = (userId) => {
-    if (!userId || userId === lastDispatchedUserId) {
-      return;
-    }
-    lastDispatchedUserId = userId;
-    window.dispatchEvent(new CustomEvent('pm-user-ready', { detail: { userId } }));
-  };
-
-  if (storedUserId) {
-    window.setTimeout(() => dispatchUserReady(storedUserId), 0);
-    console.log('User ID loaded from localStorage:', storedUserId);
-  }
-  
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      window.currentUserId = user.uid;
-      localStorage.setItem('pm-user-id', user.uid);
-      if (user.email) {
-        localStorage.setItem('pm-user-email', user.email);
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Editor 2 · Advanced Workspace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+            },
+            colors: {
+              emerald: {
+                950: '#042f2e',
+              },
+            },
+            boxShadow: {
+              glow: '0 20px 60px -25px rgba(16, 185, 129, 0.45)',
+            },
+          },
+        },
       }
-      dispatchUserReady(user.uid);
-      console.log('User authenticated:', user.uid);
-    } else if (storedUserId) {
-      window.currentUserId = storedUserId;
-      dispatchUserReady(storedUserId);
-      console.log('Using stored user ID from localStorage:', storedUserId);
-    } else {
-      localStorage.removeItem('pm-logged-in');
-      window.location.href = 'login.html';
-    }
-  });
-  
-  console.log('Firebase initialized in editor with database: bettercallus');
-</script>
-<style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8f9fa;
-            overflow: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #34d399 0%, #22d3ee 50%, #60a5fa 100%);
-            color: white;
-            padding: 14px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 12px rgba(52, 211, 153, 0.15);
-            position: relative;
-            z-index: 200;
-        }
-
-        .header-left, .header-right { display: flex; align-items: center; gap: 10px; }
-
-        .header-btn {
-            background: rgba(255,255,255,0.15);
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.2s;
-            backdrop-filter: blur(10px);
-        }
-
-        .header-btn:hover { background: rgba(255,255,255,0.25); transform: translateY(-1px); }
-        .header-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-        .title-input {
-            background: rgba(255,255,255,0.15);
-            border: none;
-            color: white;
-            font-size: 14px;
-            padding: 9px 16px;
-            border-radius: 8px;
-            outline: none;
-            min-width: 320px;
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
-        }
-
-        .title-input::placeholder { color: rgba(255,255,255,0.7); }
-        .title-input:focus { background: rgba(255,255,255,0.25); }
-
-        .share-btn {
-            background: white;
-            color: #0891b2;
-            padding: 9px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            transition: all 0.2s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .share-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(8, 145, 178, 0.2); }
-
-        .dropdown-menu {
-            position: absolute;
-            top: calc(100% + 8px);
-            right: 0;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-            display: none;
-            min-width: 220px;
-            z-index: 1000;
-            overflow: hidden;
-        }
-
-        .dropdown-menu.show { display: block; }
-
-        .dropdown-item {
-            padding: 14px 18px;
-            cursor: pointer;
-            color: #374151;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.15s;
-        }
-
-        .dropdown-item:hover { background: #ecfeff; color: #0891b2; }
-
-        .toolbar {
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-            padding: 14px 24px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            position: relative;
-            z-index: 200;
-        }
-
-        .tool-btn {
-            padding: 9px 16px;
-            border: 1px solid #e5e7eb;
-            background: white;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            color: #374151;
-            transition: all 0.2s;
-        }
-
-        .tool-btn:hover { background: #f9fafb; border-color: #0891b2; color: #0891b2; transform: translateY(-1px); }
-
-        .tool-divider { width: 1px; height: 32px; background: #e5e7eb; margin: 0 6px; }
-
-        select.tool-btn { padding: 8px 14px; }
-        input[type="number"].tool-btn { width: 75px; padding: 8px 12px; }
-        input[type="color"] { width: 42px; height: 38px; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; }
-
-        .container { display: flex; height: calc(100vh - 130px); }
-
-        .sidebar {
-            width: 200px;
-            background: white;
-            border-right: 1px solid #e5e7eb;
-            display: flex;
-            flex-direction: column;
-            padding: 16px 12px;
-            gap: 12px;
-            overflow-y: auto;
-            box-shadow: 2px 0 8px rgba(0,0,0,0.03);
-            scroll-behavior: smooth;
-        }
-
-        .sidebar::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .sidebar::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 3px;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
-        .sidebar-header {
-            font-size: 13px;
-            font-weight: 600;
-            color: #6b7280;
-            padding: 8px 12px;
-            border-bottom: 1px solid #e5e7eb;
-            margin-bottom: 8px;
-        }
-
-        .sidebar-slide {
-            width: 100%;
-            background: white;
-            border: 2px solid #e5e7eb;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .sidebar-slide:hover {
-            border-color: #5eead4;
-            transform: translateX(-4px);
-            box-shadow: 0 4px 12px rgba(94, 234, 212, 0.15);
-        }
-
-        .sidebar-slide.active {
-            border-color: #2dd4bf;
-            border-width: 3px;
-            box-shadow: 0 4px 16px rgba(45, 212, 191, 0.25);
-        }
-
-        .sidebar-slide-preview {
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: white;
-            position: relative;
-            font-size: 8px;
-        }
-
-        .sidebar-slide-number {
-            position: absolute;
-            top: 4px;
-            left: 4px;
-            background: rgba(0,0,0,0.6);
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 600;
-        }
-
-        .sidebar-slide-delete {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            background: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            width: 20px;
-            height: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .sidebar-slide:hover .sidebar-slide-delete {
-            display: flex;
-        }
-
-        .sidebar-add-slide {
-            width: 100%;
-            padding: 12px;
-            background: #f9fafb;
-            border: 2px dashed #cbd5e1;
-            border-radius: 6px;
-            cursor: pointer;
-            text-align: center;
-            font-size: 13px;
-            font-weight: 600;
-            color: #64748b;
-            transition: all 0.2s;
-        }
-
-        .sidebar-add-slide:hover {
-            background: #ecfeff;
-            border-color: #0891b2;
-            color: #0891b2;
-        }
-
-        .main-canvas {
-            flex: 1;
-            padding: 32px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            scroll-behavior: smooth;
-        }
-
-        .main-canvas::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        .main-canvas::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-
-        .main-canvas::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 5px;
-        }
-
-        .main-canvas::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
-        .canvas-wrapper {
-            transform-origin: center center;
-            transition: transform 0.2s ease;
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-            padding: 20px;
-        }
-
-        .canvas-slide {
-            width: 960px;
-            height: 540px;
-            background: white;
-            position: relative;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-            border-radius: 4px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            z-index: 1;
-        }
-
-        .canvas-slide:hover {
-            box-shadow: 0 12px 40px rgba(0,0,0,0.18);
-            transform: translateY(-2px);
-        }
-
-        .canvas-slide.active {
-            box-shadow: 0 0 0 3px #2dd4bf, 0 12px 40px rgba(45, 212, 191, 0.3);
-        }
-
-        .slide-number-badge {
-            position: absolute;
-            top: 16px;
-            left: 16px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            z-index: 5;
-            backdrop-filter: blur(10px);
-        }
-
-        .element {
-            position: absolute;
-            cursor: move;
-            user-select: none;
-        }
-
-        .element.selected {
-            outline: 2px solid #2dd4bf;
-            outline-offset: 2px;
-        }
-
-        .element.text-element {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        .element.shape-element {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .element.image-element img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .resize-handle {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: white;
-            border: 2px solid #2dd4bf;
-            border-radius: 50%;
-            display: none;
-        }
-
-        .element.selected .resize-handle { display: block; }
-
-        .resize-handle.nw { top: -5px; left: -5px; cursor: nw-resize; }
-        .resize-handle.ne { top: -5px; right: -5px; cursor: ne-resize; }
-        .resize-handle.sw { bottom: -5px; left: -5px; cursor: sw-resize; }
-        .resize-handle.se { bottom: -5px; right: -5px; cursor: se-resize; }
-
-        /* Zoom Control Bar - Bottom Right */
-        .zoom-control {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            z-index: 100;
-            border: 1px solid #e5e7eb;
-        }
-
-        .zoom-divider {
-            width: 1px;
-            height: 32px;
-            background: #e5e7eb;
-        }
-
-        .present-mode-btn {
-            padding: 8px 20px;
-            background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.2s;
-            box-shadow: 0 2px 8px rgba(8, 145, 178, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .present-mode-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
-            background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%);
-        }
-
-        .present-mode-btn:active {
-            transform: translateY(0);
-        }
-
-        .zoom-btn {
-            width: 32px;
-            height: 32px;
-            border: 1px solid #e5e7eb;
-            background: white;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            color: #374151;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .zoom-btn:hover {
-            background: #f9fafb;
-            border-color: #0891b2;
-            color: #0891b2;
-            transform: scale(1.05);
-        }
-
-        .zoom-btn:active {
-            transform: scale(0.95);
-        }
-
-        .zoom-slider {
-            width: 120px;
-            height: 4px;
-            -webkit-appearance: none;
-            appearance: none;
-            background: #e5e7eb;
-            outline: none;
-            border-radius: 2px;
-            cursor: pointer;
-        }
-
-        .zoom-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            background: #0891b2;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .zoom-slider::-webkit-slider-thumb:hover {
-            background: #0e7490;
-            transform: scale(1.2);
-        }
-
-        .zoom-slider::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
-            background: #0891b2;
-            border-radius: 50%;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-        }
-
-        .zoom-slider::-moz-range-thumb:hover {
-            background: #0e7490;
-            transform: scale(1.2);
-        }
-
-        .zoom-value {
-            font-size: 13px;
-            font-weight: 600;
-            color: #374151;
-            min-width: 45px;
-            text-align: center;
-        }
-
-        .zoom-reset {
-            font-size: 11px;
-            padding: 4px 8px;
-            border: 1px solid #e5e7eb;
-            background: white;
-            border-radius: 4px;
-            cursor: pointer;
-            color: #64748b;
-            transition: all 0.2s;
-        }
-
-        .zoom-reset:hover {
-            background: #f9fafb;
-            color: #0891b2;
-            border-color: #0891b2;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(4px);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.show { display: flex; }
-
-        .modal-content {
-            background: white;
-            border-radius: 16px;
-            padding: 32px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        .modal-header {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 24px;
-            color: #1f2937;
-        }
-
-        .modal-close {
-            float: right;
-            font-size: 28px;
-            font-weight: 300;
-            color: #9ca3af;
-            cursor: pointer;
-            line-height: 1;
-            transition: all 0.2s;
-        }
-
-        .modal-close:hover { color: #ef4444; transform: rotate(90deg); }
-
-        .bg-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin-top: 20px;
-        }
-
-        .bg-option {
-            aspect-ratio: 16/9;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 3px solid transparent;
-        }
-
-        .bg-option:hover {
-            transform: scale(1.05);
-            border-color: #2dd4bf;
-            box-shadow: 0 4px 16px rgba(45, 212, 191, 0.3);
-        }
-
-        .animation-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .animation-option {
-            padding: 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: center;
-            font-weight: 600;
-            transition: all 0.2s;
-            color: #374151;
-        }
-
-        .animation-option:hover {
-            background: #ecfeff;
-            border-color: #0891b2;
-            color: #0891b2;
-            transform: translateY(-2px);
-        }
-
-        .present-mode {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: black;
-            z-index: 3000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .present-mode.active { display: flex; }
-
-        .present-slide {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-        }
-
-        .present-canvas {
-            background: white;
-            box-shadow: 0 10px 50px rgba(0,0,0,0.5);
-        }
-
-        .present-controls {
-            background: rgba(0,0,0,0.8);
-            padding: 16px 24px;
-            display: flex;
-            gap: 16px;
-            align-items: center;
-            border-radius: 12px;
-            margin-bottom: 24px;
-        }
-
-        .present-btn {
-            background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.3);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .present-btn:hover {
-            background: rgba(255,255,255,0.2);
-            border-color: rgba(255,255,255,0.5);
-            transform: scale(1.05);
-        }
-
-        .present-counter {
-            color: white;
-            font-weight: 600;
-            font-size: 14px;
-            padding: 0 16px;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideInLeft { from { transform: translateX(-50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes slideInRight { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes slideInUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes slideInDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-
-        .animate-fadeIn { animation: fadeIn 0.6s ease-out; }
-        .animate-slideInLeft { animation: slideInLeft 0.6s ease-out; }
-        .animate-slideInRight { animation: slideInRight 0.6s ease-out; }
-        .animate-slideInUp { animation: slideInUp 0.6s ease-out; }
-        .animate-slideInDown { animation: slideInDown 0.6s ease-out; }
-        .animate-zoomIn { animation: zoomIn 0.6s ease-out; }
-        .animate-bounce { animation: bounce 0.8s ease-in-out; }
-
-        .slide-transition-fade { animation: fadeIn 0.5s; }
-        .slide-transition-slide { animation: slideInRight 0.5s; }
-        .slide-transition-zoom { animation: zoomIn 0.5s; }
-
-        /* Professional Notifications */
-        .notification {
-            position: fixed;
-            top: 80px;
-            right: 24px;
-            background: white;
-            padding: 16px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            z-index: 2000;
-            animation: slideInRight 0.3s ease-out;
-            border-left: 4px solid #10b981;
-        }
-
-        .notification.error {
-            border-left-color: #ef4444;
-        }
-
-        .notification.warning {
-            border-left-color: #f59e0b;
-        }
-
-        .notification-icon {
-            font-size: 20px;
-        }
-
-        .notification-text {
-            font-size: 14px;
-            font-weight: 500;
-            color: #374151;
-        }
-
-        /* Loading Spinner */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 3000;
-            backdrop-filter: blur(4px);
-        }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Professional Tooltips */
-        [data-tooltip] {
-            position: relative;
-        }
-
-        [data-tooltip]:hover::before {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 6px 12px;
-            background: #1f2937;
-            color: white;
-            font-size: 12px;
-            font-weight: 500;
-            border-radius: 6px;
-            white-space: nowrap;
-            z-index: 1000;
-            pointer-events: none;
-            opacity: 0;
-            animation: tooltipFadeIn 0.2s ease-out forwards;
-        }
-
-        [data-tooltip]:hover::after {
-            content: '';
-            position: absolute;
-            bottom: calc(100% + 2px);
-            left: 50%;
-            transform: translateX(-50%);
-            border: 6px solid transparent;
-            border-top-color: #1f2937;
-            z-index: 1000;
-            pointer-events: none;
-            opacity: 0;
-            animation: tooltipFadeIn 0.2s ease-out forwards;
-        }
-
-        @keyframes tooltipFadeIn {
-            to { opacity: 1; }
-        }
-
-        /* Professional Grid Overlay */
-        .canvas-grid-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .canvas-grid-overlay.show {
-            opacity: 0.1;
-            background-image: 
-                linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
-
-        /* Snap Guidelines */
-        .snap-line {
-            position: absolute;
-            background: #f43f5e;
-            pointer-events: none;
-            z-index: 1000;
-            opacity: 0.8;
-        }
-
-        .snap-line.horizontal {
-            height: 1px;
-            width: 100%;
-            left: 0;
-        }
-
-        .snap-line.vertical {
-            width: 1px;
-            height: 100%;
-            top: 0;
-        }
-    
-
-/* ===================== FIXES OVERRIDES (Do not remove) ===================== */
-/* Keep the top bars fixed and ensure tooltips render above them */
-.header {
-  position: fixed !important;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 4000 !important;
-}
-
-.toolbar {
-  position: fixed !important;
-  top: 60px; /* adjust if header height changes */
-  left: 0;
-  right: 0;
-  z-index: 3500 !important;
-}
-
-.container {
-  margin-top: 120px; /* header (≈60px) + toolbar (≈60px) */
-  height: calc(100vh - 130px);
-}
-
-[data-tooltip]:hover::before,
-[data-tooltip]:hover::after {
-  z-index: 5000 !important; /* render above fixed bars */
-}
-
-/* Menus & overlays should stack correctly above the fixed bars */
-.dropdown-menu {
-  z-index: 5000 !important;
-}
-
-.present-mode {
-  z-index: 6000 !important; /* presentation overlay above everything */
-}
-/* =================== END FIXES OVERRIDES =================== */
-
-
-
-/* ===================== TOOLTIP CLIP FIXES ===================== */
-/* Allow tooltips inside slides to escape the slide box */
-.canvas-slide { overflow: visible !important; }
-/* Ensure any element that shows tooltip is not clipping its pseudo-elements */
-.element, [data-tooltip] { overflow: visible !important; }
-/* Lift slide itself above toolbar if needed when hovering */
-.canvas-slide:hover { z-index: 4500; }
-/* Keep tooltips the highest */
-[data-tooltip]:hover::before, [data-tooltip]:hover::after { z-index: 5000 !important; }
-/* =================== END TOOLTIP CLIP FIXES =================== */
-
-
-/* ============ JS Tooltip Portal Overrides ============ */
-[data-tooltip]::before, [data-tooltip]::after { display: none !important; }
-.js-tooltip {
-  position: fixed;
-  padding: 6px 10px;
-  background: #1f2937;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  border-radius: 6px;
-  white-space: nowrap;
-  z-index: 10000; /* above header/toolbar */
-  pointer-events: none;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-  transform: translate(-50%, -6px);
-}
-.js-tooltip-arrow {
-  position: fixed;
-  width: 0;
-  height: 0;
-  border: 6px solid transparent;
-  border-top-color: #1f2937;
-  z-index: 10000;
-  pointer-events: none;
-  transform: translate(-50%, 0);
-}
-/* ============ End Overrides ============ */
-
-
-/* ===================== COMPACT UI PASS ===================== */
-:root{
-  --btn-h: 34px;
-  --btn-fs: 12px;
-  --btn-px: 10px;
-  --gap: 8px;
-  --radius: 10px;
-  --toolbar-top: 56px; /* header height */
-}
-
-/* Header refinement */
-.header{
-  padding: 10px 16px !important;
-  min-height: var(--toolbar-top);
-}
-.title-input{ min-width: 260px !important; font-size: 13px !important; padding: 8px 12px !important; }
-
-/* Toolbar refinement */
-.toolbar{
-  top: var(--toolbar-top) !important;
-  padding: 10px 16px !important;
-  gap: var(--gap) !important;
-}
-
-/* Button base */
-.header-btn, .tool-btn, .zoom-btn, .zoom-reset, .present-mode-btn, .share-btn {
-  height: var(--btn-h) !important;
-  padding: 0 var(--btn-px) !important;
-  font-size: var(--btn-fs) !important;
-  border-radius: var(--radius) !important;
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #e5e7eb !important;
-  background: #fff;
-  box-shadow: none !important;
-}
-
-/* Icons boldness */
-.tool-btn strong, .tool-btn em, .tool-btn u { font-size: 12px !important; }
-
-/* Selects & number inputs same height */
-select.tool-btn, input[type="number"].tool-btn {
-  height: var(--btn-h) !important;
-  padding: 0 8px !important;
-  min-width: 64px;
-}
-
-/* Color inputs smaller */
-input[type="color"]{
-  width: 30px !important;
-  height: 30px !important;
-  padding: 0 !important;
-  border-radius: 6px !important;
-}
-
-/* Divider slimmer */
-.tool-divider{ height: 26px !important; margin: 0 4px !important; background: #eef2f7 !important; }
-
-/* Dropdown menu tighter */
-.dropdown-menu{ min-width: 180px !important; }
-.dropdown-item{ padding: 10px 12px !important; font-size: 12px !important; }
-
-/* Sidebar spacing */
-.sidebar{ padding: 12px 10px !important; gap: 10px !important; }
-.sidebar-add-slide{ padding: 10px !important; font-size: 12px !important; }
-.sidebar-slide-number{ font-size: 9px !important; padding: 2px 6px !important; }
-.sidebar-slide{ border-width: 2px !important; }
-
-/* Slide badge smaller */
-.slide-number-badge{ font-size: 11px !important; padding: 4px 10px !important; }
-
-/* Zoom control smaller */
-.zoom-control{
-  padding: 10px 12px !important;
-  gap: 10px !important;
-  border-radius: 10px !important;
-}
-.zoom-slider{ width: 100px !important; }
-.zoom-value{ font-size: 12px !important; min-width: 40px !important; }
-
-/* Container offset update to match tighter bars */
-.container{ margin-top: calc(var(--toolbar-top) + 52px) !important; }
-/* =================== END COMPACT UI PASS =================== */
-
-
-
-/* ===================== KEEP HEADER AS-IS & BEAUTIFY TOOLBAR ===================== */
-:root{
-  --header-h: 60px;        /* header fixed height */
-  --toolbar-h: 52px;       /* toolbar visual height after compacting */
-}
-
-/* 1) Restore original header styling (no compact changes) */
-.header {
-  padding: 14px 24px !important;     /* original spacing */
-  min-height: unset !important;
-}
-.header .header-btn{
-  background: rgba(255,255,255,0.15) !important;
-  border: none !important;
-  color: #fff !important;
-  padding: 8px 16px !important;
-  border-radius: 8px !important;
-  font-size: 13px !important;
-  box-shadow: none !important;
-  height: auto !important;
-}
-.header .header-btn:hover{ background: rgba(255,255,255,0.25) !important; }
-.header .share-btn{
-  background: #fff !important;
-  color: #0891b2 !important;
-  padding: 9px 24px !important;
-  border: none !important;
-  border-radius: 8px !important;
-  font-weight: 600 !important;
-  font-size: 13px !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
-  height: auto !important;
-}
-.title-input{
-  background: rgba(255,255,255,0.15) !important;
-  border: none !important;
-  color: #fff !important;
-  font-size: 14px !important;
-  padding: 9px 16px !important;
-  border-radius: 8px !important;
-  min-width: 320px !important;
-}
-
-/* 2) Toolbar tidy look (smaller buttons, subtle hover) */
-.toolbar{
-  top: var(--header-h) !important;
-  padding: 10px 20px !important;
-  gap: 8px !important;
-  background: #fff !important;
-  border-bottom: 1px solid #e5e7eb !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important;
-}
-
-.tool-btn{
-  height: 34px !important;
-  padding: 0 10px !important;
-  font-size: 12.5px !important;
-  background: #f9fafb !important;
-  border: 1px solid #e5e7eb !important;
-  border-radius: 6px !important;
-  box-shadow: none !important;
-  color: #374151 !important;
-}
-.tool-btn:hover{
-  background: #ccfbf1 !important;
-  border-color: #22d3ee !important;
-  color: #0891b2 !important;
-}
-.tool-btn:active, .tool-btn:focus{
-  background: #a5f3fc !important;
-  color: #0369a1 !important;
-  outline: none !important;
-}
-
-/* Inputs same height as buttons */
-select.tool-btn, input[type="number"].tool-btn{
-  height: 34px !important;
-  min-width: 64px;
-}
-input[type="color"]{
-  width: 30px !important; height: 30px !important; border-radius: 6px !important;
-}
-
-/* Divider thinner */
-.tool-divider{ height: 26px !important; margin: 0 4px !important; background: #eef2f7 !important; }
-
-/* 3) Proper top offset so content doesn't hide under bars */
-.container{
-  margin-top: calc(var(--header-h) + var(--toolbar-h)) !important;
-}
-
-/* Keep tooltips over everything */
-[data-tooltip]::before, [data-tooltip]::after{ z-index: 5000 !important; }
-
-/* =================== END =================== */
-
-</style>
-</head>
-<body>
-<div class="header">
-<div class="header-left">
-<button class="header-btn" onclick="app.newPresentation()">New</button>
-<button class="header-btn" onclick="app.saveJSON()">Save</button>
-<button class="header-btn" onclick="app.loadJSON()">Load</button>
-<input class="title-input" id="title" placeholder="Untitled Presentation" type="text"/>
-<span id="saveIndicator" style="margin-left: 10px; font-size: 12px; color: #10b981;"></span>
-</div>
-<div class="header-right">
-<button class="header-btn" data-tooltip="Undo (Ctrl+Z)" disabled="" id="undoBtn" onclick="app.undo()">Undo</button>
-<button class="header-btn" data-tooltip="Redo (Ctrl+Y)" disabled="" id="redoBtn" onclick="app.redo()">Redo</button>
-<div style="position: relative;">
-<button class="share-btn" onclick="app.toggleExport()">Export ▾</button>
-<div class="dropdown-menu" id="exportMenu">
-<div class="dropdown-item" onclick="app.exportPDF()">Export as PDF</div>
-<div class="dropdown-item" onclick="app.exportImages()">Export as Images</div>
-<div class="dropdown-item" onclick="app.shareLink()">Share Link</div>
-</div>
-</div>
-</div>
-</div>
-<div class="toolbar">
-<button class="tool-btn" data-tooltip="Add Text (T)" onclick="app.addText()">Add Text</button>
-<div style="position: relative; display: inline-block;">
-<button class="tool-btn" data-tooltip="Add Shape" id="shapesBtn" onclick="app.toggleShapesMenu()">
-<span style="margin-right: 4px;">◆</span> Shapes ▾
-            </button>
-<div class="dropdown-menu" id="shapesMenu" style="min-width: 180px;">
-<div class="dropdown-item" onclick="app.addShape('rectangle')">
-<span style="margin-right: 8px;">▭</span> Rectangle
-                </div>
-<div class="dropdown-item" onclick="app.addShape('circle')">
-<span style="margin-right: 8px;">●</span> Circle
-                </div>
-<div class="dropdown-item" onclick="app.addShape('triangle')">
-<span style="margin-right: 8px;">▲</span> Triangle
-                </div>
-<div class="dropdown-item" onclick="app.addShape('star')">
-<span style="margin-right: 8px;">★</span> Star
-                </div>
-<div class="dropdown-item" onclick="app.addShape('pentagon')">
-<span style="margin-right: 8px;">⬟</span> Pentagon
-                </div>
-<div class="dropdown-item" onclick="app.addShape('hexagon')">
-<span style="margin-right: 8px;">⬢</span> Hexagon
-                </div>
-<div class="dropdown-item" onclick="app.addShape('diamond')">
-<span style="margin-right: 8px;">◆</span> Diamond
-                </div>
-<div class="dropdown-item" onclick="app.addShape('arrow-right')">
-<span style="margin-right: 8px;">➜</span> Arrow Right
-                </div>
-<div class="dropdown-item" onclick="app.addShape('arrow-left')">
-<span style="margin-right: 8px;">⬅</span> Arrow Left
-                </div>
-</div>
-</div>
-<button class="tool-btn" data-tooltip="Add Image (I)" onclick="app.addImage()">Add Image</button>
-<div class="tool-divider"></div>
-<select class="tool-btn" data-tooltip="Font Family" id="fontFamily" onchange="app.changeFont()">
-<option value="Arial">Arial</option>
-<option value="Times New Roman">Times New Roman</option>
-<option value="Courier New">Courier New</option>
-<option value="Georgia">Georgia</option>
-<option value="Verdana">Verdana</option>
-</select>
-<input class="tool-btn" data-tooltip="Font Size" id="fontSize" max="200" min="8" onchange="app.changeFontSize()" placeholder="Size" type="number" value="24"/>
-<button class="tool-btn" data-tooltip="Bold (Ctrl+B)" onclick="app.toggleBold()"><strong>B</strong></button>
-<button class="tool-btn" data-tooltip="Italic (Ctrl+I)" onclick="app.toggleItalic()"><em>I</em></button>
-<button class="tool-btn" data-tooltip="Underline (Ctrl+U)" onclick="app.toggleUnderline()"><u>U</u></button>
-<input data-tooltip="Text Color" id="textColor" onchange="app.changeTextColor()" title="Text Color" type="color" value="#000000"/>
-<input data-tooltip="Background Color" id="bgColor" onchange="app.changeBgColor()" title="Background Color" type="color" value="#ffffff"/>
-<div class="tool-divider"></div>
-<button class="tool-btn" data-tooltip="Align Left" onclick="app.alignText('left')">◀ Left</button>
-<button class="tool-btn" data-tooltip="Align Center" onclick="app.alignText('center')">▬ Center</button>
-<button class="tool-btn" data-tooltip="Align Right" onclick="app.alignText('right')">▶ Right</button>
-<div class="tool-divider"></div>
-<button class="tool-btn" data-tooltip="Bring Forward" onclick="app.moveLayer('forward')">Bring Forward</button>
-<button class="tool-btn" data-tooltip="Send Backward" onclick="app.moveLayer('backward')">Send Backward</button>
-<div class="tool-divider"></div>
-<button class="tool-btn" data-tooltip="Duplicate (Ctrl+D)" onclick="app.duplicateElement()">Duplicate</button>
-<button class="tool-btn" data-tooltip="Delete (Del)" onclick="app.deleteElement()">Delete</button>
-<div class="tool-divider"></div>
-<button class="tool-btn" data-tooltip="Change Slide Background" onclick="app.setBgColor()">Slide Background</button>
-<button class="tool-btn" data-tooltip="Add Animations" onclick="app.showAnimations()">Animations</button>
-<div class="tool-divider"></div>
-<button class="tool-btn" data-tooltip="Copy Style" onclick="app.copyStyle()">Copy Style</button>
-<button class="tool-btn" data-tooltip="Paste Style" onclick="app.pasteStyle()">Paste Style</button>
-<button class="tool-btn" data-tooltip="Toggle Grid (G)" id="gridBtn" onclick="app.toggleGrid()">Grid</button>
-</div>
-<div class="container">
-<div class="sidebar" id="sidebar">
-<div class="sidebar-header">Slides</div>
-<div id="slides"></div>
-<button class="sidebar-add-slide" onclick="app.addSlide()">+ Add Slide</button>
-</div>
-<div class="main-canvas" id="mainCanvas">
-<div class="canvas-wrapper" id="canvasWrapper">
-<!-- Slides will be rendered here -->
-</div>
-</div>
-</div>
-<!-- Zoom Control Bar with Present Button -->
-<div class="zoom-control">
-<button class="present-mode-btn" data-tooltip="Start Presentation (F5)" onclick="app.presentMode()">
-<span>▶</span> Present
-        </button>
-<div class="zoom-divider"></div>
-<button class="zoom-btn" data-tooltip="Zoom Out" onclick="app.zoomOut()" title="Zoom Out">−</button>
-<input class="zoom-slider" id="zoomSlider" max="200" min="25" oninput="app.setZoom(this.value)" step="5" type="range" value="100"/>
-<div class="zoom-value" id="zoomValue">100%</div>
-<button class="zoom-btn" data-tooltip="Zoom In" onclick="app.zoomIn()" title="Zoom In">+</button>
-<button class="zoom-reset" data-tooltip="Reset Zoom" onclick="app.resetZoom()">Reset</button>
-</div>
-<!-- Background Modal -->
-<div class="modal" id="bgModal">
-<div class="modal-content">
-<span class="modal-close" onclick="app.closeModal('bgModal')">×</span>
-<div class="modal-header">Choose Slide Background</div>
-<div class="bg-grid">
-<div class="bg-option" onclick="app.applyBg('white')" style="background: white;"></div>
-<div class="bg-option" onclick="app.applyBg('#f0fdf4')" style="background: #f0fdf4;"></div>
-<div class="bg-option" onclick="app.applyBg('#ecfdf5')" style="background: #ecfdf5;"></div>
-<div class="bg-option" onclick="app.applyBg('#dcfce7')" style="background: #dcfce7;"></div>
-<div class="bg-option" onclick="app.applyBg('#d1fae5')" style="background: #d1fae5;"></div>
-<div class="bg-option" onclick="app.applyBg('#a7f3d0')" style="background: #a7f3d0;"></div>
-<div class="bg-option" onclick="app.applyBg('#e0f2fe')" style="background: #e0f2fe;"></div>
-<div class="bg-option" onclick="app.applyBg('#bae6fd')" style="background: #bae6fd;"></div>
-<div class="bg-option" onclick="app.applyBg('#7dd3fc')" style="background: #7dd3fc;"></div>
-<div class="bg-option" onclick="app.applyBg('#ccfbf1')" style="background: #ccfbf1;"></div>
-<div class="bg-option" onclick="app.applyBg('#99f6e4')" style="background: #99f6e4;"></div>
-<div class="bg-option" onclick="app.applyBg('#5eead4')" style="background: #5eead4;"></div>
-<div class="bg-option" onclick="app.applyBg('#dbeafe')" style="background: #dbeafe;"></div>
-<div class="bg-option" onclick="app.applyBg('#bfdbfe')" style="background: #bfdbfe;"></div>
-<div class="bg-option" onclick="app.applyBg('#93c5fd')" style="background: #93c5fd;"></div>
-<div class="bg-option" onclick="app.applyBg('#e0e7ff')" style="background: #e0e7ff;"></div>
-<div class="bg-option" onclick="app.applyBg('#c7d2fe')" style="background: #c7d2fe;"></div>
-<div class="bg-option" onclick="app.applyBg('#a5b4fc')" style="background: #a5b4fc;"></div>
-<div class="bg-option" onclick="app.applyBg('linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)')" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);"></div>
-<div class="bg-option" onclick="app.applyBg('linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%)')" style="background: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%);"></div>
-<div class="bg-option" onclick="app.applyBg('linear-gradient(135deg, #99f6e4 0%, #5eead4 100%)')" style="background: linear-gradient(135deg, #99f6e4 0%, #5eead4 100%);"></div>
-</div>
-<button class="tool-btn" onclick="app.uploadBgImage()" style="margin-top: 24px; width: 100%;">Upload Image</button>
-</div>
-</div>
-<!-- Animation Modal -->
-<div class="modal" id="animModal">
-<div class="modal-content">
-<span class="modal-close" onclick="app.closeModal('animModal')">×</span>
-<div class="modal-header">Choose Animation</div>
-<div class="animation-grid">
-<div class="animation-option" onclick="app.applyAnimation('none')">None</div>
-<div class="animation-option" onclick="app.applyAnimation('fadeIn')">Fade In</div>
-<div class="animation-option" onclick="app.applyAnimation('slideInLeft')">Slide In Left</div>
-<div class="animation-option" onclick="app.applyAnimation('slideInRight')">Slide In Right</div>
-<div class="animation-option" onclick="app.applyAnimation('slideInUp')">Slide In Up</div>
-<div class="animation-option" onclick="app.applyAnimation('slideInDown')">Slide In Down</div>
-<div class="animation-option" onclick="app.applyAnimation('zoomIn')">Zoom In</div>
-<div class="animation-option" onclick="app.applyAnimation('bounce')">Bounce</div>
-</div>
-</div>
-</div>
-<script>
-        let appInitialized = false;
-        let initialPresentationAttempted = false;
-        let initialPresentationResolving = false;
-
-        const app = {
-            data: [{ els: [], bg: 'white', transition: 'fade' }],
-            curr: 0,
-            sel: null,
-            drag: null,
-            resize: null,
-            history: [],
-            historyIndex: -1,
-            presenting: false,
-            presentSlide: 0,
-            copiedStyle: null,
-            zoom: 100,
-            gridVisible: false,
-            snapToGrid: false,
-            snapThreshold: 10,
-            currentPresentationId: null,
-            initialLoadComplete: false,
-            autoSaveTimer: null,
-            isSaving: false,
-
-            init() {
-                this.loadCanvas();
-                this.renderSlides();
-                this.setupDragDrop();
-                this.setupKeyboardShortcuts();
-                this.saveState();
-            },
-
-            setupKeyboardShortcuts() {
-                document.addEventListener('keydown', (e) => {
-                    // Don't trigger shortcuts when typing in input fields
-                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.contentEditable === 'true') {
-                        return;
-                    }
-
-                    // Presentation Mode: F5
-                    if (e.key === 'F5') {
-                        e.preventDefault();
-                        this.presentMode();
-                    }
-
-                    // Add Text: T
-                    if (e.key === 't' || e.key === 'T') {
-                        e.preventDefault();
-                        this.addText();
-                    }
-
-                    // Add Image: I
-                    if (e.key === 'i' || e.key === 'I') {
-                        e.preventDefault();
-                        this.addImage();
-                    }
-
-                    // Toggle Grid: G
-                    if (e.key === 'g' || e.key === 'G') {
-                        e.preventDefault();
-                        this.toggleGrid();
-                    }
-
-                    // Delete: Delete or Backspace
-                    if ((e.key === 'Delete' || e.key === 'Backspace') && this.sel) {
-                        e.preventDefault();
-                        this.deleteElement();
-                    }
-
-                    // Undo: Ctrl+Z
-                    if (e.ctrlKey && e.key === 'z') {
-                        e.preventDefault();
-                        this.undo();
-                    }
-
-                    // Redo: Ctrl+Y
-                    if (e.ctrlKey && e.key === 'y') {
-                        e.preventDefault();
-                        this.redo();
-                    }
-
-                    // Duplicate: Ctrl+D
-                    if (e.ctrlKey && e.key === 'd') {
-                        e.preventDefault();
-                        this.duplicateElement();
-                    }
-
-                    // Bold: Ctrl+B
-                    if (e.ctrlKey && e.key === 'b') {
-                        e.preventDefault();
-                        this.toggleBold();
-                    }
-
-                    // Italic: Ctrl+I
-                    if (e.ctrlKey && e.key === 'i') {
-                        e.preventDefault();
-                        this.toggleItalic();
-                    }
-
-                    // Underline: Ctrl+U
-                    if (e.ctrlKey && e.key === 'u') {
-                        e.preventDefault();
-                        this.toggleUnderline();
-                    }
-
-                    // Save: Ctrl+S
-                    if (e.ctrlKey && e.key === 's') {
-                        e.preventDefault();
-                        this.saveJSON();
-                    }
-
-                    // Arrow keys to move selected element
-                    if (this.sel && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-                        e.preventDefault();
-                        const step = e.shiftKey ? 10 : 1;
-                        const currentLeft = parseInt(this.sel.style.left) || 0;
-                        const currentTop = parseInt(this.sel.style.top) || 0;
-
-                        switch(e.key) {
-                            case 'ArrowLeft':
-                                this.sel.style.left = Math.max(0, currentLeft - step) + 'px';
-                                break;
-                            case 'ArrowRight':
-                                this.sel.style.left = Math.min(960 - this.sel.offsetWidth, currentLeft + step) + 'px';
-                                break;
-                            case 'ArrowUp':
-                                this.sel.style.top = Math.max(0, currentTop - step) + 'px';
-                                break;
-                            case 'ArrowDown':
-                                this.sel.style.top = Math.min(540 - this.sel.offsetHeight, currentTop + step) + 'px';
-                                break;
-                        }
-                        this.saveElementPosition();
-                    }
-                });
-            },
-
-            toggleGrid() {
-                this.gridVisible = !this.gridVisible;
-                const overlays = document.querySelectorAll('.canvas-grid-overlay');
-                const btn = document.getElementById('gridBtn');
-                
-                if (this.gridVisible) {
-                    overlays.forEach(overlay => overlay.classList.add('show'));
-                    btn.style.background = '#ecfeff';
-                    btn.style.color = '#0891b2';
-                } else {
-                    overlays.forEach(overlay => overlay.classList.remove('show'));
-                    btn.style.background = 'white';
-                    btn.style.color = '#374151';
-                }
-            },
-
-            snapToGridPosition(value) {
-                if (!this.snapToGrid) return value;
-                const gridSize = 20;
-                return Math.round(value / gridSize) * gridSize;
-            },
-
-            showSnapLine(type, position) {
-                const slides = document.querySelectorAll('.canvas-slide');
-                const currentSlide = slides[this.curr];
-                if (!currentSlide) return;
-                
-                const line = document.createElement('div');
-                line.className = `snap-line ${type}`;
-                if (type === 'horizontal') {
-                    line.style.top = position + 'px';
-                } else {
-                    line.style.left = position + 'px';
-                }
-                currentSlide.appendChild(line);
-                setTimeout(() => line.remove(), 500);
-            },
-
-            showNotification(message, type = 'success') {
-                const notification = document.createElement('div');
-                notification.className = `notification ${type}`;
-                
-                const icons = {
-                    success: '✓',
-                    error: '✕',
-                    warning: '⚠'
-                };
-                
-                notification.innerHTML = `
-                    <span class="notification-icon">${icons[type] || icons.success}</span>
-                    <span class="notification-text">${message}</span>
-                `;
-                
-                document.body.appendChild(notification);
-                
-                setTimeout(() => {
-                    notification.style.animation = 'slideInRight 0.3s ease-out reverse';
-                    setTimeout(() => notification.remove(), 300);
-                }, 3000);
-            },
-
-            showLoading() {
-                const overlay = document.createElement('div');
-                overlay.className = 'loading-overlay';
-                overlay.id = 'loadingOverlay';
-                overlay.innerHTML = '<div class="loading-spinner"></div>';
-                document.body.appendChild(overlay);
-            },
-
-            hideLoading() {
-                const overlay = document.getElementById('loadingOverlay');
-                if (overlay) overlay.remove();
-            },
-
-            setupDragDrop() {
-                const wrapper = document.getElementById('canvasWrapper');
-                
-                wrapper.addEventListener('mousedown', (e) => {
-                    if (e.target.classList.contains('resize-handle')) {
-                        this.resize = {
-                            el: e.target.parentElement,
-                            handle: e.target.className.split(' ')[1],
-                            startX: e.clientX,
-                            startY: e.clientY,
-                            startWidth: e.target.parentElement.offsetWidth,
-                            startHeight: e.target.parentElement.offsetHeight,
-                            startLeft: e.target.parentElement.offsetLeft,
-                            startTop: e.target.parentElement.offsetTop
-                        };
-                        return;
-                    }
-                    
-                    if (e.target.classList.contains('element') || e.target.closest('.element')) {
-                        const el = e.target.classList.contains('element') ? e.target : e.target.closest('.element');
-                        const slideIndex = parseInt(el.dataset.slideIndex);
-                        
-                        // Switch to this slide if not current
-                        if (slideIndex !== this.curr) {
-                            this.switchSlide(slideIndex);
-                            return;
-                        }
-                        
-                        this.selectElement(el);
-                        this.drag = {
-                            el: el,
-                            startX: e.clientX,
-                            startY: e.clientY,
-                            startLeft: el.offsetLeft,
-                            startTop: el.offsetTop
-                        };
-                    } else {
-                        this.deselectAll();
-                    }
-                });
-
-                document.addEventListener('mousemove', (e) => {
-                    if (this.drag) {
-                        const dx = (e.clientX - this.drag.startX) / (this.zoom / 100);
-                        const dy = (e.clientY - this.drag.startY) / (this.zoom / 100);
-                        
-                        let newLeft = this.drag.startLeft + dx;
-                        let newTop = this.drag.startTop + dy;
-
-                        // Snap to grid if enabled
-                        if (e.shiftKey) {
-                            newLeft = this.snapToGridPosition(newLeft);
-                            newTop = this.snapToGridPosition(newTop);
-                        }
-
-                        // Keep element within canvas bounds
-                        newLeft = Math.max(0, Math.min(960 - this.drag.el.offsetWidth, newLeft));
-                        newTop = Math.max(0, Math.min(540 - this.drag.el.offsetHeight, newTop));
-
-                        this.drag.el.style.left = newLeft + 'px';
-                        this.drag.el.style.top = newTop + 'px';
-
-                        // Show snap guidelines at center
-                        const centerX = newLeft + this.drag.el.offsetWidth / 2;
-                        const centerY = newTop + this.drag.el.offsetHeight / 2;
-                        
-                        if (Math.abs(centerX - 480) < this.snapThreshold) {
-                            this.showSnapLine('vertical', 480);
-                            this.drag.el.style.left = (480 - this.drag.el.offsetWidth / 2) + 'px';
-                        }
-                        if (Math.abs(centerY - 270) < this.snapThreshold) {
-                            this.showSnapLine('horizontal', 270);
-                            this.drag.el.style.top = (270 - this.drag.el.offsetHeight / 2) + 'px';
-                        }
-                    }
-                    
-                    if (this.resize) {
-                        const dx = (e.clientX - this.resize.startX) / (this.zoom / 100);
-                        const dy = (e.clientY - this.resize.startY) / (this.zoom / 100);
-                        
-                        if (this.resize.handle.includes('e')) {
-                            this.resize.el.style.width = Math.max(20, this.resize.startWidth + dx) + 'px';
-                        }
-                        if (this.resize.handle.includes('w')) {
-                            const newWidth = Math.max(20, this.resize.startWidth - dx);
-                            this.resize.el.style.width = newWidth + 'px';
-                            this.resize.el.style.left = (this.resize.startLeft + dx) + 'px';
-                        }
-                        if (this.resize.handle.includes('s')) {
-                            this.resize.el.style.height = Math.max(20, this.resize.startHeight + dy) + 'px';
-                        }
-                        if (this.resize.handle.includes('n')) {
-                            const newHeight = Math.max(20, this.resize.startHeight - dy);
-                            this.resize.el.style.height = newHeight + 'px';
-                            this.resize.el.style.top = (this.resize.startTop + dy) + 'px';
-                        }
-                    }
-                });
-
-                document.addEventListener('mouseup', () => {
-                    if (this.drag || this.resize) {
-                        this.saveElementPosition();
-                        this.drag = null;
-                        this.resize = null;
-                    }
-                });
-            },
-
-            selectElement(el) {
-                this.deselectAll();
-                el.classList.add('selected');
-                this.sel = el;
-                
-                const data = this.data[this.curr].els.find(e => e.id == el.dataset.id);
-                if (data && data.type === 'text') {
-                    document.getElementById('fontFamily').value = data.font || 'Arial';
-                    document.getElementById('fontSize').value = data.size || 24;
-                    document.getElementById('textColor').value = data.color || '#000000';
-                    document.getElementById('bgColor').value = data.bg || '#ffffff';
-                }
-            },
-
-            deselectAll() {
-                document.querySelectorAll('.element').forEach(el => el.classList.remove('selected'));
-                this.sel = null;
-            },
-
-            addText() {
-                const id = Date.now();
-                const el = {
-                    id: id,
-                    type: 'text',
-                    content: 'Double-click to edit',
-                    x: 100,
-                    y: 100,
-                    width: 300,
-                    height: 50,
-                    font: 'Arial',
-                    size: 24,
-                    color: '#000000',
-                    bg: 'transparent',
-                    weight: 'normal',
-                    align: 'left',
-                    animation: 'none'
-                };
-                this.data[this.curr].els.push(el);
-                this.saveState();
-                this.loadCanvas();
-            },
-
-            addShape(shape) {
-                const id = Date.now();
-                const el = {
-                    id: id,
-                    type: 'shape',
-                    shape: shape,
-                    x: 200,
-                    y: 150,
-                    width: 200,
-                    height: 150,
-                    bg: '#3b82f6',
-                    border: '#1e40af',
-                    thick: 2,
-                    animation: 'none'
-                };
-                this.data[this.curr].els.push(el);
-                this.saveState();
-                this.loadCanvas();
-                this.closeModal('shapesMenu');
-            },
-
-            toggleShapesMenu() {
-                const menu = document.getElementById('shapesMenu');
-                menu.classList.toggle('show');
-            },
-
-            addImage() {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = 'image/*';
-                input.onchange = (e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (ev) => {
-                            const id = Date.now();
-                            const el = {
-                                id: id,
-                                type: 'image',
-                                src: ev.target.result,
-                                x: 150,
-                                y: 100,
-                                width: 300,
-                                height: 200,
-                                animation: 'none'
-                            };
-                            this.data[this.curr].els.push(el);
-                            this.saveState();
-                            this.loadCanvas();
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                };
-                input.click();
-            },
-
-            createEl(data, slideIndex) {
-                const div = document.createElement('div');
-                div.className = 'element ' + data.type + '-element';
-                div.dataset.id = data.id;
-                div.dataset.slideIndex = slideIndex;
-                div.style.left = data.x + 'px';
-                div.style.top = data.y + 'px';
-                div.style.width = data.width + 'px';
-                div.style.height = data.height + 'px';
-
-                if (data.shadow) {
-                    div.style.boxShadow = data.shadow;
-                }
-
-                if (data.type === 'text') {
-                    div.contentEditable = true;
-                    div.textContent = data.content;
-                    div.style.fontFamily = data.font || 'Arial';
-                    div.style.fontSize = (data.size || 24) + 'px';
-                    div.style.color = data.color || '#000000';
-                    div.style.backgroundColor = data.bg || 'transparent';
-                    div.style.fontWeight = data.weight || 'normal';
-                    div.style.textAlign = data.align || 'left';
-                    div.style.padding = '8px';
-                    
-                    div.addEventListener('blur', () => {
-                        const el = this.data[slideIndex].els.find(e => e.id == data.id);
-                        if (el) {
-                            el.content = div.textContent;
-                            this.saveState();
-                        }
-                    });
-
-                    div.addEventListener('focus', () => {
-                        // Switch to this slide when editing
-                        if (this.curr !== slideIndex) {
-                            this.switchSlide(slideIndex);
-                        }
-                    });
-                }
-
-                if (data.type === 'shape') {
-                    div.style.backgroundColor = data.bg || '#3b82f6';
-                    div.style.border = `${data.thick || 2}px solid ${data.border || '#1e40af'}`;
-                    
-                    // Apply shape styles
-                    switch(data.shape) {
-                        case 'circle':
-                            div.style.borderRadius = '50%';
-                            break;
-                        case 'rectangle':
-                            div.style.borderRadius = '4px';
-                            break;
-                        case 'triangle':
-                            div.style.backgroundColor = 'transparent';
-                            div.style.borderLeft = `${data.width / 2}px solid transparent`;
-                            div.style.borderRight = `${data.width / 2}px solid transparent`;
-                            div.style.borderBottom = `${data.height}px solid ${data.bg || '#3b82f6'}`;
-                            div.style.width = '0';
-                            div.style.height = '0';
-                            div.style.border = 'none';
-                            break;
-                        case 'star':
-                            div.style.borderRadius = '4px';
-                            div.style.clipPath = 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)';
-                            break;
-                        case 'pentagon':
-                            div.style.clipPath = 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)';
-                            break;
-                        case 'hexagon':
-                            div.style.clipPath = 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)';
-                            break;
-                        case 'diamond':
-                            div.style.clipPath = 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)';
-                            break;
-                        case 'arrow-right':
-                            div.style.clipPath = 'polygon(0% 25%, 60% 25%, 60% 0%, 100% 50%, 60% 100%, 60% 75%, 0% 75%)';
-                            break;
-                        case 'arrow-left':
-                            div.style.clipPath = 'polygon(40% 25%, 100% 25%, 100% 75%, 40% 75%, 40% 100%, 0% 50%, 40% 0%)';
-                            break;
-                        default:
-                            div.style.borderRadius = '4px';
-                    }
-                }
-
-                if (data.type === 'image') {
-                    const img = document.createElement('img');
-                    img.src = data.src;
-                    div.appendChild(img);
-                }
-
-                // Only show resize handles on active slide
-                if (slideIndex === this.curr) {
-                    ['nw', 'ne', 'sw', 'se'].forEach(pos => {
-                        const handle = document.createElement('div');
-                        handle.className = 'resize-handle ' + pos;
-                        div.appendChild(handle);
-                    });
-                }
-
-                return div;
-            },
-
-            loadCanvas() {
-                const wrapper = document.getElementById('canvasWrapper');
-                wrapper.innerHTML = '';
-                
-                this.data.forEach((slide, slideIndex) => {
-                    const slideDiv = document.createElement('div');
-                    slideDiv.className = 'canvas-slide' + (slideIndex === this.curr ? ' active' : '');
-                    slideDiv.dataset.slideIndex = slideIndex;
-                    slideDiv.style.background = slide.bg || 'white';
-                    
-                    if (slide.bg && slide.bg.startsWith('url(')) {
-                        slideDiv.style.backgroundImage = slide.bg;
-                        slideDiv.style.backgroundSize = 'cover';
-                        slideDiv.style.backgroundPosition = 'center';
-                    } else {
-                        slideDiv.style.backgroundImage = 'none';
-                    }
-
-                    // Add slide number badge
-                    const badge = document.createElement('div');
-                    badge.className = 'slide-number-badge';
-                    badge.textContent = `Slide ${slideIndex + 1}`;
-                    slideDiv.appendChild(badge);
-
-                    // Add grid overlay for this slide
-                    const gridOverlay = document.createElement('div');
-                    gridOverlay.className = 'canvas-grid-overlay';
-                    if (this.gridVisible) {
-                        gridOverlay.classList.add('show');
-                    }
-                    slideDiv.appendChild(gridOverlay);
-
-                    // Add elements to this slide
-                    slide.els.forEach(el => {
-                        const element = this.createEl(el, slideIndex);
-                        slideDiv.appendChild(element);
-                    });
-
-                    // Click to select slide
-                    slideDiv.addEventListener('click', (e) => {
-                        if (e.target === slideDiv || e.target === badge || e.target === gridOverlay) {
-                            this.switchSlide(slideIndex);
-                        }
-                    });
-
-                    wrapper.appendChild(slideDiv);
-                });
-
-                // Apply zoom to wrapper
-                wrapper.style.transform = `scale(${this.zoom / 100})`;
-            },
-
-            renderSlides() {
-                const container = document.getElementById('slides');
-                container.innerHTML = '';
-                
-                this.data.forEach((slide, idx) => {
-                    const div = document.createElement('div');
-                    div.className = 'sidebar-slide' + (idx === this.curr ? ' active' : '');
-                    div.innerHTML = `
-                        <div class="sidebar-slide-preview" style="background: ${slide.bg || 'white'};">
-                            <div class="sidebar-slide-number">${idx + 1}</div>
-                            <button class="sidebar-slide-delete" onclick="app.deleteSlide(${idx}); event.stopPropagation();">×</button>
-                        </div>
-                    `;
-                    div.onclick = () => this.switchSlide(idx);
-                    container.appendChild(div);
-                });
-            },
-
-            addSlide() {
-                this.data.push({ els: [], bg: 'white', transition: 'fade' });
-                this.curr = this.data.length - 1;
-                this.saveState();
-                this.renderSlides();
-                this.loadCanvas();
-                
-                // Auto-scroll to the new slide
-                setTimeout(() => {
-                    const sidebar = document.getElementById('sidebar');
-                    const slides = sidebar.querySelectorAll('.sidebar-slide');
-                    const lastSlide = slides[slides.length - 1];
-                    if (lastSlide) {
-                        lastSlide.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }
-                }, 100);
-            },
-
-            deleteSlide(idx) {
-                if (this.data.length === 1) {
-                    this.showNotification('Cannot delete the last slide', 'warning');
-                    return;
-                }
-                this.data.splice(idx, 1);
-                if (this.curr >= this.data.length) {
-                    this.curr = this.data.length - 1;
-                }
-                this.saveState();
-                this.renderSlides();
-                this.loadCanvas();
-                this.showNotification('Slide deleted successfully');
-            },
-
-            switchSlide(idx) {
-                this.curr = idx;
-                this.renderSlides();
-                this.loadCanvas();
-                this.deselectAll();
-                
-                // Auto-scroll sidebar to the active slide
-                setTimeout(() => {
-                    const sidebar = document.getElementById('sidebar');
-                    const activeSlide = sidebar.querySelector('.sidebar-slide.active');
-                    if (activeSlide) {
-                        activeSlide.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }
-                }, 50);
-
-                // Auto-scroll main canvas to the active slide
-                setTimeout(() => {
-                    const mainCanvas = document.getElementById('mainCanvas');
-                    const slides = document.querySelectorAll('.canvas-slide');
-                    const activeCanvasSlide = slides[idx];
-                    if (activeCanvasSlide) {
-                        activeCanvasSlide.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }, 100);
-            },
-
-            deleteElement() {
-                if (!this.sel) return;
-                
-                const id = this.sel.dataset.id;
-                this.data[this.curr].els = this.data[this.curr].els.filter(e => e.id != id);
-                this.saveState();
-                this.loadCanvas();
-                this.sel = null;
-            },
-
-            duplicateElement() {
-                if (!this.sel) return;
-                
-                const id = this.sel.dataset.id;
-                const el = this.data[this.curr].els.find(e => e.id == id);
-                if (el) {
-                    const newEl = { ...el, id: Date.now(), x: el.x + 20, y: el.y + 20 };
-                    this.data[this.curr].els.push(newEl);
-                    this.saveState();
-                    this.loadCanvas();
-                }
-            },
-
-            saveElementPosition() {
-                if (!this.sel) return;
-                
-                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                if (el) {
-                    el.x = parseInt(this.sel.style.left);
-                    el.y = parseInt(this.sel.style.top);
-                    el.width = parseInt(this.sel.style.width);
-                    el.height = parseInt(this.sel.style.height);
-                    this.saveState();
-                }
-            },
-
-            changeFont() {
-                if (!this.sel) return;
-                
-                const font = document.getElementById('fontFamily').value;
-                this.sel.style.fontFamily = font;
-                
-                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                if (el) {
-                    el.font = font;
-                    this.saveState();
-                }
-            },
-
-            changeFontSize() {
-                if (!this.sel) return;
-                
-                const size = document.getElementById('fontSize').value;
-                this.sel.style.fontSize = size + 'px';
-                
-                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                if (el) {
-                    el.size = parseInt(size);
-                    this.saveState();
-                }
-            },
-
-            toggleBold() {
-                if (!this.sel) return;
-                
-                const current = this.sel.style.fontWeight;
-                const newWeight = current === 'bold' ? 'normal' : 'bold';
-                this.sel.style.fontWeight = newWeight;
-                
-                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                if (el) {
-                    el.weight = newWeight;
-                    this.saveState();
-                }
-            },
-
-            toggleItalic() {
-                if (!this.sel) return;
-                
-                const current = this.sel.style.fontStyle;
-                this.sel.style.fontStyle = current === 'italic' ? 'normal' : 'italic';
-                this.saveState();
-            },
-
-            toggleUnderline() {
-                if (!this.sel) return;
-                
-                const current = this.sel.style.textDecoration;
-                this.sel.style.textDecoration = current === 'underline' ? 'none' : 'underline';
-                this.saveState();
-            },
-
-            changeTextColor() {
-                if (!this.sel) return;
-                
-                const color = document.getElementById('textColor').value;
-                this.sel.style.color = color;
-                
-                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                if (el) {
-                    el.color = color;
-                    this.saveState();
-                }
-            },
-
-            changeBgColor() {
-                if (!this.sel) return;
-                
-                const color = document.getElementById('bgColor').value;
-                this.sel.style.backgroundColor = color;
-                
-                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                if (el) {
-                    el.bg = color;
-                    this.saveState();
-                }
-            },
-
-            alignText(align) {
-                if (!this.sel) return;
-                
-                this.sel.style.textAlign = align;
-                
-                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                if (el) {
-                    el.align = align;
-                    this.saveState();
-                }
-            },
-
-            moveLayer(direction) {
-                if (!this.sel) return;
-                
-                const id = this.sel.dataset.id;
-                const els = this.data[this.curr].els;
-                const idx = els.findIndex(e => e.id == id);
-                
-                if (direction === 'forward' && idx < els.length - 1) {
-                    [els[idx], els[idx + 1]] = [els[idx + 1], els[idx]];
-                } else if (direction === 'backward' && idx > 0) {
-                    [els[idx], els[idx - 1]] = [els[idx - 1], els[idx]];
-                }
-                
-                this.saveState();
-                this.loadCanvas();
-            },
-
-            saveState() {
-                const state = JSON.stringify(this.data);
-                if (this.historyIndex < this.history.length - 1) {
-                    this.history = this.history.slice(0, this.historyIndex + 1);
-                }
-                this.history.push(state);
-                this.historyIndex++;
-                
-                document.getElementById('undoBtn').disabled = this.historyIndex <= 0;
-                document.getElementById('redoBtn').disabled = this.historyIndex >= this.history.length - 1;
-                
-                if (this.initialLoadComplete) {
-                    this.scheduleCloudSave();
-                }
-            },
-
-            scheduleCloudSave() {
-                // Clear existing timer
-                if (this.autoSaveTimer) {
-                    clearTimeout(this.autoSaveTimer);
-                }
-                
-                // Schedule save after 2 seconds of inactivity
-                this.autoSaveTimer = setTimeout(() => {
-                    this.saveToCloud();
-                }, 2000);
-            },
-
-            async saveToCloud() {
-                if (this.isSaving || !window.currentUserId || !window.firebaseDb) {
-                    return;
-                }
-
-                this.isSaving = true;
-                const saveIndicator = document.getElementById('saveIndicator');
-                if (saveIndicator) {
-                    saveIndicator.textContent = 'Saving...';
-                    saveIndicator.style.color = '#0891b2';
-                }
-
-                try {
-                    const { doc, setDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-                    const db = window.firebaseDb;
-                    const userId = window.currentUserId;
-                    const title = document.getElementById('title').value || 'Untitled Presentation';
-                    
-                    // Use current presentation ID or generate new one
-                    const presentationId = this.currentPresentationId || `pres_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-                    const isNewPresentation = !this.currentPresentationId;
-                    this.currentPresentationId = presentationId;
-                    
-                    const presentationRef = doc(db, 'users', userId, 'presentations', presentationId);
-                    const { getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-                    
-                    // Check if presentation already exists
-                    const existingDoc = await getDoc(presentationRef);
-                    const presentationData = {
-                        title: title,
-                        slides: this.data,
-                        updatedAt: serverTimestamp()
-                    };
-                    
-                    // Only set createdAt if this is a new presentation
-                    if (isNewPresentation || !existingDoc.exists()) {
-                        presentationData.createdAt = serverTimestamp();
-                    }
-                    
-                    await setDoc(presentationRef, presentationData, { merge: true });
-
-                    // Also save to a global presentations collection for easier querying
-                    const globalPresRef = doc(db, 'presentations', presentationId);
-                    const existingGlobalDoc = await getDoc(globalPresRef);
-                    const globalData = {
-                        userId: userId,
-                        title: title,
-                        updatedAt: serverTimestamp()
-                    };
-                    
-                    // Only set createdAt if this is a new presentation
-                    if (isNewPresentation || !existingGlobalDoc.exists()) {
-                        globalData.createdAt = serverTimestamp();
-                    }
-                    
-                    await setDoc(globalPresRef, globalData, { merge: true });
-
-                    if (saveIndicator) {
-                        saveIndicator.textContent = 'Saved';
-                        saveIndicator.style.color = '#10b981';
-                        setTimeout(() => {
-                            saveIndicator.textContent = '';
-                        }, 2000);
-                    }
-                    
-                    console.log('Presentation saved to cloud:', presentationId);
-                } catch (error) {
-                    console.error('Error saving to cloud:', error);
-                    if (saveIndicator) {
-                        saveIndicator.textContent = 'Save failed';
-                        saveIndicator.style.color = '#ef4444';
-                        setTimeout(() => {
-                            saveIndicator.textContent = '';
-                        }, 3000);
-                    }
-                } finally {
-                    this.isSaving = false;
-                }
-            },
-
-            async loadFromCloud(presentationId = null) {
-                if (!window.currentUserId || !window.firebaseDb) {
-                    return null;
-                }
-
-                try {
-                    const { collection, query, orderBy, getDocs, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-                    const db = window.firebaseDb;
-                    const userId = window.currentUserId;
-
-                    if (presentationId) {
-                        // Load specific presentation
-                        const presentationRef = doc(db, 'users', userId, 'presentations', presentationId);
-                        const presentationDoc = await getDoc(presentationRef);
-                        
-                        if (presentationDoc.exists()) {
-                            const data = presentationDoc.data();
-                            this.currentPresentationId = presentationId;
-                            return data;
-                        }
-                    } else {
-                        // Load most recent presentation
-                        const presentationsRef = collection(db, 'users', userId, 'presentations');
-                        const q = query(presentationsRef, orderBy('updatedAt', 'desc'));
-                        const querySnapshot = await getDocs(q);
-                        
-                        if (!querySnapshot.empty) {
-                            const latestDoc = querySnapshot.docs[0];
-                            const data = latestDoc.data();
-                            this.currentPresentationId = latestDoc.id;
-                            return data;
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error loading from cloud:', error);
-                    // If orderBy fails (no index), try without ordering
-                    if (error.code === 'failed-precondition') {
-                        try {
-                            const { collection, getDocs, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-                            const db = window.firebaseDb;
-                            const userId = window.currentUserId;
-                            const presentationsRef = collection(db, 'users', userId, 'presentations');
-                            const querySnapshot = await getDocs(presentationsRef);
-                            
-                            if (!querySnapshot.empty) {
-                                // Get the first document (no ordering)
-                                const firstDoc = querySnapshot.docs[0];
-                                const data = firstDoc.data();
-                                this.currentPresentationId = firstDoc.id;
-                                return data;
-                            }
-                        } catch (fallbackError) {
-                            console.error('Fallback load error:', fallbackError);
-                        }
-                    }
-                }
-                
-                return null;
-            },
-
-            undo() {
-                if (this.historyIndex > 0) {
-                    this.historyIndex--;
-                    this.data = JSON.parse(this.history[this.historyIndex]);
-                    this.loadCanvas();
-                    this.renderSlides();
-                    
-                    document.getElementById('undoBtn').disabled = this.historyIndex <= 0;
-                    document.getElementById('redoBtn').disabled = false;
-                }
-            },
-
-            redo() {
-                if (this.historyIndex < this.history.length - 1) {
-                    this.historyIndex++;
-                    this.data = JSON.parse(this.history[this.historyIndex]);
-                    this.loadCanvas();
-                    this.renderSlides();
-                    
-                    document.getElementById('undoBtn').disabled = false;
-                    document.getElementById('redoBtn').disabled = this.historyIndex >= this.history.length - 1;
-                }
-            },
-
-            newPresentation() {
-                if (confirm('Start a new presentation? Unsaved changes will be lost.')) {
-                    if (this.autoSaveTimer) {
-                        clearTimeout(this.autoSaveTimer);
-                        this.autoSaveTimer = null;
-                    }
-                    this.currentPresentationId = null;
-                    this.data = [{ els: [], bg: 'white', transition: 'fade' }];
-                    this.curr = 0;
-                    this.sel = null;
-                    this.history = [];
-                    this.historyIndex = -1;
-                    document.getElementById('title').value = '';
-                    this.initialLoadComplete = false;
-                    this.renderSlides();
-                    this.loadCanvas();
-                    this.saveState();
-                    this.initialLoadComplete = true;
-                }
-            },
-
-            async saveJSON() {
-                // Save to cloud first
-                if (window.currentUserId && window.firebaseDb) {
-                    try {
-                        await this.saveToCloud();
-                    } catch (error) {
-                        console.error('Error saving to cloud:', error);
-                    }
-                }
-                
-                // Also save as local JSON file
-                const json = JSON.stringify({
-                    title: document.getElementById('title').value,
-                    slides: this.data
-                });
-                const blob = new Blob([json], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = (document.getElementById('title').value || 'presentation') + '.json';
-                a.click();
-                this.showNotification('Presentation saved successfully');
-            },
-
-            loadJSON() {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = '.json';
-                input.onchange = (e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (ev) => {
-                            try {
-                                const data = JSON.parse(ev.target.result);
-                                this.data = data.slides;
-                                document.getElementById('title').value = data.title || '';
-                                this.curr = 0;
-                                this.sel = null;
-                                this.history = [];
-                                this.historyIndex = -1;
-                                this.currentPresentationId = null;
-                                if (this.autoSaveTimer) {
-                                    clearTimeout(this.autoSaveTimer);
-                                    this.autoSaveTimer = null;
-                                }
-                                this.initialLoadComplete = false;
-                                this.renderSlides();
-                                this.loadCanvas();
-                                this.saveState();
-                                this.initialLoadComplete = true;
-                                this.showNotification('Presentation loaded successfully');
-                            } catch (err) {
-                                this.showNotification('Error loading file. Please check the file format.', 'error');
-                            }
-                        };
-                        reader.readAsText(file);
-                    }
-                };
-                input.click();
-            },
-
-            toggleExport() {
-                document.getElementById('exportMenu').classList.toggle('show');
-            },
-
-            async exportPDF() {
-                this.showLoading();
-                try {
-                    const { jsPDF } = window.jspdf;
-                    const pdf = new jsPDF('landscape', 'px', [960, 540]);
-                    
-                    const slides = document.querySelectorAll('.canvas-slide');
-                    
-                    for (let i = 0; i < slides.length; i++) {
-                        if (i > 0) pdf.addPage([960, 540], 'landscape');
-                        
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                        
-                        const canvas = await html2canvas(slides[i], {
-                            width: 960,
-                            height: 540,
-                            scale: 2
-                        });
-                        
-                        const imgData = canvas.toDataURL('image/png');
-                        pdf.addImage(imgData, 'PNG', 0, 0, 960, 540);
-                    }
-                    
-                    pdf.save((document.getElementById('title').value || 'presentation') + '.pdf');
-                    this.showNotification('PDF exported successfully');
-                } catch (error) {
-                    this.showNotification('Failed to export PDF', 'error');
-                } finally {
-                    this.hideLoading();
-                    this.closeModal('exportMenu');
-                }
-            },
-
-            async exportImages() {
-                this.showLoading();
-                try {
-                    const slides = document.querySelectorAll('.canvas-slide');
-                    
-                    for (let i = 0; i < slides.length; i++) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                        
-                        const canvas = await html2canvas(slides[i], {
-                            width: 960,
-                            height: 540,
-                            scale: 2
-                        });
-                        
-                        canvas.toBlob(blob => {
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `slide-${i + 1}.png`;
-                            a.click();
-                        });
-                    }
-                    this.showNotification('Images exported successfully');
-                } catch (error) {
-                    this.showNotification('Failed to export images', 'error');
-                } finally {
-                    this.hideLoading();
-                    this.closeModal('exportMenu');
-                }
-            },
-
-            shareLink() {
-                const data = btoa(JSON.stringify({
-                    title: document.getElementById('title').value,
-                    slides: this.data
-                }));
-                const url = window.location.origin + window.location.pathname + '?data=' + data;
-                
-                navigator.clipboard.writeText(url).then(() => {
-                    this.showNotification('Share link copied to clipboard!');
-                }).catch(() => {
-                    this.showNotification('Failed to copy link', 'error');
-                });
-                this.closeModal('exportMenu');
-            },
-
-            copyStyle() {
-                if (!this.sel) {
-                    this.showNotification('Select an element first', 'warning');
-                    return;
-                }
-                
-                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                if (el) {
-                    this.copiedStyle = {
-                        font: el.font,
-                        size: el.size,
-                        weight: el.weight,
-                        color: el.color,
-                        bg: el.bg,
-                        align: el.align,
-                        border: el.border,
-                        thick: el.thick
-                    };
-                    this.showNotification('Style copied! Select another element and click Paste Style');
-                }
-            },
-
-            pasteStyle() {
-                if (!this.copiedStyle) {
-                    this.showNotification('Copy a style first', 'warning');
-                    return;
-                }
-                
-                if (!this.sel) {
-                    this.showNotification('Select target element', 'warning');
-                    return;
-                }
-                
-                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                if (el) {
-                    if (el.type === 'text' && this.copiedStyle.font) {
-                        el.font = this.copiedStyle.font;
-                        el.size = this.copiedStyle.size;
-                        el.weight = this.copiedStyle.weight;
-                        el.color = this.copiedStyle.color;
-                        el.bg = this.copiedStyle.bg;
-                        el.align = this.copiedStyle.align;
-                    }
-                    if (el.type === 'shape' && this.copiedStyle.border) {
-                        el.border = this.copiedStyle.border;
-                        el.thick = this.copiedStyle.thick;
-                        el.bg = this.copiedStyle.bg;
-                    }
-                }
-                
-                this.saveState();
-                this.loadCanvas();
-                this.showNotification('Style applied successfully');
-            },
-
-            setBgColor() {
-                document.getElementById('bgModal').classList.add('show');
-            },
-
-            applyBg(color) {
-                this.data[this.curr].bg = color;
-                this.closeModal('bgModal');
-                
-                // Use setTimeout to prevent UI freezing
-                setTimeout(() => {
-                    this.loadCanvas();
-                    this.saveState();
-                }, 10);
-            },
-
-            uploadBgImage() {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = 'image/*';
-                input.onchange = (e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (ev) => {
-                            this.data[this.curr].bg = `url(${ev.target.result})`;
-                            this.closeModal('bgModal');
-                            
-                            // Use setTimeout to prevent UI freezing
-                            setTimeout(() => {
-                                this.loadCanvas();
-                                this.saveState();
-                            }, 10);
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                };
-                input.click();
-            },
-
-            showAnimations() {
-                if (!this.sel) {
-                    this.showNotification('Select an element first', 'warning');
-                    return;
-                }
-                document.getElementById('animModal').classList.add('show');
-            },
-
-            applyAnimation(animation) {
-                if (!this.sel) return;
-                
-                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
-                if (el) {
-                    el.animation = animation;
-                    this.saveState();
-                    this.closeModal('animModal');
-                    this.showNotification(`Animation "${animation}" applied! Preview in Presentation Mode`);
-                }
-            },
-
-            presentMode() {
-                this.presenting = true;
-                this.presentSlide = 0;
-                
-                const presentDiv = document.createElement('div');
-                presentDiv.className = 'present-mode active';
-                presentDiv.innerHTML = `
-                    <div class="present-slide">
-                        <div class="present-canvas" id="presentCanvas"></div>
-                    </div>
-                    <div class="present-controls">
-                        <button class="present-btn" onclick="app.prevPresentSlide()">◀</button>
-                        <div class="present-counter"><span id="presentCounter">1 / ${this.data.length}</span></div>
-                        <button class="present-btn" onclick="app.nextPresentSlide()">▶</button>
-                        <button class="present-btn" onclick="app.exitPresent()">✕</button>
-                    </div>
-                `;
-                document.body.appendChild(presentDiv);
-                
-                this.renderPresentSlide();
-                
-                document.addEventListener('keydown', this.presentKeyHandler = (e) => {
-                    if (e.key === 'Escape') this.exitPresent();
-                    if (e.key === 'ArrowRight' || e.key === ' ') this.nextPresentSlide();
-                    if (e.key === 'ArrowLeft') this.prevPresentSlide();
-                });
-            },
-
-            renderPresentSlide() {
-                const canvas = document.getElementById('presentCanvas');
-                if (!canvas) return;
-                
-                const slide = this.data[this.presentSlide];
-                canvas.innerHTML = '';
-                canvas.style.width = '960px';
-                canvas.style.height = '540px';
-                canvas.style.background = slide.bg || '#ffffff';
-                canvas.style.position = 'relative';
-                
-                if (slide.bg && slide.bg.startsWith('url(')) {
-                    canvas.style.backgroundImage = slide.bg;
-                    canvas.style.backgroundSize = 'cover';
-                    canvas.style.backgroundPosition = 'center';
-                }
-                
-                const transition = slide.transition || 'fade';
-                canvas.className = 'present-canvas slide-transition-' + transition;
-                
-                slide.els.forEach((el, index) => {
-                    const div = document.createElement('div');
-                    div.className = 'element ' + el.type + '-element';
-                    div.style.left = el.x + 'px';
-                    div.style.top = el.y + 'px';
-                    div.style.width = el.width + 'px';
-                    div.style.height = el.height + 'px';
-
-                    if (el.shadow) {
-                        div.style.boxShadow = el.shadow;
-                    }
-
-                    if (el.type === 'text') {
-                        div.textContent = el.content;
-                        div.style.fontFamily = el.font || 'Arial';
-                        div.style.fontSize = (el.size || 24) + 'px';
-                        div.style.color = el.color || '#000000';
-                        div.style.backgroundColor = el.bg || 'transparent';
-                        div.style.fontWeight = el.weight || 'normal';
-                        div.style.textAlign = el.align || 'left';
-                        div.style.padding = '8px';
-                    }
-
-                    if (el.type === 'shape') {
-                        div.style.backgroundColor = el.bg || '#3b82f6';
-                        div.style.border = `${el.thick || 2}px solid ${el.border || '#1e40af'}`;
-                        
-                        // Apply shape styles for presentation
-                        switch(el.shape) {
-                            case 'circle':
-                                div.style.borderRadius = '50%';
-                                break;
-                            case 'rectangle':
-                                div.style.borderRadius = '4px';
-                                break;
-                            case 'triangle':
-                                div.style.backgroundColor = 'transparent';
-                                div.style.borderLeft = `${el.width / 2}px solid transparent`;
-                                div.style.borderRight = `${el.width / 2}px solid transparent`;
-                                div.style.borderBottom = `${el.height}px solid ${el.bg || '#3b82f6'}`;
-                                div.style.width = '0';
-                                div.style.height = '0';
-                                div.style.border = 'none';
-                                break;
-                            case 'star':
-                                div.style.borderRadius = '4px';
-                                div.style.clipPath = 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)';
-                                break;
-                            case 'pentagon':
-                                div.style.clipPath = 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)';
-                                break;
-                            case 'hexagon':
-                                div.style.clipPath = 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)';
-                                break;
-                            case 'diamond':
-                                div.style.clipPath = 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)';
-                                break;
-                            case 'arrow-right':
-                                div.style.clipPath = 'polygon(0% 25%, 60% 25%, 60% 0%, 100% 50%, 60% 100%, 60% 75%, 0% 75%)';
-                                break;
-                            case 'arrow-left':
-                                div.style.clipPath = 'polygon(40% 25%, 100% 25%, 100% 75%, 40% 75%, 40% 100%, 0% 50%, 40% 0%)';
-                                break;
-                            default:
-                                div.style.borderRadius = '4px';
-                        }
-                    }
-
-                    if (el.type === 'image') {
-                        const img = document.createElement('img');
-                        img.src = el.src;
-                        img.style.width = '100%';
-                        img.style.height = '100%';
-                        img.style.objectFit = 'cover';
-                        div.appendChild(img);
-                    }
-
-                    if (el.animation && el.animation !== 'none') {
-                        setTimeout(() => {
-                            div.classList.add('animate-' + el.animation);
-                        }, index * 200);
-                    }
-                    canvas.appendChild(div);
-                });
-                
-                document.getElementById('presentCounter').textContent = `${this.presentSlide + 1} / ${this.data.length}`;
-            },
-
-            nextPresentSlide() {
-                if (this.presentSlide < this.data.length - 1) {
-                    this.presentSlide++;
-                    this.renderPresentSlide();
-                }
-            },
-
-            prevPresentSlide() {
-                if (this.presentSlide > 0) {
-                    this.presentSlide--;
-                    this.renderPresentSlide();
-                }
-            },
-
-            exitPresent() {
-                this.presenting = false;
-                document.querySelector('.present-mode')?.remove();
-                document.removeEventListener('keydown', this.presentKeyHandler);
-            },
-
-            closeModal(id) {
-                document.getElementById(id).classList.remove('show');
-            },
-
-            // Zoom Functions
-            setZoom(value) {
-                this.zoom = parseInt(value);
-                document.getElementById('zoomValue').textContent = this.zoom + '%';
-                document.getElementById('canvasWrapper').style.transform = `scale(${this.zoom / 100})`;
-            },
-
-            zoomIn() {
-                const slider = document.getElementById('zoomSlider');
-                const newValue = Math.min(200, this.zoom + 10);
-                slider.value = newValue;
-                this.setZoom(newValue);
-            },
-
-            zoomOut() {
-                const slider = document.getElementById('zoomSlider');
-                const newValue = Math.max(25, this.zoom - 10);
-                slider.value = newValue;
-                this.setZoom(newValue);
-            },
-
-            resetZoom() {
-                document.getElementById('zoomSlider').value = 100;
-                this.setZoom(100);
-            }
-        };
-
-        function finalizeInitialData(slidesInput, title, presentationId) {
-            const fallbackSlides = [{ els: [], bg: 'white', transition: 'fade' }];
-            const slides = Array.isArray(slidesInput) && slidesInput.length ? slidesInput : fallbackSlides;
-            let normalizedSlides;
-            try {
-                normalizedSlides = JSON.parse(JSON.stringify(slides));
-            } catch (error) {
-                console.error('Failed to normalize slides, using fallback.', error);
-                normalizedSlides = fallbackSlides;
-            }
-
-            if (app.autoSaveTimer) {
-                clearTimeout(app.autoSaveTimer);
-                app.autoSaveTimer = null;
-            }
-
-            app.data = normalizedSlides;
-            app.currentPresentationId = presentationId || null;
-            app.curr = 0;
-            app.sel = null;
-            document.getElementById('title').value = title || '';
-            app.history = [];
-            app.historyIndex = -1;
-            app.initialLoadComplete = false;
-            app.renderSlides();
-            app.loadCanvas();
-            app.saveState();
-            app.initialLoadComplete = true;
-        }
-
-        async function attemptInitialCloudLoad(preferredId) {
-            if (initialPresentationAttempted || initialPresentationResolving) {
-                return;
-            }
-
-            if (!appInitialized) {
-                return;
-            }
-
-            const params = new URLSearchParams(window.location.search);
-            const sharedParam = params.get('data');
-
-            if (!sharedParam && (!window.currentUserId || !window.firebaseDb)) {
-                return;
-            }
-
-            initialPresentationResolving = true;
-
-            try {
-                if (sharedParam) {
-                    try {
-                        const decoded = JSON.parse(atob(sharedParam));
-                        finalizeInitialData(decoded.slides, decoded.title, null);
-                        console.log('Loaded shared presentation');
-                    } catch (error) {
-                        console.error('Failed to load shared presentation, starting with a blank deck.', error);
-                        finalizeInitialData(null, null, null);
-                    }
-                    initialPresentationAttempted = true;
-                    return;
-                }
-
-                const explicitId = preferredId || params.get('presentationId');
-                const hasTemplateParam = params.has('template');
-                const startFresh = params.get('new') === '1';
-
-                let shouldLoadFromCloud = true;
-                if (startFresh || hasTemplateParam) {
-                    shouldLoadFromCloud = false;
-                }
-                if (explicitId) {
-                    shouldLoadFromCloud = true;
-                }
-
-                let presentationData = null;
-                let resolvedPresentationId = explicitId || null;
-
-                if (shouldLoadFromCloud) {
-                    try {
-                        presentationData = await app.loadFromCloud(explicitId);
-                        if (presentationData && app.currentPresentationId && !resolvedPresentationId) {
-                            resolvedPresentationId = app.currentPresentationId;
-                        }
-                    } catch (error) {
-                        console.error('Error loading presentation from cloud:', error);
-                    }
-                }
-
-                if (presentationData && presentationData.slides) {
-                    finalizeInitialData(presentationData.slides, presentationData.title, resolvedPresentationId);
-                    console.log('Loaded presentation from cloud');
-                } else {
-                    finalizeInitialData(null, null, null);
-                    if (explicitId && shouldLoadFromCloud) {
-                        console.warn('Requested presentation was not found; starting a new deck.');
-                    }
-                }
-
-                initialPresentationAttempted = true;
-            } finally {
-                initialPresentationResolving = false;
-            }
-        }
-
-        window.addEventListener('pm-user-ready', () => {
-            attemptInitialCloudLoad();
-        });
-
-        window.onload = async () => {
-            app.init();
-            appInitialized = true;
-            await attemptInitialCloudLoad();
-
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.header-right')) {
-                    document.getElementById('exportMenu').classList.remove('show');
-                }
-                
-                if (!e.target.closest('#shapesBtn') && !e.target.closest('#shapesMenu')) {
-                    document.getElementById('shapesMenu').classList.remove('show');
-                }
-            });
-        };
     </script>
-<script>
-(function () {
-  let tipEl = null;
-  let arrowEl = null;
-  let activeTarget = null;
+    <style>
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.16), transparent 55%),
+          radial-gradient(circle at top right, rgba(56, 189, 248, 0.15), transparent 45%),
+          radial-gradient(circle at bottom, rgba(6, 95, 70, 0.15), transparent 60%);
+        z-index: -2;
+      }
+      .category-panel {
+        animation: fade-in 160ms ease;
+      }
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+          transform: translateY(-4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 text-slate-900 antialiased selection:bg-emerald-200/60 selection:text-emerald-950">
+    <div class="relative">
+      <div class="pointer-events-none absolute inset-0">
+        <div class="absolute -left-32 top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl"></div>
+        <div class="absolute right-0 top-0 h-96 w-96 rounded-full bg-sky-300/20 blur-[140px]"></div>
+        <div class="absolute -bottom-16 left-1/2 h-64 w-[26rem] -translate-x-1/2 rounded-full bg-emerald-500/10 blur-[120px]"></div>
+      </div>
 
-  function showTooltip(target) {
-    const text = target.getAttribute('data-tooltip');
-    if (!text) return;
+      <header class="sticky top-0 z-30 border-b border-white/60 bg-white/90 backdrop-blur-xl shadow-sm">
+        <div class="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 text-base font-semibold text-white shadow-glow">AD</span>
+            <div class="leading-tight">
+              <p class="text-xs uppercase tracking-[0.35em] text-emerald-600">Presentation Lab</p>
+              <p class="text-sm font-semibold text-slate-700">Advanced Editor v2</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-6">
+            <div class="flex items-center gap-3">
+              <div id="presence-avatars" class="flex -space-x-2"></div>
+              <span id="presence-status" class="text-[0.65rem] font-medium uppercase tracking-[0.28em] text-slate-400">Live collaborators</span>
+            </div>
+            <div class="flex items-center gap-2 rounded-full border border-white/60 bg-white/80 px-3 py-1.5 text-xs text-slate-500 shadow-inner shadow-white/40">
+              <span id="autosave-dot" class="inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+              <span id="autosave-status">Saved just now</span>
+            </div>
+            <div class="relative">
+              <button id="version-toggle" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-slate-500 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300 hover:text-emerald-600">
+                Versions ▾
+              </button>
+              <div id="version-menu" class="absolute right-0 z-40 mt-2 w-56 hidden flex-col gap-1 rounded-2xl border border-slate-200 bg-white/95 p-2 text-sm shadow-xl shadow-slate-900/10">
+                <p class="px-2 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-slate-400">History</p>
+                <div id="version-list" class="flex flex-col gap-1"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="border-t border-white/70 bg-white/80 backdrop-blur">
+          <div class="mx-auto flex w-full max-w-7xl items-center gap-2 px-6">
+            <nav class="flex flex-1 items-center gap-1 py-2">
+              <button data-category="text" class="category-tab group inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 transition hover:bg-emerald-500/10 hover:text-emerald-600 focus-visible:outline focus-visible:outline-emerald-400">
+                <span class="h-1.5 w-1.5 rounded-full bg-slate-300 transition group-hover:bg-emerald-500"></span>
+                Text
+              </button>
+              <button data-category="shape" class="category-tab group inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 transition hover:bg-emerald-500/10 hover:text-emerald-600 focus-visible:outline focus-visible:outline-emerald-400">
+                <span class="h-1.5 w-1.5 rounded-full bg-slate-300 transition group-hover:bg-emerald-500"></span>
+                Shape
+              </button>
+              <button data-category="image" class="category-tab group inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 transition hover:bg-emerald-500/10 hover:text-emerald-600 focus-visible:outline focus-visible:outline-emerald-400">
+                <span class="h-1.5 w-1.5 rounded-full bg-slate-300 transition group-hover:bg-emerald-500"></span>
+                Image
+              </button>
+              <button data-category="media" class="category-tab group inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 transition hover:bg-emerald-500/10 hover:text-emerald-600 focus-visible:outline focus-visible:outline-emerald-400">
+                <span class="h-1.5 w-1.5 rounded-full bg-slate-300 transition group-hover:bg-emerald-500"></span>
+                Media
+              </button>
+              <button data-category="arrange" class="category-tab group inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 transition hover:bg-emerald-500/10 hover:text-emerald-600 focus-visible:outline focus-visible:outline-emerald-400">
+                <span class="h-1.5 w-1.5 rounded-full bg-slate-300 transition group-hover:bg-emerald-500"></span>
+                Arrange
+              </button>
+            </nav>
+            <div class="flex items-center gap-2 py-2">
+              <button class="rounded-full border border-emerald-200/70 bg-emerald-500 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white shadow-md shadow-emerald-500/30 transition hover:-translate-y-0.5 hover:bg-emerald-400">
+                Present
+              </button>
+              <button class="rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-600 transition hover:-translate-y-0.5 hover:border-emerald-300 hover:text-emerald-600">
+                Share
+              </button>
+            </div>
+          </div>
+          <div id="category-panel" class="category-panel hidden border-t border-white/60 bg-white/92 backdrop-blur-xl">
+            <div class="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-6 py-4 text-sm text-slate-600" data-panel-content></div>
+          </div>
+        </div>
+      </header>
 
-    if (!tipEl) {
-      tipEl = document.createElement('div');
-      tipEl.className = 'js-tooltip';
-      document.body.appendChild(tipEl);
+      <main class="mx-auto flex w-full max-w-[1500px] gap-6 px-4 pb-16 pt-6">
+        <aside class="sticky top-32 h-[calc(100vh-8rem)] w-48 flex-shrink-0 rounded-3xl border border-white/70 bg-white/80 p-3 shadow-xl shadow-emerald-500/10 backdrop-blur">
+          <div class="flex items-center justify-between px-2 pb-3">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Slides</p>
+            <button id="btn-add-slide" class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-emerald-200 bg-emerald-500/90 text-white shadow-sm transition hover:bg-emerald-400" title="Add slide">+</button>
+          </div>
+          <div id="slides-list" class="space-y-2 overflow-y-auto pr-1">
+            <!-- slides rendered here -->
+          </div>
+        </aside>
 
-      arrowEl = document.createElement('div');
-      arrowEl.className = 'js-tooltip-arrow';
-      document.body.appendChild(arrowEl);
-    }
+        <section class="flex flex-1 flex-col gap-4">
+          <div class="rounded-3xl border border-white/60 bg-white/80 px-6 py-4 shadow-lg shadow-emerald-500/10 backdrop-blur">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-600">Presentation title</p>
+                <h1 id="deck-title" contenteditable="true" class="mt-1 text-lg font-semibold text-slate-700 outline-none focus:text-emerald-600">New executive presentation</h1>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/70 px-3 py-1 text-xs text-slate-500 shadow-inner">
+                  <span class="inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                  Slide <span id="slide-index-label" class="font-semibold text-slate-700">1</span>/<span id="slide-total-label">1</span>
+                </div>
+              </div>
+            </div>
+          </div>
 
-    tipEl.textContent = text;
-    tipEl.style.display = 'block';
-    arrowEl.style.display = 'block';
+          <div class="relative flex-1 rounded-[28px] bg-white/80 p-6 shadow-[0_30px_120px_-60px_rgba(15,23,42,0.45)] backdrop-blur">
+            <div id="stage-stack" class="relative flex h-full flex-col gap-8 overflow-y-auto rounded-[22px] p-6 pr-4">
+              <!-- slides rendered here -->
+            </div>
+          </div>
 
-    positionTooltip(target);
-    activeTarget = target;
-  }
+        </section>
 
-  function hideTooltip() {
-    if (tipEl) tipEl.style.display = 'none';
-    if (arrowEl) arrowEl.style.display = 'none';
-    activeTarget = null;
-  }
+        <aside class="sticky top-32 flex h-[calc(100vh-8rem)] w-56 flex-shrink-0 flex-col gap-3 rounded-3xl border border-white/70 bg-white/80 p-4 shadow-xl shadow-emerald-500/10 backdrop-blur">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Properties</p>
+            <p class="mt-1 text-sm font-semibold text-slate-700">Smart suggestions</p>
+          </div>
+          <div class="flex flex-1 flex-col gap-3 overflow-y-auto text-sm text-slate-600">
+            <div class="rounded-2xl border border-slate-200/80 bg-white/90 p-4 shadow-inner">
+              <p class="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-500">Layout tips</p>
+              <ul class="mt-3 space-y-2 text-xs text-slate-500">
+                <li>Align headline within safe area.</li>
+                <li>Balance visuals across thirds.</li>
+                <li>Keep body text under 5 lines.</li>
+              </ul>
+            </div>
+            <div class="rounded-2xl border border-slate-200/80 bg-white/90 p-4 shadow-inner">
+              <p class="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-500">Theme accents</p>
+              <div class="mt-3 flex items-center gap-2">
+                <span class="h-7 w-7 rounded-lg bg-emerald-500/90 shadow-sm"></span>
+                <span class="h-7 w-7 rounded-lg bg-sky-500/80 shadow-sm"></span>
+                <span class="h-7 w-7 rounded-lg bg-slate-900/80 shadow-sm"></span>
+                <span class="h-7 w-7 rounded-lg bg-emerald-100 shadow-sm"></span>
+              </div>
+            </div>
+            <div class="rounded-2xl border border-slate-200/80 bg-white/90 p-4 shadow-inner">
+              <p class="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-500">Upcoming</p>
+              <p class="mt-2 text-xs">Element-level controls will appear here as you start designing.</p>
+            </div>
+          </div>
+        </aside>
+      </main>
+    </div>
 
-  function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+    <script>
+      const panelContent = document.querySelector('[data-panel-content]')
+      const panelShell = document.getElementById('category-panel')
+      const categoryTabs = document.querySelectorAll('.category-tab')
 
-  function positionTooltip(target) {
-    const rect = target.getBoundingClientRect();
-    // Initial center above the target
-    const centerX = rect.left + rect.width / 2;
-    const topY = rect.top;
+      const CATEGORY_CONTENT = {
+        text: [
+          { label: 'Font', control: '<select class="w-36 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"><option>Inter</option><option>Arial</option><option>Georgia</option><option>Poppins</option><option>IBM Plex Sans</option></select>' },
+          { label: 'Size', control: '<input type="number" value="28" min="8" max="120" class="w-20 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" />' },
+          { label: 'Weight', control: '<div class="flex gap-2"><button class="toolbar-chip" data-weight="400">Regular</button><button class="toolbar-chip active" data-weight="600">Bold</button><button class="toolbar-chip" data-weight="300">Light</button></div>' },
+          { label: 'Color', control: '<input type="color" value="#0f766e" class="h-9 w-12 rounded-xl border border-slate-200 bg-white p-1" />' },
+          { label: 'Align', control: '<div class="flex gap-2"><button class="toolbar-icon" title="Align left">⟸</button><button class="toolbar-icon" title="Align center">⇔</button><button class="toolbar-icon" title="Align right">⟹</button></div>' },
+        ],
+        shape: [
+          { label: 'Library', control: '<div class="flex gap-2 flex-wrap max-w-xs"><button class="shape-pill">Rectangle</button><button class="shape-pill">Circle</button><button class="shape-pill">Triangle</button><button class="shape-pill">Diamond</button><button class="shape-pill">Arrow</button><button class="shape-pill">Line</button></div>' },
+          { label: 'Fill', control: '<input type="color" value="#10b981" class="h-9 w-12 rounded-xl border border-slate-200 bg-white p-1" />' },
+          { label: 'Stroke', control: '<div class="flex items-center gap-2"><input type="color" value="#0f172a" class="h-9 w-12 rounded-xl border border-slate-200 bg-white p-1" /><input type="number" value="2" min="0" max="12" class="w-16 rounded-xl border border-slate-200 bg-white px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" /></div>' },
+        ],
+        image: [
+          { label: 'Source', control: '<div class="flex gap-2"><button class="rounded-xl border border-emerald-200 bg-emerald-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white">Upload</button><button class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-500 hover:border-emerald-300 hover:text-emerald-600">Browse stock</button></div>' },
+          { label: 'Adjust', control: '<div class="flex gap-3 text-xs uppercase tracking-[0.25em] text-slate-500"><span>Brightness</span><span>Contrast</span><span>Blur</span><span>Shadow</span></div>' },
+          { label: 'Mask', control: '<div class="flex gap-2"><button class="shape-pill">Rounded</button><button class="shape-pill">Circle</button><button class="shape-pill">Diagonal</button></div>' },
+        ],
+        media: [
+          { label: 'Insert', control: '<div class="flex gap-2 flex-wrap max-w-xs"><button class="shape-pill">Video</button><button class="shape-pill">Audio</button><button class="shape-pill">Lottie</button><button class="shape-pill">Chart</button><button class="shape-pill">Data Table</button></div>' },
+          { label: 'Embed', control: '<input type="url" placeholder="Paste link" class="w-56 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400" />' },
+        ],
+        arrange: [
+          { label: 'Order', control: '<div class="flex gap-2"><button class="shape-pill">Bring forward</button><button class="shape-pill">Send back</button><button class="shape-pill">Front</button><button class="shape-pill">Back</button></div>' },
+          { label: 'Align', control: '<div class="flex gap-2"><button class="shape-pill">Left</button><button class="shape-pill">Center</button><button class="shape-pill">Right</button><button class="shape-pill">Top</button><button class="shape-pill">Middle</button><button class="shape-pill">Bottom</button></div>' },
+          { label: 'Distribute', control: '<div class="flex gap-2"><button class="shape-pill">Horizontal</button><button class="shape-pill">Vertical</button></div>' },
+        ],
+      }
 
-    // Measure tooltip size by temporarily showing it
-    tipEl.style.visibility = 'hidden';
-    tipEl.style.display = 'block';
-    const tipWidth = tipEl.offsetWidth;
-    const tipHeight = tipEl.offsetHeight;
-    tipEl.style.visibility = '';
-    // Compute final positions with viewport clamping
-    const padding = 8;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const left = clamp(centerX, padding + tipWidth / 2, vw - padding - tipWidth / 2);
-    let top = topY - padding - tipHeight;
+      function renderPanel(category) {
+        const items = CATEGORY_CONTENT[category]
+        if (!items) return
+        panelContent.innerHTML = items
+          .map(
+            (item) => `
+              <div class="flex flex-col gap-1.5">
+                <span class="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-slate-400">${item.label}</span>
+                ${item.control}
+              </div>
+            `
+          )
+          .join('')
+      }
 
-    // If not enough space above, place below
-    if (top < padding) {
-      top = rect.bottom + padding + tipHeight; // place arrow below as well
-      tipEl.style.transform = 'translate(-50%, -100%)'; // adjust transform to anchor below
-      arrowEl.style.borderTopColor = 'transparent';
-      arrowEl.style.borderBottomColor = '#1f2937';
-      arrowEl.style.top = (rect.bottom + padding) + 'px';
-    } else {
-      tipEl.style.transform = 'translate(-50%, -6px)';
-      arrowEl.style.borderBottomColor = 'transparent';
-      arrowEl.style.borderTopColor = '#1f2937';
-      arrowEl.style.top = (topY - padding) + 'px';
-    }
+      let activeCategory = null
 
-    tipEl.style.left = left + 'px';
-    tipEl.style.top = top + 'px';
+      categoryTabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const category = tab.dataset.category
+          const isActive = activeCategory === category
 
-    arrowEl.style.left = clamp(centerX, padding + 6, vw - padding - 6) + 'px';
-  }
+          categoryTabs.forEach((button) => {
+            button.classList.toggle('bg-emerald-500/10', button.dataset.category === category && !isActive)
+            button.classList.toggle('text-emerald-600', button.dataset.category === category && !isActive)
+            button.classList.toggle('ring-1', button.dataset.category === category && !isActive)
+            button.classList.toggle('ring-emerald-500/40', button.dataset.category === category && !isActive)
+          })
 
-  // Delegate listeners
-  document.addEventListener('mouseover', function (e) {
-    const target = e.target.closest('[data-tooltip]');
-    if (!target) return;
-    showTooltip(target);
-  });
-  document.addEventListener('mouseout', function (e) {
-    const related = e.relatedTarget;
-    if (activeTarget && (!related || !related.closest('[data-tooltip]'))) {
-      hideTooltip();
-    }
-  });
-  document.addEventListener('mousemove', function () {
-    if (activeTarget) positionTooltip(activeTarget);
-  });
-  window.addEventListener('scroll', function () {
-    if (activeTarget) positionTooltip(activeTarget);
-  }, true);
-  window.addEventListener('resize', function () {
-    if (activeTarget) positionTooltip(activeTarget);
-  });
-})();
-</script></body>
+          if (isActive) {
+            panelShell.classList.add('hidden')
+            activeCategory = null
+            return
+          }
+
+          renderPanel(category)
+          panelShell.classList.remove('hidden')
+          activeCategory = category
+        })
+      })
+
+      document.addEventListener('click', (event) => {
+        if (
+          !panelShell.contains(event.target) &&
+          !Array.from(categoryTabs).some((button) => button.contains(event.target))
+        ) {
+          panelShell.classList.add('hidden')
+          activeCategory = null
+          categoryTabs.forEach((button) => {
+            button.classList.remove('bg-emerald-500/10', 'text-emerald-600', 'ring-1', 'ring-emerald-500/40')
+          })
+        }
+      })
+
+      const slidesList = document.getElementById('slides-list')
+      const slideIndexLabel = document.getElementById('slide-index-label')
+      const slideTotalLabel = document.getElementById('slide-total-label')
+      const addSlideBtn = document.getElementById('btn-add-slide')
+      const stageStack = document.getElementById('stage-stack')
+      const autosaveStatus = document.getElementById('autosave-status')
+      const autosaveDot = document.getElementById('autosave-dot')
+      const versionToggle = document.getElementById('version-toggle')
+      const versionMenu = document.getElementById('version-menu')
+      const versionList = document.getElementById('version-list')
+      const presenceAvatars = document.getElementById('presence-avatars')
+      const presenceStatus = document.getElementById('presence-status')
+      const deckTitle = document.getElementById('deck-title')
+
+      const MAX_NOTES_LENGTH = 1000
+
+      const COLLABORATORS = [
+        { id: 'you', name: 'You', initials: 'RA', role: 'editing', color: 'bg-emerald-500', presence: 'Editing' },
+        { id: 'maha', name: 'Maha A.', initials: 'MA', role: 'design', color: 'bg-sky-500', presence: 'Reviewing' },
+        { id: 'faisal', name: 'Faisal K.', initials: 'FK', role: 'viewer', color: 'bg-amber-500', presence: 'Viewing' },
+      ]
+
+      let autosaveTimer = null
+      let autosaveContext = null
+      let lastSavedAt = new Date()
+      const versions = []
+
+      const state = {
+        slides: Array.from({ length: 3 }).map((_, index) => ({
+          id: `slide-${index + 1}`,
+          title: '',
+          description: '',
+          notes: '',
+          notesOpen: false,
+        })),
+        current: 0,
+      }
+
+      function renderCollaborators() {
+        if (!presenceAvatars) return
+        presenceAvatars.innerHTML = COLLABORATORS.map(
+          (member) => `
+            <span
+              class="relative inline-flex h-8 w-8 items-center justify-center rounded-full border-2 border-white text-[0.7rem] font-semibold text-white ${member.color}"
+              title="${member.name} • ${member.presence}"
+            >
+              ${member.initials}
+              <span class="absolute -bottom-1 right-0 inline-flex h-2 w-2 rounded-full ${
+                member.role === 'editing'
+                  ? 'bg-emerald-400'
+                  : member.role === 'design'
+                    ? 'bg-sky-400'
+                    : 'bg-slate-300'
+              }"></span>
+            </span>
+          `
+        ).join('')
+        if (presenceStatus) {
+          presenceStatus.textContent = `${COLLABORATORS.length} collaborating`
+        }
+      }
+
+      function formatRelativeTime(date) {
+        if (!date) return 'just now'
+        const diff = Math.floor((Date.now() - date.getTime()) / 1000)
+        if (diff < 5) return 'just now'
+        if (diff < 60) return `${diff}s ago`
+        const minutes = Math.floor(diff / 60)
+        if (minutes < 60) return `${minutes}m ago`
+        const hours = Math.floor(minutes / 60)
+        if (hours < 24) return `${hours}h ago`
+        return date.toLocaleDateString()
+      }
+
+      function addVersion(reason, timestamp) {
+        versions.unshift({
+          id: `ver-${timestamp.getTime()}`,
+          reason,
+          timestamp,
+          label: timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        })
+        if (versions.length > 8) versions.pop()
+        renderVersionList()
+      }
+
+      function renderVersionList() {
+        if (!versionList) return
+        if (!versions.length) {
+          versionList.innerHTML = `<p class="px-2 py-2 text-[0.65rem] uppercase tracking-[0.28em] text-slate-400">No versions yet</p>`
+          return
+        }
+        versionList.innerHTML = versions
+          .map(
+            (version) => `
+              <button data-version="${version.id}" class="flex flex-col gap-0.5 rounded-xl border border-transparent px-3 py-2 text-left text-xs text-slate-600 transition hover:border-emerald-200 hover:bg-emerald-50/80">
+                <span class="text-[0.7rem] font-semibold text-slate-700">${version.label}</span>
+                <span class="text-[0.6rem] uppercase tracking-[0.25em] text-slate-400">${version.reason}</span>
+              </button>
+            `
+          )
+          .join('')
+      }
+
+      function setAutosaveState(state) {
+        if (!autosaveStatus || !autosaveDot) return
+        if (state === 'saving') {
+          autosaveStatus.textContent = 'Saving…'
+          autosaveDot.className = 'inline-flex h-2 w-2 rounded-full bg-amber-400 animate-pulse'
+        } else {
+          autosaveStatus.textContent = `Saved ${formatRelativeTime(lastSavedAt)}`
+          autosaveDot.className = 'inline-flex h-2 w-2 rounded-full bg-emerald-500'
+        }
+      }
+
+      function scheduleAutosave({ reason = 'Updated presentation', context = null } = {}) {
+        if (autosaveTimer) {
+          clearTimeout(autosaveTimer)
+        }
+        autosaveContext = context
+        setAutosaveState('saving')
+        autosaveTimer = setTimeout(() => {
+          lastSavedAt = new Date()
+          setAutosaveState('saved')
+          addVersion(reason, lastSavedAt)
+          autosaveContext = null
+        }, 900)
+      }
+
+      function escapeHtml(text = '') {
+        return text
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;')
+      }
+
+      function renderSlides() {
+        slideTotalLabel.textContent = state.slides.length
+        slideIndexLabel.textContent = state.current + 1
+
+        slidesList.innerHTML = state.slides
+          .map(
+            (slide, index) => `
+              <button
+                data-slide="${slide.id}"
+                class="group flex w-full flex-col gap-2 rounded-xl border ${
+                  index === state.current
+                    ? 'border-emerald-400/70 bg-emerald-50/60 shadow-lg shadow-emerald-500/15'
+                    : 'border-slate-200/80 bg-white shadow-sm'
+                } p-2.5 text-left transition hover:-translate-y-1 hover:border-emerald-300 hover:bg-emerald-50/70"
+              >
+                <div class="flex items-center justify-between text-[0.6rem] font-semibold uppercase tracking-[0.28em] text-slate-400">
+                  <span>Slide ${String(index + 1).padStart(2, '0')}</span>
+                </div>
+                <div class="relative aspect-[16/10] w-full overflow-hidden rounded-lg border border-slate-200 bg-white shadow-[0_6px_12px_-10px_rgba(15,23,42,0.45)]">
+                  <div class="absolute inset-0 rounded-lg border border-white/50"></div>
+                  <div class="relative flex h-full flex-col justify-center gap-1 px-3 text-left">
+                    <h4 class="text-[0.7rem] font-semibold text-slate-700 line-clamp-2">${slide.title || 'Blank slide'}</h4>
+                    <p class="text-[0.55rem] text-slate-400 line-clamp-3">${slide.description || ''}</p>
+                  </div>
+                </div>
+              </button>
+            `
+          )
+          .join('')
+
+        renderStageStack()
+      }
+
+      slidesList.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-slide]')
+        if (!button) return
+        const slideId = button.dataset.slide
+        const nextIndex = state.slides.findIndex((slide) => slide.id === slideId)
+        if (nextIndex === -1) return
+        state.current = nextIndex
+        renderSlides()
+      })
+
+      addSlideBtn.addEventListener('click', () => {
+        const index = state.slides.length
+        state.slides.push({
+          id: `slide-${index + 1}`,
+          title: '',
+          description: '',
+          notes: '',
+          notesOpen: false,
+        })
+        state.current = state.slides.length - 1
+        renderSlides()
+        scheduleAutosave({ reason: 'Added slide', context: 'structure' })
+      })
+
+      function renderStageStack() {
+        if (!stageStack) return
+        const totalSlides = state.slides.length
+        stageStack.innerHTML = state.slides
+          .map(
+            (slide, index) => `
+              <article
+                data-stack-slide="${slide.id}"
+                class="group relative w-full rounded-[18px] border ${
+                  index === state.current
+                    ? 'border-emerald-300 bg-white shadow-[0_40px_120px_-60px_rgba(16,185,129,0.55)]'
+                    : 'border-slate-200/70 bg-white shadow-[0_30px_90px_-70px_rgba(15,23,42,0.28)]'
+                } p-4 transition hover:-translate-y-1 hover:border-emerald-200"
+              >
+                <div class="relative overflow-hidden rounded-[14px] bg-white shadow-[0_18px_60px_-50px_rgba(15,23,42,0.35)] transition group-hover:shadow-[0_22px_70px_-40px_rgba(16,185,129,0.45)]">
+                  <div class="relative aspect-[16/9] w-full"></div>
+                </div>
+                <span class="pointer-events-none absolute right-8 top-6 rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-[0.55rem] font-semibold uppercase tracking-[0.32em] text-slate-400 opacity-0 transition group-hover:opacity-70">
+                  Click to focus
+                </span>
+                <div class="mt-3 flex items-center justify-between px-2 text-[0.6rem] font-semibold uppercase tracking-[0.28em] text-slate-400">
+                  <span>Slide ${String(index + 1).padStart(2, '0')}</span>
+                  <div class="flex items-center gap-2">
+                    ${
+                      slide.notes && slide.notes.trim().length
+                        ? '<span class="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[0.55rem] font-semibold uppercase tracking-[0.3em] text-emerald-500">Notes</span>'
+                        : ''
+                    }
+                    <span>${totalSlides} total</span>
+                  </div>
+                </div>
+                <div class="mt-3 rounded-2xl border border-slate-200/80 bg-white/90 p-4 shadow-inner">
+                  <div class="flex items-center justify-between">
+                    <button data-notes-toggle="${slide.id}" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-slate-500 transition hover:border-emerald-300 hover:text-emerald-600">
+                      ${slide.notesOpen ? 'Hide notes' : slide.notes && slide.notes.trim().length ? 'Edit notes' : 'Add notes'}
+                    </button>
+                    <span class="text-[0.6rem] uppercase tracking-[0.25em] text-slate-400">${slide.notes.trim().length ? 'Private' : 'No notes yet'}</span>
+                  </div>
+                  <div class="${slide.notesOpen ? 'mt-3 flex flex-col gap-2' : 'hidden'}">
+                    <textarea
+                      data-notes-input="${slide.id}"
+                      rows="5"
+                      class="w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200"
+                      maxlength="${MAX_NOTES_LENGTH}"
+                      placeholder="Type presenter notes for this slide…"
+                    >${escapeHtml(slide.notes)}</textarea>
+                    <div data-notes-count="${slide.id}" class="flex items-center justify-between text-[0.6rem] uppercase tracking-[0.22em] text-slate-400">
+                      <span>Visible only to presenters</span>
+                      <span>${(slide.notes || '').length} / ${MAX_NOTES_LENGTH}</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            `
+          )
+          .join('')
+      }
+
+      stageStack?.addEventListener('click', (event) => {
+        const toggle = event.target.closest('[data-notes-toggle]')
+        if (toggle) {
+          event.stopPropagation()
+          const slideId = toggle.dataset.notesToggle
+          const slide = state.slides.find((entry) => entry.id === slideId)
+          if (!slide) return
+          slide.notesOpen = !slide.notesOpen
+          renderSlides()
+          const article = stageStack.querySelector(`[data-stack-slide="${slideId}"]`)
+          article?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          return
+        }
+
+        const article = event.target.closest('[data-stack-slide]')
+        if (!article) return
+        const slideId = article.dataset.stackSlide
+        const nextIndex = state.slides.findIndex((slide) => slide.id === slideId)
+        if (nextIndex === -1) return
+        state.current = nextIndex
+        renderSlides()
+        article.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      })
+
+      stageStack?.addEventListener(
+        'blur',
+        (event) => {
+          if (event.target.matches('textarea[data-notes-input]')) {
+            renderSlides()
+          }
+        },
+        true
+      )
+
+      stageStack?.addEventListener('input', (event) => {
+        const textarea = event.target.closest('textarea[data-notes-input]')
+        if (!textarea) return
+        const slideId = textarea.dataset.notesInput
+        const slideIndex = state.slides.findIndex((entry) => entry.id === slideId)
+        if (slideIndex === -1) return
+        const slide = state.slides[slideIndex]
+        if (!slide) return
+        if (textarea.value.length > MAX_NOTES_LENGTH) {
+          textarea.value = textarea.value.slice(0, MAX_NOTES_LENGTH)
+        }
+        slide.notes = textarea.value
+        const counterWrap = stageStack.querySelector(`[data-notes-count="${slideId}"]`)
+        if (counterWrap) {
+          const valueEl = counterWrap.querySelector('span:last-child')
+          if (valueEl) {
+            valueEl.textContent = `${slide.notes.length} / ${MAX_NOTES_LENGTH}`
+          }
+        }
+        scheduleAutosave({ reason: `Updated notes for slide ${slideIndex + 1}`, context: 'notes' })
+      })
+
+      // Utility classes for panel buttons
+      const style = document.createElement('style')
+      style.textContent = `
+        .toolbar-chip {
+          @apply rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-slate-500 shadow-sm shadow-white/60 transition hover:border-emerald-400 hover:text-emerald-600;
+        }
+        .toolbar-chip.active {
+          @apply border-emerald-400 bg-emerald-500/10 text-emerald-600;
+        }
+        .toolbar-icon {
+          @apply inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-xs font-semibold text-slate-500 shadow-sm transition hover:border-emerald-400 hover:text-emerald-600;
+        }
+        .shape-pill {
+          @apply rounded-full border border-slate-200 bg-white/90 px-3 py-1.5 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-slate-500 shadow-sm transition hover:border-emerald-400 hover:text-emerald-600;
+        }
+      `
+      versionToggle?.addEventListener('click', (event) => {
+        event.stopPropagation()
+        versionMenu?.classList.toggle('hidden')
+      })
+
+      versionList?.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-version]')
+        if (!button) return
+        const version = versions.find((entry) => entry.id === button.dataset.version)
+        versionMenu?.classList.add('hidden')
+        if (version) {
+          window.alert(`Version restore coming soon.\nSaved at ${version.label} – ${version.reason}.`)
+        }
+      })
+
+      document.addEventListener('click', (event) => {
+        if (!versionMenu || versionMenu.classList.contains('hidden')) return
+        if (event.target === versionToggle) return
+        if (versionMenu.contains(event.target)) return
+        versionMenu.classList.add('hidden')
+      })
+
+      deckTitle?.addEventListener('input', () => {
+        scheduleAutosave({ reason: 'Updated presentation title', context: 'title' })
+      })
+
+      document.head.appendChild(style)
+
+      renderCollaborators()
+      setAutosaveState('saved')
+      addVersion('Initial snapshot', lastSavedAt)
+      renderSlides()
+    </script>
+  </body>
 </html>
+
+
