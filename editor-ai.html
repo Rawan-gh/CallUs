@@ -613,6 +613,9 @@
             border-left: 1px solid rgba(255, 255, 255, 0.6);
             box-shadow: -2px 0 8px rgba(15, 23, 42, 0.05);
             overflow-y: auto;
+            overflow-x: hidden;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
             transition: padding-top 0.2s ease;
         }
 
@@ -675,12 +678,20 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+            overflow-x: hidden;
         }
 
         .properties-group {
             display: flex;
             flex-direction: column;
             gap: 8px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+            overflow-x: hidden;
         }
 
         .properties-label {
@@ -689,6 +700,9 @@
             text-transform: uppercase;
             letter-spacing: 0.25em;
             color: #94a3b8;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
         }
 
         .properties-input {
@@ -771,6 +785,9 @@
             font-size: 12px;
             color: #94a3b8;
             line-height: 1.6;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
         }
 
         .sidebar {
@@ -949,6 +966,7 @@
             overflow: hidden;
             transition: all 0.3s ease;
             z-index: 1;
+            contain: layout style paint;
         }
 
         .canvas-slide:hover {
@@ -978,6 +996,8 @@
             position: absolute;
             cursor: move;
             user-select: none;
+            overflow: hidden;
+            box-sizing: border-box;
         }
 
         .element.selected {
@@ -989,6 +1009,10 @@
         .element.text-element {
             white-space: pre-wrap;
             word-wrap: break-word;
+            overflow-wrap: break-word;
+            overflow: hidden;
+            max-width: 100%;
+            max-height: 100%;
         }
 
         .element.shape-element {
@@ -7316,7 +7340,7 @@ Generate comprehensive, accurate, factual content now:`
         }
         // ============ End AI Functions ============
 
-        window.onload = () => {
+        window.onload = async () => {
             app.init();
             
             const params = new URLSearchParams(window.location.search);
@@ -7331,6 +7355,38 @@ Generate comprehensive, accurate, factual content now:`
                     app.saveState();
                 } catch (e) {
                     console.error('Failed to load shared presentation');
+                }
+            }
+
+            // Load presentation from Firebase if presentationId is provided
+            const presentationId = params.get('presentationId');
+            const ownerId = params.get('ownerId');
+            
+            if (presentationId && window.firebaseDb) {
+                try {
+                    const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                    const userId = ownerId || window.currentUser?.uid || window.currentUserId;
+                    
+                    if (userId) {
+                        const presentationRef = doc(window.firebaseDb, 'users', userId, 'presentations', presentationId);
+                        const presentationSnap = await getDoc(presentationRef);
+                        
+                        if (presentationSnap.exists()) {
+                            const data = presentationSnap.data();
+                            app.data = data.slides || [];
+                            document.getElementById('title').value = data.title || '';
+                            app.curr = 0;
+                            app.saveState();
+                            app.loadCanvas();
+                            app.renderSlides();
+                            app.showNotification('Presentation loaded successfully');
+                        } else {
+                            app.showNotification('Presentation not found', 'error');
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to load presentation from Firebase:', e);
+                    app.showNotification('Failed to load presentation', 'error');
                 }
             }
 
