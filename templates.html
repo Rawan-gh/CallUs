@@ -263,12 +263,6 @@
               </svg>
               Shared
             </a>
-            <a href="#open" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-700" data-nav-link="open">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 0 1 2-2h3.172a2 2 0 0 1 1.414.586l1.828 1.828a2 2 0 0 0 1.414.586H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/>
-              </svg>
-              Open
-            </a>
           </nav>
         </div>
       </aside>
@@ -339,10 +333,6 @@
               <button class="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400" data-action="share">
                 <span class="h-2 w-2 rounded-full bg-white/80"></span>
                 Share with team
-              </button>
-              <button class="group inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white px-4 py-2 text-sm font-medium text-sky-600 shadow-sm transition hover:border-sky-400 hover:shadow-md" data-action="schedule">
-                <span class="h-2 w-2 rounded-full bg-sky-500 group-hover:scale-125 transition"></span>
-                Schedule review
               </button>
             </div>
             <input id="quick-import-input" type="file" accept=".ppt,.pptx,.pdf" class="hidden" />
@@ -432,16 +422,48 @@
           <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 class="text-2xl font-semibold text-slate-900">Recent Work</h2>
-              <p class="mt-1 text-sm text-slate-600">
-                PowerPoint-ready decks inspired by Canva layouts—polished, on-brand, and presentation room ready.
-              </p>
             </div>
+            <div class="flex items-center gap-3">
+              <button
+                id="selectAllPresentationsBtn"
+                class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 11 12 14 22 4"></polyline>
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+                Select All
+              </button>
+              <button
+                id="deleteSelectedPresentationsBtn"
+                class="inline-flex items-center gap-2 rounded-full border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-600 shadow-sm hover:bg-red-50 hover:border-red-400 transition"
+                disabled
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 6h18"></path>
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                </svg>
+                Delete Selected (<span id="selectedCount">0</span>)
+              </button>
+              <button
+                id="deleteAllPresentationsBtn"
+                class="inline-flex items-center gap-2 rounded-full border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-600 shadow-sm hover:bg-red-50 hover:border-red-400 transition"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 6h18"></path>
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                </svg>
+                Delete All
+              </button>
             <a
               href="#"
               class="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
             >
               View all decks
             </a>
+            </div>
           </div>
 
           <div class="mt-6 flex items-center gap-2 text-sm text-slate-500 hidden" data-user-presentations-loading>
@@ -474,64 +496,10 @@
           </div>
         </section>
 
-        <section id="open" class="mt-12 rounded-2xl bg-slate-50 p-6 sm:p-8 ring-1 ring-slate-200">
-          <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 class="text-2xl font-semibold text-slate-900">Open from cloud</h2>
-              <p class="mt-1 text-sm text-slate-600">
-                Quick access to SharePoint decks so you can sync slides without leaving the workspace.
-              </p>
-            </div>
-            <a
-              href="#"
-              class="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
-              data-cloud-connect
-            >
-              Connect account
-            </a>
-          </div>
-
-          <div
-            class="mt-6 rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500"
-            data-cloud-empty
-          >
-            Connect your enterprise storage to see recent cloud presentations here.
-          </div>
-
-          <div class="mt-6 hidden rounded-xl border border-emerald-100 bg-white p-6 shadow-sm" data-cloud-files>
-            <div class="flex items-center justify-between border-b border-slate-100 pb-4 text-sm text-slate-500">
-              <span>Connected as <span class="font-semibold text-slate-800" data-cloud-user></span></span>
-              <button class="text-xs font-semibold text-emerald-600 hover:text-emerald-700" data-cloud-disconnect>Disconnect</button>
-            </div>
-            <ul class="mt-4 space-y-3 text-sm text-slate-700">
-              <li class="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-3">
-                <div>
-                  <p class="font-semibold text-slate-900">Quarterly Results 2025.pptx</p>
-                  <p class="text-xs text-slate-500">Modified 3 hours ago • Finance</p>
-                </div>
-                <a href="https://sharepoint.com/sites/yourteam/Shared%20Documents/Quarterly%20Results%202025.pptx" target="_blank" rel="noopener" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">Open</a>
-              </li>
-              <li class="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-3">
-                <div>
-                  <p class="font-semibold text-slate-900">Innovation Sprint Brief.pptx</p>
-                  <p class="text-xs text-slate-500">Modified yesterday • Product</p>
-                </div>
-                <a href="https://sharepoint.com/sites/yourteam/Shared%20Documents/Innovation%20Sprint%20Brief.pptx" target="_blank" rel="noopener" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">Open</a>
-              </li>
-              <li class="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-3">
-                <div>
-                  <p class="font-semibold text-slate-900">Sustainability Roadmap.pdf</p>
-                  <p class="text-xs text-slate-500">Modified 4 days ago • ESG Office</p>
-                </div>
-                <a href="https://sharepoint.com/sites/yourteam/Shared%20Documents/Sustainability%20Roadmap.pdf" target="_blank" rel="noopener" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">Open</a>
-              </li>
-            </ul>
-          </div>
-        </section>
       </section>
     </main>
-      </div>
-    </div>
+            </div>
+          </div>
 
     <!-- Share Modal -->
     <div id="shareModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm" data-share-modal>
@@ -547,7 +515,7 @@
               </svg>
             </button>
           </div>
-          
+
           <p class="mb-4 text-sm text-slate-600">
             Enter email addresses separated by commas or one per line. Everyone will be able to view and edit this presentation.
           </p>
@@ -561,7 +529,7 @@
               placeholder="user1@example.com, user2@example.com&#10;user3@example.com"
             ></textarea>
             <p class="mt-1.5 text-xs text-slate-500">You can add multiple emails separated by commas or new lines</p>
-          </div>
+            </div>
           
           <div class="flex items-center gap-3">
             <button
@@ -583,10 +551,10 @@
                 Share
               </span>
             </button>
+                </div>
+                </div>
+                </div>
           </div>
-        </div>
-      </div>
-    </div>
 
     <script>
       ;(() => {
@@ -719,15 +687,6 @@
               return
             }
 
-            if (action === 'schedule') {
-              const confirmed = window.confirm('Open your calendar to schedule a review?')
-              if (confirmed) {
-                window.open('https://outlook.office.com/calendar/', '_blank', 'noopener')
-                showActionMessage('info', 'Calendar opened in a new tab to schedule your review.')
-              } else {
-                showActionMessage('warning', 'Review scheduling cancelled.')
-              }
-            }
           })
         })
 
@@ -744,85 +703,171 @@
           }
         })
 
-        const cloudConnectBtn = document.querySelector('[data-cloud-connect]')
-        const cloudEmptyState = document.querySelector('[data-cloud-empty]')
-        const cloudFilesState = document.querySelector('[data-cloud-files]')
-        const cloudUserLabel = document.querySelector('[data-cloud-user]')
-        const cloudDisconnectBtn = document.querySelector('[data-cloud-disconnect]')
-        const CLOUD_STORAGE_KEY = 'pm-cloud-connection'
-
-        function updateCloudUI(connection) {
-          const isConnected = Boolean(connection)
-          if (cloudEmptyState) {
-            cloudEmptyState.classList.toggle('hidden', isConnected)
-          }
-          if (cloudFilesState) {
-            cloudFilesState.classList.toggle('hidden', !isConnected)
-          }
-          if (cloudConnectBtn) {
-            cloudConnectBtn.textContent = isConnected ? 'Manage connection' : 'Connect account'
-            cloudConnectBtn.dataset.connected = isConnected ? 'true' : 'false'
-          }
-          if (cloudUserLabel) {
-            cloudUserLabel.textContent = connection?.email ?? ''
-          }
-        }
-
-        function getStoredConnection() {
-          try {
-            const raw = localStorage.getItem(CLOUD_STORAGE_KEY)
-            return raw ? JSON.parse(raw) : null
-          } catch (error) {
-            console.error('Failed to read cloud connection', error)
-            return null
-          }
-        }
-
-        function storeConnection(connection) {
-          if (connection) {
-            localStorage.setItem(CLOUD_STORAGE_KEY, JSON.stringify(connection))
-          } else {
-            localStorage.removeItem(CLOUD_STORAGE_KEY)
-          }
-        }
-
-        const cachedConnection = getStoredConnection()
-        updateCloudUI(cachedConnection)
-
-        cloudConnectBtn?.addEventListener('click', (event) => {
-          event.preventDefault()
-          const isConnected = cloudConnectBtn.dataset.connected === 'true'
-
-          if (isConnected) {
-            const reconnect = window.confirm('You are already connected. Do you want to re-connect with a different account?')
-            if (!reconnect) return
-          }
-
-          const email = window.prompt('Enter your SharePoint email to connect:')
-          if (!email || !email.trim().length) {
-            showActionMessage('warning', 'Connection cancelled—no email entered.')
-            return
-          }
-
-          const connection = {
-            email: email.trim(),
-            connectedAt: new Date().toISOString(),
-          }
-          storeConnection(connection)
-          updateCloudUI(connection)
-          showActionMessage('success', `Connected to SharePoint as ${connection.email}.`)
-        })
-
-        cloudDisconnectBtn?.addEventListener('click', () => {
-          const disconnect = window.confirm('Disconnect your SharePoint account?')
-          if (!disconnect) return
-
-          storeConnection(null)
-          updateCloudUI(null)
-          showActionMessage('info', 'Cloud connection removed.')
-        })
-
         activateNav('recent')
+
+        // Share Modal functionality
+        const shareModal = document.querySelector('[data-share-modal]');
+        const shareTitle = document.querySelector('[data-share-title]');
+        const shareEmailsInput = document.getElementById('shareEmailsInput');
+        const shareClose = document.querySelector('[data-share-close]');
+        const shareCancel = document.querySelector('[data-share-cancel]');
+        const shareSubmit = document.querySelector('[data-share-submit]');
+        
+        let currentSharePresentationId = null;
+        let currentSharePresentationTitle = null;
+
+        function openShareModal(presentationId, presentationTitle) {
+          console.log('openShareModal called', { presentationId, presentationTitle, hasShareModal: !!shareModal });
+          
+          if (!window.sharePresentation) {
+            console.warn('sharePresentation not available');
+            if (window.showActionMessage) {
+              window.showActionMessage('warning', 'Share function not available. Please refresh the page.');
+            }
+            return;
+          }
+
+          currentSharePresentationId = presentationId;
+          currentSharePresentationTitle = presentationTitle;
+          // Also store in window for fallback access
+          window.currentSharePresentationId = presentationId;
+          window.currentSharePresentationTitle = presentationTitle;
+          
+          if (shareTitle) {
+            shareTitle.textContent = `Share "${presentationTitle}"`;
+          }
+          
+          if (shareEmailsInput) {
+            shareEmailsInput.value = '';
+            shareEmailsInput.focus();
+          }
+          
+          if (shareModal) {
+            console.log('Opening modal');
+            shareModal.classList.remove('hidden');
+            shareModal.classList.add('flex');
+          } else {
+            console.error('shareModal element not found!');
+          }
+        }
+
+        function closeShareModal() {
+          if (shareModal) {
+            shareModal.classList.add('hidden');
+            shareModal.classList.remove('flex');
+          }
+          currentSharePresentationId = null;
+          currentSharePresentationTitle = null;
+          window.currentSharePresentationId = null;
+          window.currentSharePresentationTitle = null;
+          if (shareEmailsInput) {
+            shareEmailsInput.value = '';
+          }
+        }
+        
+        // Make closeShareModal available globally for fallback
+        window.closeShareModal = closeShareModal;
+
+        shareClose?.addEventListener('click', closeShareModal);
+        shareCancel?.addEventListener('click', closeShareModal);
+
+        // Close modal when clicking outside
+        shareModal?.addEventListener('click', (e) => {
+          if (e.target === shareModal) {
+            closeShareModal();
+          }
+        });
+
+        // Handle share submission
+        shareSubmit?.addEventListener('click', async () => {
+          // Get presentation ID from either local variable or window
+          const presId = currentSharePresentationId || window.currentSharePresentationId;
+          const presTitle = currentSharePresentationTitle || window.currentSharePresentationTitle;
+          
+          if (!presId || !shareEmailsInput) {
+            return;
+          }
+
+          const emailsText = shareEmailsInput.value.trim();
+          if (!emailsText) {
+            if (window.showActionMessage) {
+              window.showActionMessage('warning', 'Please enter at least one email address.');
+            }
+            return;
+          }
+
+          const emails = window.parseEmails ? window.parseEmails(emailsText) : [];
+          if (emails.length === 0) {
+            if (window.showActionMessage) {
+              window.showActionMessage('warning', 'Please enter valid email addresses.');
+            }
+            return;
+          }
+
+          // Disable submit button during processing
+          if (shareSubmit) {
+            shareSubmit.disabled = true;
+            shareSubmit.innerHTML = `
+              <span class="inline-flex items-center gap-2">
+                <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Sharing...
+              </span>
+            `;
+          }
+
+          try {
+            // Support both old single email and new multiple emails
+            const result = await window.sharePresentation(presId, emails);
+            
+            closeShareModal();
+            
+            if (window.showActionMessage) {
+              if (result && typeof result === 'object' && result.added) {
+                const message = result.added === 1
+                  ? `"${presTitle}" shared with ${result.added} person.`
+                  : `"${presTitle}" shared with ${result.added} people.`;
+                window.showActionMessage('success', message);
+              } else {
+                window.showActionMessage('success', `"${presTitle}" shared successfully.`);
+              }
+            }
+          } catch (error) {
+            console.error('Share error:', error);
+            const errorMsg = error.message || 'Failed to share presentation. Please try again.';
+            if (window.showActionMessage) {
+              window.showActionMessage('warning', errorMsg);
+            }
+          } finally {
+            // Re-enable submit button
+            if (shareSubmit) {
+              shareSubmit.disabled = false;
+              shareSubmit.innerHTML = `
+                <span class="inline-flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                    <polyline points="16 6 12 2 8 6"></polyline>
+                    <line x1="12" y1="2" x2="12" y2="15"></line>
+                  </svg>
+                  Share
+                </span>
+              `;
+            }
+          }
+        });
+
+        // Make openShareModal available globally
+        window.openShareModal = openShareModal;
+        
+        // Debug: confirm modal is ready
+        console.log('Share modal initialized', {
+          shareModal: !!shareModal,
+          shareTitle: !!shareTitle,
+          shareEmailsInput: !!shareEmailsInput,
+          openShareModal: typeof openShareModal
+        });
       })()
     </script>
     <script type="module">
@@ -865,7 +910,24 @@
       const clearList = () => {
         if (!presentationsListEl) return;
         presentationsListEl.innerHTML = '';
+        updateSelectedCount();
       };
+
+      // Function to update selected count
+      function updateSelectedCount() {
+        const checkboxes = document.querySelectorAll('.presentation-checkbox:checked');
+        const count = checkboxes.length;
+        const selectedCountEl = document.getElementById('selectedCount');
+        const deleteSelectedBtn = document.getElementById('deleteSelectedPresentationsBtn');
+        
+        if (selectedCountEl) {
+          selectedCountEl.textContent = count;
+        }
+        
+        if (deleteSelectedBtn) {
+          deleteSelectedBtn.disabled = count === 0;
+        }
+      }
 
       const createPresentationCard = (docId, data) => {
         const title = (data?.title || '').trim() || 'Untitled presentation';
@@ -875,7 +937,16 @@
         const slideLabel = slideCount === 1 ? 'slide' : 'slides';
 
         const card = document.createElement('div');
-        card.className = 'group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:border-emerald-400 hover:shadow-md';
+        card.className = 'group relative flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:border-emerald-400 hover:shadow-md';
+        card.dataset.presentationId = docId;
+
+        // Checkbox for selection
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'presentation-checkbox absolute top-4 right-4 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-2 focus:ring-emerald-500 cursor-pointer';
+        checkbox.dataset.presentationId = docId;
+        checkbox.addEventListener('change', updateSelectedCount);
+        card.appendChild(checkbox);
 
         const header = document.createElement('div');
         header.className = 'flex flex-col gap-2';
@@ -920,11 +991,179 @@
           e.preventDefault();
           e.stopPropagation();
           
+          console.log('Share button clicked', { docId, title, hasOpenShareModal: !!window.openShareModal });
+          
+          // Try to use openShareModal if available
           if (window.openShareModal) {
+            console.log('Using openShareModal');
             window.openShareModal(docId, title);
+            return;
           }
+          
+          // Fallback: open modal directly
+          console.log('Using fallback to open modal directly');
+          const shareModalEl = document.querySelector('[data-share-modal]');
+          const shareTitleEl = document.querySelector('[data-share-title]');
+          const shareEmailsInputEl = document.getElementById('shareEmailsInput');
+          const shareCloseEl = document.querySelector('[data-share-close]');
+          const shareCancelEl = document.querySelector('[data-share-cancel]');
+          const shareSubmitEl = document.querySelector('[data-share-submit]');
+          
+          if (!shareModalEl || !shareTitleEl || !shareEmailsInputEl) {
+            console.error('Modal elements not found', { shareModalEl: !!shareModalEl, shareTitleEl: !!shareTitleEl, shareEmailsInputEl: !!shareEmailsInputEl });
+            alert('Share feature is not ready. Please refresh the page.');
+            return;
+          }
+          
+          // Store presentation info
+          window.currentSharePresentationId = docId;
+          window.currentSharePresentationTitle = title;
+          
+          // Open modal
+          shareTitleEl.textContent = `Share "${title}"`;
+          shareEmailsInputEl.value = '';
+          shareModalEl.classList.remove('hidden');
+          shareModalEl.classList.add('flex');
+          
+          // Add event listeners for fallback (only if not already added)
+          if (!shareModalEl.dataset.fallbackInitialized) {
+            shareModalEl.dataset.fallbackInitialized = 'true';
+            
+            // Close handlers
+            const closeHandler = () => {
+              shareModalEl.classList.add('hidden');
+              shareModalEl.classList.remove('flex');
+              window.currentSharePresentationId = null;
+              window.currentSharePresentationTitle = null;
+            };
+            
+            if (shareCloseEl) {
+              shareCloseEl.onclick = closeHandler;
+            }
+            if (shareCancelEl) {
+              shareCancelEl.onclick = closeHandler;
+            }
+            
+            // Close on outside click
+            shareModalEl.onclick = (e) => {
+              if (e.target === shareModalEl) {
+                closeHandler();
+              }
+            };
+            
+            // Submit handler
+            if (shareSubmitEl && !shareSubmitEl.dataset.fallbackHandler) {
+              shareSubmitEl.dataset.fallbackHandler = 'true';
+              shareSubmitEl.addEventListener('click', async () => {
+                const emailsText = shareEmailsInputEl.value.trim();
+                if (!emailsText) {
+                  alert('Please enter at least one email address.');
+                  return;
+                }
+                
+                const emails = window.parseEmails ? window.parseEmails(emailsText) : emailsText.split(/[,\n]/).map(e => e.trim().toLowerCase()).filter(e => e.includes('@'));
+                if (emails.length === 0) {
+                  alert('Please enter valid email addresses.');
+                  return;
+                }
+                
+                if (window.sharePresentation) {
+                  try {
+                    shareSubmitEl.disabled = true;
+                    shareSubmitEl.textContent = 'Sharing...';
+                    
+                    const result = await window.sharePresentation(window.currentSharePresentationId, emails);
+                    closeHandler();
+                    
+                    if (window.showActionMessage) {
+                      const message = result && typeof result === 'object' && result.added
+                        ? `"${window.currentSharePresentationTitle}" shared with ${result.added} ${result.added === 1 ? 'person' : 'people'}.`
+                        : `"${window.currentSharePresentationTitle}" shared successfully.`;
+                      window.showActionMessage('success', message);
+                    } else {
+                      alert(`"${window.currentSharePresentationTitle}" shared successfully.`);
+                    }
+                  } catch (error) {
+                    console.error('Share error:', error);
+                    alert(error.message || 'Failed to share presentation. Please try again.');
+                  } finally {
+                    shareSubmitEl.disabled = false;
+                    shareSubmitEl.innerHTML = `
+                      <span class="inline-flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                          <polyline points="16 6 12 2 8 6"></polyline>
+                          <line x1="12" y1="2" x2="12" y2="15"></line>
+                        </svg>
+                        Share
+                      </span>
+                    `;
+                  }
+                } else {
+                  alert('Share function is not available. Please refresh the page.');
+                }
+              });
+            }
+          }
+          
+          shareEmailsInputEl.focus();
         });
         footer.appendChild(shareBtn);
+
+        const duplicateBtn = document.createElement('button');
+        duplicateBtn.className = 'inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-sky-400 hover:bg-sky-50 hover:text-sky-700';
+        duplicateBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          Duplicate
+        `;
+        duplicateBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          if (!window.duplicatePresentation) {
+            alert('Duplicate function is not available. Please refresh the page.');
+            return;
+          }
+
+          try {
+            duplicateBtn.disabled = true;
+            duplicateBtn.innerHTML = `
+              <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Duplicating...
+            `;
+
+            await window.duplicatePresentation(docId);
+            
+            if (window.showActionMessage) {
+              window.showActionMessage('success', `"${title}" duplicated successfully.`);
+            } else {
+              alert(`"${title}" duplicated successfully.`);
+            }
+          } catch (error) {
+            console.error('Duplicate error:', error);
+            if (window.showActionMessage) {
+              window.showActionMessage('warning', error.message || 'Failed to duplicate presentation. Please try again.');
+            } else {
+              alert(error.message || 'Failed to duplicate presentation. Please try again.');
+            }
+          } finally {
+            duplicateBtn.disabled = false;
+            duplicateBtn.innerHTML = `
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              Duplicate
+            `;
+          }
+        });
+        footer.appendChild(duplicateBtn);
 
         card.appendChild(header);
         card.appendChild(footer);
@@ -1009,6 +1248,149 @@
           unsubscribe();
         }
       });
+
+      // Delete all presentations button
+      const deleteAllBtn = document.getElementById('deleteAllPresentationsBtn');
+      deleteAllBtn?.addEventListener('click', async () => {
+        const count = presentationsListEl?.children.length || 0;
+        if (count === 0) {
+          if (window.showActionMessage) {
+            window.showActionMessage('info', 'No presentations to delete.');
+          } else {
+            alert('No presentations to delete.');
+          }
+          return;
+        }
+
+        const confirmed = window.confirm(`Are you sure you want to delete all ${count} presentation${count === 1 ? '' : 's'}? This action cannot be undone.`);
+        if (!confirmed) {
+          return;
+        }
+
+        try {
+          if (deleteAllBtn) {
+            deleteAllBtn.disabled = true;
+            deleteAllBtn.innerHTML = `
+              <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Deleting...
+            `;
+          }
+
+          const deletedCount = await window.deleteAllPresentations();
+          
+          if (window.showActionMessage) {
+            window.showActionMessage('success', `Successfully deleted ${deletedCount} presentation${deletedCount === 1 ? '' : 's'}.`);
+          } else {
+            alert(`Successfully deleted ${deletedCount} presentation${deletedCount === 1 ? '' : 's'}.`);
+          }
+        } catch (error) {
+          console.error('Delete error:', error);
+          if (window.showActionMessage) {
+            window.showActionMessage('warning', error.message || 'Failed to delete presentations. Please try again.');
+          } else {
+            alert(error.message || 'Failed to delete presentations. Please try again.');
+          }
+        } finally {
+          if (deleteAllBtn) {
+            deleteAllBtn.disabled = false;
+            deleteAllBtn.innerHTML = `
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18"></path>
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+              </svg>
+              Delete All
+            `;
+          }
+        }
+      });
+
+      // Select All button
+      const selectAllBtn = document.getElementById('selectAllPresentationsBtn');
+      let allSelected = false;
+      selectAllBtn?.addEventListener('click', () => {
+        const checkboxes = document.querySelectorAll('.presentation-checkbox');
+        allSelected = !allSelected;
+        
+        checkboxes.forEach(checkbox => {
+          checkbox.checked = allSelected;
+        });
+        
+        updateSelectedCount();
+        selectAllBtn.textContent = allSelected ? 'Deselect All' : 'Select All';
+      });
+
+      // Delete Selected button
+      const deleteSelectedBtn = document.getElementById('deleteSelectedPresentationsBtn');
+      deleteSelectedBtn?.addEventListener('click', async () => {
+        const checkboxes = document.querySelectorAll('.presentation-checkbox:checked');
+        const selectedIds = Array.from(checkboxes).map(cb => cb.dataset.presentationId);
+        
+        if (selectedIds.length === 0) {
+          if (window.showActionMessage) {
+            window.showActionMessage('info', 'No presentations selected.');
+          }
+          return;
+        }
+
+        const confirmed = window.confirm(`Are you sure you want to delete ${selectedIds.length} selected presentation${selectedIds.length === 1 ? '' : 's'}? This action cannot be undone.`);
+        if (!confirmed) {
+          return;
+        }
+
+        try {
+          if (deleteSelectedBtn) {
+            deleteSelectedBtn.disabled = true;
+            deleteSelectedBtn.innerHTML = `
+              <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Deleting...
+            `;
+          }
+
+          const { doc, deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+          const deletePromises = selectedIds.map(id => 
+            deleteDoc(doc(window.firebaseDb, 'users', window.currentUserId, 'presentations', id))
+          );
+          
+          await Promise.all(deletePromises);
+          
+          if (window.showActionMessage) {
+            window.showActionMessage('success', `Successfully deleted ${selectedIds.length} presentation${selectedIds.length === 1 ? '' : 's'}.`);
+          } else {
+            alert(`Successfully deleted ${selectedIds.length} presentation${selectedIds.length === 1 ? '' : 's'}.`);
+          }
+          
+          allSelected = false;
+          if (selectAllBtn) {
+            selectAllBtn.textContent = 'Select All';
+          }
+        } catch (error) {
+          console.error('Delete error:', error);
+          if (window.showActionMessage) {
+            window.showActionMessage('warning', error.message || 'Failed to delete presentations. Please try again.');
+          } else {
+            alert(error.message || 'Failed to delete presentations. Please try again.');
+          }
+        } finally {
+          if (deleteSelectedBtn) {
+            deleteSelectedBtn.disabled = true;
+            deleteSelectedBtn.innerHTML = `
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18"></path>
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+              </svg>
+              Delete Selected (<span id="selectedCount">0</span>)
+            `;
+          }
+        }
+      });
     </script>
     <script type="module">
       import { collection, query, where, orderBy, limit, onSnapshot, doc, getDoc, updateDoc, arrayUnion, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
@@ -1075,8 +1457,60 @@
       }
 
       // Make functions available globally
+      // Function to delete all presentations
+      async function deleteAllPresentations() {
+        if (!window.currentUserId || !window.firebaseDb) {
+          throw new Error('User not authenticated');
+        }
+
+        const { collection, getDocs, doc, deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        const presentationsRef = collection(window.firebaseDb, 'users', window.currentUserId, 'presentations');
+        const snapshot = await getDocs(presentationsRef);
+        
+        const deletePromises = [];
+        snapshot.forEach((docSnap) => {
+          deletePromises.push(deleteDoc(doc(window.firebaseDb, 'users', window.currentUserId, 'presentations', docSnap.id)));
+        });
+        
+        await Promise.all(deletePromises);
+        return snapshot.size;
+      }
+
+      // Function to duplicate a presentation
+      async function duplicatePresentation(presentationId) {
+        if (!window.currentUserId || !window.firebaseDb) {
+          throw new Error('User not authenticated');
+        }
+
+        const presentationRef = doc(window.firebaseDb, 'users', window.currentUserId, 'presentations', presentationId);
+        const presentationSnap = await getDoc(presentationRef);
+
+        if (!presentationSnap.exists()) {
+          throw new Error('Presentation not found');
+        }
+
+        const originalData = presentationSnap.data();
+        const { collection, addDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        
+        // Create new presentation with copied data
+        const newPresentationData = {
+          title: (originalData.title || 'Untitled presentation') + ' (Copy)',
+          slides: originalData.slides || [],
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          sharedWith: [] // Don't copy sharedWith
+        };
+
+        const presentationsRef = collection(window.firebaseDb, 'users', window.currentUserId, 'presentations');
+        await addDoc(presentationsRef, newPresentationData);
+
+        return true;
+      }
+
       window.sharePresentation = sharePresentation;
       window.parseEmails = parseEmails;
+      window.duplicatePresentation = duplicatePresentation;
+      window.deleteAllPresentations = deleteAllPresentations;
 
       // Load and display shared presentations
       const sharedPresentationsListEl = document.querySelector('[data-shared-presentations-list]');
@@ -1119,7 +1553,16 @@
         const slideLabel = slideCount === 1 ? 'slide' : 'slides';
 
         const card = document.createElement('div');
-        card.className = 'group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:border-emerald-400 hover:shadow-md';
+        card.className = 'group relative flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:border-emerald-400 hover:shadow-md';
+        card.dataset.presentationId = docId;
+
+        // Checkbox for selection
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'presentation-checkbox absolute top-4 right-4 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-2 focus:ring-emerald-500 cursor-pointer z-10';
+        checkbox.dataset.presentationId = docId;
+        checkbox.addEventListener('change', updateSelectedCount);
+        card.appendChild(checkbox);
 
         const header = document.createElement('div');
         header.className = 'flex flex-col gap-2';
