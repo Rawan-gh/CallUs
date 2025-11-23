@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Choose a Template - Presentation Maker</title>
+    <title>اختر قالب - صانع العروض التقديمية</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Firebase SDK -->
     <script type="module">
@@ -90,7 +90,7 @@
               <div class="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/10 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-500/40" data-user-initials>RA</div>
               <div>
                 <p class="text-sm font-semibold uppercase tracking-wide text-slate-900" data-user-name>Renad Alm.</p>
-                <p class="text-xs text-slate-400">Workspace</p>
+                <p class="text-xs text-slate-400">مساحة العمل</p>
               </div>
             </div>
           </div>
@@ -101,7 +101,7 @@
               </svg>
               Home
             </a>
-            <a href="editor-new.html" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-700" data-nav-link="new">
+            <a href="editor-blank.html" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-700" data-nav-link="new">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
               </svg>
@@ -304,18 +304,17 @@
             <div>
               <h2 class="text-2xl font-semibold text-slate-900">Shared with you</h2>
               <p class="mt-1 text-sm text-slate-600">
-                PowerPoint-ready decks inspired by Canva layouts—polished, on-brand, and presentation room ready.
+                Presentations shared with you by your team members. You can view and edit them collaboratively.
               </p>
             </div>
-            <a
-              href="#"
-              class="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
-            >
-              View all decks
-            </a>
           </div>
 
-          <div class="mt-6 rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
+          <div class="mt-6 flex items-center gap-2 text-sm text-slate-500 hidden" data-shared-presentations-loading>
+            <span class="inline-flex h-2 w-2 animate-pulse rounded-full bg-emerald-500"></span>
+            Loading shared presentations...
+          </div>
+          <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 hidden" data-shared-presentations-list></div>
+          <div class="mt-6 rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500" data-shared-presentations-empty>
             Shared presentations will appear here once someone invites you to collaborate.
           </div>
         </section>
@@ -378,6 +377,62 @@
     </main>
       </div>
     </div>
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm" data-share-modal>
+      <div class="relative mx-4 w-full max-w-md rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200">
+        <div class="absolute -top-24 -right-16 h-56 w-56 rounded-full bg-gradient-to-br from-emerald-200/60 via-teal-100/50 to-sky-200/30 blur-3xl"></div>
+        <div class="relative p-6">
+          <div class="mb-4 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-slate-900" data-share-title>Share presentation</h3>
+            <button class="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600" data-share-close>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+          
+          <p class="mb-4 text-sm text-slate-600">
+            Enter email addresses separated by commas or one per line. Everyone will be able to view and edit this presentation.
+          </p>
+          
+          <div class="mb-4">
+            <label class="mb-2 block text-sm font-medium text-slate-700">Email addresses</label>
+            <textarea
+              id="shareEmailsInput"
+              rows="4"
+              class="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 shadow-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              placeholder="user1@example.com, user2@example.com&#10;user3@example.com"
+            ></textarea>
+            <p class="mt-1.5 text-xs text-slate-500">You can add multiple emails separated by commas or new lines</p>
+          </div>
+          
+          <div class="flex items-center gap-3">
+            <button
+              class="flex-1 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+              data-share-cancel
+            >
+              Cancel
+            </button>
+            <button
+              class="flex-1 rounded-lg bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
+              data-share-submit
+            >
+              <span class="inline-flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                  <polyline points="16 6 12 2 8 6"></polyline>
+                  <line x1="12" y1="2" x2="12" y2="15"></line>
+                </svg>
+                Share
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
       ;(() => {
         const storedName = localStorage.getItem('pm-user-name')
@@ -492,6 +547,9 @@
           actionIndicator.className = `h-2 w-2 rounded-full ${variant.indicator}`
         }
 
+        // Make showActionMessage available globally
+        window.showActionMessage = showActionMessage
+
         quickActionsRoot?.querySelectorAll('[data-action]').forEach((button) => {
           button.addEventListener('click', () => {
             const action = button.dataset.action
@@ -502,12 +560,7 @@
             }
 
             if (action === 'share') {
-              const recipient = window.prompt('Who would you like to share with? Enter an email address:')
-              if (recipient && recipient.trim().length) {
-                showActionMessage('success', `Invitation sent to ${recipient.trim()}.`)
-              } else {
-                showActionMessage('warning', 'Share cancelled—no email address provided.')
-              }
+              showActionMessage('info', 'Use the Share button on any presentation card to share it with others.')
               return
             }
 
@@ -615,6 +668,144 @@
         })
 
         activateNav('recent')
+
+        // Share Modal functionality
+        const shareModal = document.querySelector('[data-share-modal]');
+        const shareTitle = document.querySelector('[data-share-title]');
+        const shareEmailsInput = document.getElementById('shareEmailsInput');
+        const shareClose = document.querySelector('[data-share-close]');
+        const shareCancel = document.querySelector('[data-share-cancel]');
+        const shareSubmit = document.querySelector('[data-share-submit]');
+        
+        let currentSharePresentationId = null;
+        let currentSharePresentationTitle = null;
+
+        function openShareModal(presentationId, presentationTitle) {
+          if (!window.sharePresentation) {
+            if (window.showActionMessage) {
+              window.showActionMessage('warning', 'Share function not available. Please refresh the page.');
+            }
+            return;
+          }
+
+          currentSharePresentationId = presentationId;
+          currentSharePresentationTitle = presentationTitle;
+          
+          if (shareTitle) {
+            shareTitle.textContent = `Share "${presentationTitle}"`;
+          }
+          
+          if (shareEmailsInput) {
+            shareEmailsInput.value = '';
+            shareEmailsInput.focus();
+          }
+          
+          if (shareModal) {
+            shareModal.classList.remove('hidden');
+            shareModal.classList.add('flex');
+          }
+        }
+
+        function closeShareModal() {
+          if (shareModal) {
+            shareModal.classList.add('hidden');
+            shareModal.classList.remove('flex');
+          }
+          currentSharePresentationId = null;
+          currentSharePresentationTitle = null;
+          if (shareEmailsInput) {
+            shareEmailsInput.value = '';
+          }
+        }
+
+        shareClose?.addEventListener('click', closeShareModal);
+        shareCancel?.addEventListener('click', closeShareModal);
+
+        // Close modal when clicking outside
+        shareModal?.addEventListener('click', (e) => {
+          if (e.target === shareModal) {
+            closeShareModal();
+          }
+        });
+
+        // Handle share submission
+        shareSubmit?.addEventListener('click', async () => {
+          if (!currentSharePresentationId || !shareEmailsInput) {
+            return;
+          }
+
+          const emailsText = shareEmailsInput.value.trim();
+          if (!emailsText) {
+            if (window.showActionMessage) {
+              window.showActionMessage('warning', 'Please enter at least one email address.');
+            }
+            return;
+          }
+
+          const emails = window.parseEmails ? window.parseEmails(emailsText) : [];
+          if (emails.length === 0) {
+            if (window.showActionMessage) {
+              window.showActionMessage('warning', 'Please enter valid email addresses.');
+            }
+            return;
+          }
+
+          // Disable submit button during processing
+          if (shareSubmit) {
+            shareSubmit.disabled = true;
+            shareSubmit.innerHTML = `
+              <span class="inline-flex items-center gap-2">
+                <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Sharing...
+              </span>
+            `;
+          }
+
+          try {
+            // Support both old single email and new multiple emails
+            const result = await window.sharePresentation(currentSharePresentationId, emails);
+            
+            closeShareModal();
+            
+            if (window.showActionMessage) {
+              if (result && typeof result === 'object' && result.added) {
+                const message = result.added === 1
+                  ? `"${currentSharePresentationTitle}" shared with ${result.added} person.`
+                  : `"${currentSharePresentationTitle}" shared with ${result.added} people.`;
+                window.showActionMessage('success', message);
+              } else {
+                window.showActionMessage('success', `"${currentSharePresentationTitle}" shared successfully.`);
+              }
+            }
+          } catch (error) {
+            console.error('Share error:', error);
+            const errorMsg = error.message || 'Failed to share presentation. Please try again.';
+            if (window.showActionMessage) {
+              window.showActionMessage('warning', errorMsg);
+            }
+          } finally {
+            // Re-enable submit button
+            if (shareSubmit) {
+              shareSubmit.disabled = false;
+              shareSubmit.innerHTML = `
+                <span class="inline-flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                    <polyline points="16 6 12 2 8 6"></polyline>
+                    <line x1="12" y1="2" x2="12" y2="15"></line>
+                  </svg>
+                  Share
+                </span>
+              `;
+            }
+          }
+        });
+
+        // Make openShareModal available globally
+        window.openShareModal = openShareModal;
       })()
     </script>
     <script type="module">
@@ -691,11 +882,32 @@
 
         const footer = document.createElement('div');
         footer.className = 'mt-4 flex items-center justify-between gap-3';
+        
         const openBtn = document.createElement('a');
         openBtn.href = `editor.html?presentationId=${encodeURIComponent(docId)}`;
         openBtn.className = 'inline-flex items-center rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400';
         openBtn.textContent = 'Open deck';
         footer.appendChild(openBtn);
+
+        const shareBtn = document.createElement('button');
+        shareBtn.className = 'inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-700';
+        shareBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+            <polyline points="16 6 12 2 8 6"></polyline>
+            <line x1="12" y1="2" x2="12" y2="15"></line>
+          </svg>
+          Share
+        `;
+        shareBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          if (window.openShareModal) {
+            window.openShareModal(docId, title);
+          }
+        });
+        footer.appendChild(shareBtn);
 
         card.appendChild(header);
         card.appendChild(footer);
@@ -778,6 +990,255 @@
       window.addEventListener('beforeunload', () => {
         if (unsubscribe) {
           unsubscribe();
+        }
+      });
+    </script>
+    <script type="module">
+      import { collection, query, where, orderBy, limit, onSnapshot, doc, getDoc, updateDoc, arrayUnion, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+      // Function to parse emails from text (supports comma and newline separated)
+      function parseEmails(text) {
+        if (!text || !text.trim()) return [];
+        return text
+          .split(/[,\n]/)
+          .map(email => email.trim().toLowerCase())
+          .filter(email => email.length > 0 && email.includes('@'));
+      }
+
+      // Function to share a presentation with multiple emails
+      async function sharePresentation(presentationId, emails) {
+        if (!window.currentUserId || !window.firebaseDb) {
+          throw new Error('User not authenticated');
+        }
+
+        // Support both single email string and array of emails
+        const emailList = Array.isArray(emails) ? emails : [emails];
+        const emailLowers = emailList.map(e => e.toLowerCase().trim()).filter(e => e.includes('@'));
+
+        if (emailLowers.length === 0) {
+          throw new Error('No valid email addresses provided');
+        }
+
+        const presentationRef = doc(window.firebaseDb, 'users', window.currentUserId, 'presentations', presentationId);
+        const presentationSnap = await getDoc(presentationRef);
+
+        if (!presentationSnap.exists()) {
+          throw new Error('Presentation not found');
+        }
+
+        const currentData = presentationSnap.data();
+        const sharedWith = currentData.sharedWith || [];
+        
+        // Filter out emails that are already shared
+        const newEmails = emailLowers.filter(e => !sharedWith.includes(e));
+        
+        if (newEmails.length === 0) {
+          throw new Error('All emails are already shared with this presentation');
+        }
+
+        await updateDoc(presentationRef, {
+          sharedWith: arrayUnion(...newEmails),
+          updatedAt: new Date()
+        });
+
+        return {
+          success: true,
+          added: newEmails.length,
+          alreadyShared: emailLowers.length - newEmails.length
+        };
+      }
+
+      // Make functions available globally
+      window.sharePresentation = sharePresentation;
+      window.parseEmails = parseEmails;
+
+      // Load and display shared presentations
+      const sharedPresentationsListEl = document.querySelector('[data-shared-presentations-list]');
+      const sharedEmptyStateEl = document.querySelector('[data-shared-presentations-empty]');
+      const sharedLoadingStateEl = document.querySelector('[data-shared-presentations-loading]');
+
+      let sharedUnsubscribe = null;
+      let sharedSubscriptionEmail = null;
+
+      const toDate = (value) => {
+        if (!value) return null;
+        if (value.toDate) return value.toDate();
+        if (value instanceof Date) return value;
+        return null;
+      };
+
+      const formatRelativeTime = (date) => {
+        if (!date) return 'Just now';
+        const diffMs = Date.now() - date.getTime();
+        const diffMinutes = Math.max(0, Math.round(diffMs / 60000));
+        if (diffMinutes < 1) return 'Just now';
+        if (diffMinutes < 60) return `${diffMinutes} min${diffMinutes === 1 ? '' : 's'} ago`;
+        const diffHours = Math.round(diffMinutes / 60);
+        if (diffHours < 24) return `${diffHours} hr${diffHours === 1 ? '' : 's'} ago`;
+        const diffDays = Math.round(diffHours / 24);
+        if (diffDays < 7) return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
+        return date.toLocaleDateString();
+      };
+
+      const clearSharedList = () => {
+        if (!sharedPresentationsListEl) return;
+        sharedPresentationsListEl.innerHTML = '';
+      };
+
+      const createSharedPresentationCard = (docId, data, ownerId) => {
+        const title = (data?.title || '').trim() || 'Untitled presentation';
+        const updatedAt = toDate(data?.updatedAt) || toDate(data?.createdAt);
+        const updatedLabel = updatedAt ? formatRelativeTime(updatedAt) : 'Recently saved';
+        const slideCount = Array.isArray(data?.slides) ? data.slides.length : 0;
+        const slideLabel = slideCount === 1 ? 'slide' : 'slides';
+
+        const card = document.createElement('div');
+        card.className = 'group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:border-emerald-400 hover:shadow-md';
+
+        const header = document.createElement('div');
+        header.className = 'flex flex-col gap-2';
+        const titleEl = document.createElement('h3');
+        titleEl.className = 'font-semibold leading-tight text-slate-900';
+        titleEl.textContent = title;
+        header.appendChild(titleEl);
+
+        const metaEl = document.createElement('p');
+        metaEl.className = 'text-xs text-slate-500';
+        metaEl.textContent = `Updated ${updatedLabel}`;
+        header.appendChild(metaEl);
+
+        const pillRow = document.createElement('div');
+        pillRow.className = 'mt-2 flex flex-wrap items-center gap-2';
+        const slidesPill = document.createElement('span');
+        slidesPill.className = 'inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700';
+        slidesPill.textContent = `${slideCount} ${slideLabel}`;
+        pillRow.appendChild(slidesPill);
+        
+        const sharedPill = document.createElement('span');
+        sharedPill.className = 'inline-flex items-center gap-1 rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700';
+        sharedPill.textContent = 'Shared';
+        pillRow.appendChild(sharedPill);
+        header.appendChild(pillRow);
+
+        const footer = document.createElement('div');
+        footer.className = 'mt-4 flex items-center justify-between gap-3';
+        const openBtn = document.createElement('a');
+        openBtn.href = `editor-ai.html?presentationId=${encodeURIComponent(docId)}&ownerId=${encodeURIComponent(ownerId)}`;
+        openBtn.className = 'inline-flex items-center rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400';
+        openBtn.textContent = 'Open deck';
+        footer.appendChild(openBtn);
+
+        card.appendChild(header);
+        card.appendChild(footer);
+        return card;
+      };
+
+      const renderSharedSnapshot = (presentations) => {
+        if (!sharedPresentationsListEl || !sharedEmptyStateEl) {
+          return;
+        }
+
+        clearSharedList();
+
+        if (!presentations || presentations.length === 0) {
+          sharedPresentationsListEl.classList.add('hidden');
+          sharedEmptyStateEl.classList.remove('hidden');
+          return;
+        }
+
+        sharedEmptyStateEl.classList.add('hidden');
+        sharedPresentationsListEl.classList.remove('hidden');
+
+        presentations.forEach(({ docId, data, ownerId }) => {
+          const card = createSharedPresentationCard(docId, data, ownerId);
+          sharedPresentationsListEl.appendChild(card);
+        });
+      };
+
+      const ensureSharedSubscription = async (userEmail) => {
+        if (!userEmail || sharedSubscriptionEmail === userEmail) {
+          return;
+        }
+        if (!window.firebaseDb) {
+          return;
+        }
+
+        if (sharedUnsubscribe) {
+          sharedUnsubscribe();
+          sharedUnsubscribe = null;
+        }
+
+        sharedSubscriptionEmail = userEmail.toLowerCase().trim();
+        sharedLoadingStateEl?.classList.remove('hidden');
+        sharedPresentationsListEl?.classList.add('hidden');
+        sharedEmptyStateEl?.classList.add('hidden');
+
+        try {
+          // Query all users' presentations where sharedWith contains the current user's email
+          const usersRef = collection(window.firebaseDb, 'users');
+          const usersSnapshot = await getDocs(usersRef);
+          
+          const sharedPresentations = [];
+          
+          for (const userDoc of usersSnapshot.docs) {
+            const userId = userDoc.id;
+            if (userId === window.currentUserId) continue; // Skip own presentations
+            
+            const presentationsRef = collection(window.firebaseDb, 'users', userId, 'presentations');
+            const presentationsSnapshot = await getDocs(presentationsRef);
+            
+          presentationsSnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            const sharedWith = data.sharedWith || [];
+            if (sharedWith.includes(sharedSubscriptionEmail)) {
+              sharedPresentations.push({
+                docId: docSnap.id,
+                data: data,
+                ownerId: userId
+              });
+            }
+          });
+          }
+
+          // Sort by updatedAt
+          sharedPresentations.sort((a, b) => {
+            const dateA = toDate(a.data.updatedAt) || toDate(a.data.createdAt) || new Date(0);
+            const dateB = toDate(b.data.updatedAt) || toDate(b.data.createdAt) || new Date(0);
+            return dateB.getTime() - dateA.getTime();
+          });
+
+          sharedLoadingStateEl?.classList.add('hidden');
+          renderSharedSnapshot(sharedPresentations);
+        } catch (error) {
+          console.error('Failed to load shared presentations:', error);
+          sharedLoadingStateEl?.classList.add('hidden');
+          if (sharedEmptyStateEl) {
+            sharedEmptyStateEl.classList.remove('hidden');
+            sharedEmptyStateEl.textContent = 'We could not load shared presentations right now. Please try again.';
+          }
+        }
+      };
+
+      window.addEventListener('pm-user-ready', async (event) => {
+        const userId = event?.detail?.userId;
+        if (userId) {
+          const userEmail = localStorage.getItem('pm-user-email');
+          if (userEmail) {
+            await ensureSharedSubscription(userEmail);
+          }
+        }
+      });
+
+      if (window.currentUserId) {
+        const userEmail = localStorage.getItem('pm-user-email');
+        if (userEmail) {
+          ensureSharedSubscription(userEmail);
+        }
+      }
+
+      window.addEventListener('beforeunload', () => {
+        if (sharedUnsubscribe) {
+          sharedUnsubscribe();
         }
       });
     </script>
