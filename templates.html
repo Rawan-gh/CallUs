@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>اختر قالب - صانع العروض التقديمية</title>
+    <title>Choose a Template - Presentation Maker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Firebase SDK -->
     <script type="module">
@@ -90,7 +90,7 @@
               <div class="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/10 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-500/40" data-user-initials>RA</div>
               <div>
                 <p class="text-sm font-semibold uppercase tracking-wide text-slate-900" data-user-name>Renad Alm.</p>
-                <p class="text-xs text-slate-400">مساحة العمل</p>
+                <p class="text-xs text-slate-400">Workspace</p>
               </div>
             </div>
           </div>
@@ -668,144 +668,6 @@
         })
 
         activateNav('recent')
-
-        // Share Modal functionality
-        const shareModal = document.querySelector('[data-share-modal]');
-        const shareTitle = document.querySelector('[data-share-title]');
-        const shareEmailsInput = document.getElementById('shareEmailsInput');
-        const shareClose = document.querySelector('[data-share-close]');
-        const shareCancel = document.querySelector('[data-share-cancel]');
-        const shareSubmit = document.querySelector('[data-share-submit]');
-        
-        let currentSharePresentationId = null;
-        let currentSharePresentationTitle = null;
-
-        function openShareModal(presentationId, presentationTitle) {
-          if (!window.sharePresentation) {
-            if (window.showActionMessage) {
-              window.showActionMessage('warning', 'Share function not available. Please refresh the page.');
-            }
-            return;
-          }
-
-          currentSharePresentationId = presentationId;
-          currentSharePresentationTitle = presentationTitle;
-          
-          if (shareTitle) {
-            shareTitle.textContent = `Share "${presentationTitle}"`;
-          }
-          
-          if (shareEmailsInput) {
-            shareEmailsInput.value = '';
-            shareEmailsInput.focus();
-          }
-          
-          if (shareModal) {
-            shareModal.classList.remove('hidden');
-            shareModal.classList.add('flex');
-          }
-        }
-
-        function closeShareModal() {
-          if (shareModal) {
-            shareModal.classList.add('hidden');
-            shareModal.classList.remove('flex');
-          }
-          currentSharePresentationId = null;
-          currentSharePresentationTitle = null;
-          if (shareEmailsInput) {
-            shareEmailsInput.value = '';
-          }
-        }
-
-        shareClose?.addEventListener('click', closeShareModal);
-        shareCancel?.addEventListener('click', closeShareModal);
-
-        // Close modal when clicking outside
-        shareModal?.addEventListener('click', (e) => {
-          if (e.target === shareModal) {
-            closeShareModal();
-          }
-        });
-
-        // Handle share submission
-        shareSubmit?.addEventListener('click', async () => {
-          if (!currentSharePresentationId || !shareEmailsInput) {
-            return;
-          }
-
-          const emailsText = shareEmailsInput.value.trim();
-          if (!emailsText) {
-            if (window.showActionMessage) {
-              window.showActionMessage('warning', 'Please enter at least one email address.');
-            }
-            return;
-          }
-
-          const emails = window.parseEmails ? window.parseEmails(emailsText) : [];
-          if (emails.length === 0) {
-            if (window.showActionMessage) {
-              window.showActionMessage('warning', 'Please enter valid email addresses.');
-            }
-            return;
-          }
-
-          // Disable submit button during processing
-          if (shareSubmit) {
-            shareSubmit.disabled = true;
-            shareSubmit.innerHTML = `
-              <span class="inline-flex items-center gap-2">
-                <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Sharing...
-              </span>
-            `;
-          }
-
-          try {
-            // Support both old single email and new multiple emails
-            const result = await window.sharePresentation(currentSharePresentationId, emails);
-            
-            closeShareModal();
-            
-            if (window.showActionMessage) {
-              if (result && typeof result === 'object' && result.added) {
-                const message = result.added === 1
-                  ? `"${currentSharePresentationTitle}" shared with ${result.added} person.`
-                  : `"${currentSharePresentationTitle}" shared with ${result.added} people.`;
-                window.showActionMessage('success', message);
-              } else {
-                window.showActionMessage('success', `"${currentSharePresentationTitle}" shared successfully.`);
-              }
-            }
-          } catch (error) {
-            console.error('Share error:', error);
-            const errorMsg = error.message || 'Failed to share presentation. Please try again.';
-            if (window.showActionMessage) {
-              window.showActionMessage('warning', errorMsg);
-            }
-          } finally {
-            // Re-enable submit button
-            if (shareSubmit) {
-              shareSubmit.disabled = false;
-              shareSubmit.innerHTML = `
-                <span class="inline-flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                    <polyline points="16 6 12 2 8 6"></polyline>
-                    <line x1="12" y1="2" x2="12" y2="15"></line>
-                  </svg>
-                  Share
-                </span>
-              `;
-            }
-          }
-        });
-
-        // Make openShareModal available globally
-        window.openShareModal = openShareModal;
       })()
     </script>
     <script type="module">
@@ -1046,6 +908,15 @@
           added: newEmails.length,
           alreadyShared: emailLowers.length - newEmails.length
         };
+      }
+
+      // Function to parse emails from text (supports comma and newline separated)
+      function parseEmails(text) {
+        if (!text || !text.trim()) return [];
+        return text
+          .split(/[,\n]/)
+          .map(email => email.trim().toLowerCase())
+          .filter(email => email.length > 0 && email.includes('@'));
       }
 
       // Make functions available globally
