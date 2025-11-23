@@ -1,32 +1,32 @@
 <!DOCTYPE html>
 
 <html lang="en">
-<head>
+  <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Presentation Studio</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-<script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<!-- Firebase SDK -->
-<script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js'
-  import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js'
-  import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js'
-  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js'
+    <!-- Firebase SDK -->
+    <script type="module">
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js'
+      import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js'
+      import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js'
+      import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js'
 
-  const firebaseConfig = {
-    apiKey: 'AIzaSyDPzRqV-_hGNedZoeGNtorLTGWTBMmqdkc',
-    authDomain: 'prj-adc-gcp-coop-test.firebaseapp.com',
-    projectId: 'prj-adc-gcp-coop-test',
-    storageBucket: 'prj-adc-gcp-coop-test.firebasestorage.app',
-    messagingSenderId: '472242813268',
-    appId: '1:472242813268:web:4e7b4650015fd473d4f0c1',
-    measurementId: 'G-RGEPGD1T9T',
-  }
+      const firebaseConfig = {
+        apiKey: 'AIzaSyDPzRqV-_hGNedZoeGNtorLTGWTBMmqdkc',
+        authDomain: 'prj-adc-gcp-coop-test.firebaseapp.com',
+        projectId: 'prj-adc-gcp-coop-test',
+        storageBucket: 'prj-adc-gcp-coop-test.firebasestorage.app',
+        messagingSenderId: '472242813268',
+        appId: '1:472242813268:web:4e7b4650015fd473d4f0c1',
+        measurementId: 'G-RGEPGD1T9T',
+      }
 
   const firebaseApp = initializeApp(firebaseConfig)
   const analytics = getAnalytics(firebaseApp)
@@ -34,39 +34,39 @@
   const auth = getAuth(firebaseApp)
 
   window.firebaseApp = firebaseApp
-  window.firebaseAnalytics = analytics
-  window.firebaseDb = db
-  window.firebaseAuth = auth
+      window.firebaseAnalytics = analytics
+      window.firebaseDb = db
+      window.firebaseAuth = auth
 
-  const markLoggedOut = () => {
-    localStorage.removeItem('pm-logged-in')
-    localStorage.removeItem('pm-user-id')
-  }
+      const markLoggedOut = () => {
+        localStorage.removeItem('pm-logged-in')
+        localStorage.removeItem('pm-user-id')
+      }
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      window.currentUser = user
-      localStorage.setItem('pm-logged-in', 'true')
-      localStorage.setItem('pm-user-id', user.uid)
-      if (user.email) {
-        localStorage.setItem('pm-user-email', user.email)
-      }
-      if (user.displayName) {
-        localStorage.setItem('pm-user-name', user.displayName)
-      }
-      window.dispatchEvent(new CustomEvent('pm-user-ready', { detail: { user } }))
-    } else {
-      window.currentUser = null
-      markLoggedOut()
-      if (localStorage.getItem('pm-logged-in') !== 'true') {
-        window.location.replace('login.html')
-      }
-    }
-  })
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          window.currentUser = user
+          localStorage.setItem('pm-logged-in', 'true')
+          localStorage.setItem('pm-user-id', user.uid)
+          if (user.email) {
+            localStorage.setItem('pm-user-email', user.email)
+          }
+          if (user.displayName) {
+            localStorage.setItem('pm-user-name', user.displayName)
+          }
+          window.dispatchEvent(new CustomEvent('pm-user-ready', { detail: { user } }))
+        } else {
+          window.currentUser = null
+          markLoggedOut()
+          if (localStorage.getItem('pm-logged-in') !== 'true') {
+            window.location.replace('login.html')
+          }
+        }
+      })
 
-  console.log('Firebase initialized in editor with database: bettercallus')
-</script>
-<style>
+      console.log('Firebase initialized in editor with database: bettercallus')
+    </script>
+    <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
@@ -77,14 +77,14 @@
             position: relative;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.16), transparent 55%),
-              radial-gradient(circle at top right, rgba(56, 189, 248, 0.15), transparent 45%),
-              radial-gradient(circle at bottom, rgba(6, 95, 70, 0.15), transparent 60%);
-            z-index: -2;
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.16), transparent 55%),
+          radial-gradient(circle at top right, rgba(56, 189, 248, 0.15), transparent 45%),
+          radial-gradient(circle at bottom, rgba(6, 95, 70, 0.15), transparent 60%);
+        z-index: -2;
             pointer-events: none;
         }
 
@@ -372,7 +372,7 @@
             background: #10b981;
         }
 
-        .category-panel {
+      .category-panel {
             display: none;
             border-top: 1px solid rgba(226, 232, 240, 0.8);
             background: rgba(255, 255, 255, 0.98);
@@ -391,15 +391,15 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-4px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        from {
+          opacity: 0;
+          transform: translateY(-4px);
         }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
         .category-panel-content {
             display: flex;
@@ -1920,8 +1920,8 @@ input[type="color"]{
 
 /* =================== END =================== */
 
-</style>
-</head>
+    </style>
+  </head>
 <body>
 <div id="contextMenu" class="context-menu">
     <div class="context-menu-item" onclick="app.groupElements(); app.hideContextMenu();">Group</div>
@@ -1934,16 +1934,16 @@ input[type="color"]{
     <div class="context-menu-separator"></div>
     <div class="context-menu-item" onclick="app.copyStyle(); app.hideContextMenu();">Copy Style</div>
     <div class="context-menu-item" onclick="app.pasteStyle(); app.hideContextMenu();">Paste Style</div>
-</div>
+      </div>
 <div class="header">
 <div class="header-left">
 <a href="templates.html" class="templates-btn">← Templates</a>
 <div class="header-brand">
 <img src="assets/aramco-digital-logo.png" alt="Aramco Digital" />
 <span class="header-brand-text">Presentation Lab</span>
-</div>
+            </div>
 <input class="title-input" id="title" placeholder="Untitled Presentation" type="text"/>
-</div>
+          </div>
 <div class="header-right">
 <button class="header-btn grey-style" onclick="app.newPresentation()">New</button>
 <button class="header-btn grey-style" onclick="app.saveJSON()">Save</button>
@@ -1956,36 +1956,36 @@ input[type="color"]{
 <div class="dropdown-item" onclick="app.exportPDF()">Export as PDF</div>
 <div class="dropdown-item" onclick="app.exportImages()">Export as Images</div>
 <div class="dropdown-item" onclick="app.shareLink()">Share Link</div>
-</div>
-</div>
-</div>
-</div>
+            </div>
+            </div>
+              </div>
+            </div>
 <div class="toolbar">
 <div class="toolbar-nav">
 <nav style="flex: 1; display: flex; align-items: center; gap: 4px;">
 <button class="category-tab" data-category="design" onclick="app.showCategory('design')">
 <span class="dot"></span> Design
-            </button>
+              </button>
 <button class="category-tab" data-category="text" onclick="app.showCategory('text')">
 <span class="dot"></span> Text
-</button>
+              </button>
 <button class="category-tab" data-category="image" onclick="app.showCategory('image')">
 <span class="dot"></span> Image
-</button>
+              </button>
 <button class="category-tab" data-category="shape-data" onclick="app.showCategory('shape-data')">
 <span class="dot"></span> Shape & Data
-</button>
+              </button>
 <button class="category-tab" data-category="effects" onclick="app.showCategory('effects')">
 <span class="dot"></span> Effects
 </button>
 <button id="chatbot-toggle" class="category-tab" onclick="app.showCategory('ai-assistant')">
 <span class="dot"></span> AI Assistant
-</button>
-</nav>
+              </button>
+            </nav>
 <div style="display: flex; align-items: center; gap: 8px;">
 <button class="share-btn" data-tooltip="Start Presentation (F5)" onclick="app.presentMode()" style="padding: 8px 20px; font-size: 13px;">
 <span>▶</span> Present
-</button>
+              </button>
 <button class="share-btn" onclick="app.toggleExport()" style="padding: 8px 20px; font-size: 13px;">Share</button>
                 </div>
                 </div>
@@ -2026,14 +2026,14 @@ input[type="color"]{
 <div class="zoom-control">
 <button class="share-btn" data-tooltip="Start Presentation (F5)" onclick="app.presentMode()">
 <span>▶</span> Present
-        </button>
+              </button>
 <div class="zoom-divider"></div>
 <button class="zoom-btn" data-tooltip="Zoom Out" onclick="app.zoomOut()" title="Zoom Out">−</button>
 <input class="zoom-slider" id="zoomSlider" max="200" min="25" oninput="app.setZoom(this.value)" step="5" type="range" value="100"/>
 <div class="zoom-value" id="zoomValue">100%</div>
 <button class="zoom-btn" data-tooltip="Zoom In" onclick="app.zoomIn()" title="Zoom In">+</button>
 <button class="zoom-reset" data-tooltip="Reset Zoom" onclick="app.resetZoom()">Reset</button>
-</div>
+            </div>
 <!-- Background Modal -->
 <div class="modal" id="bgModal">
 <div class="modal-content">
@@ -2061,10 +2061,10 @@ input[type="color"]{
 <div class="bg-option" onclick="app.applyBg('linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)')" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);"></div>
 <div class="bg-option" onclick="app.applyBg('linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%)')" style="background: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%);"></div>
 <div class="bg-option" onclick="app.applyBg('linear-gradient(135deg, #99f6e4 0%, #5eead4 100%)')" style="background: linear-gradient(135deg, #99f6e4 0%, #5eead4 100%);"></div>
-</div>
+          </div>
 <button class="tool-btn" onclick="app.uploadBgImage()" style="margin-top: 24px; width: 100%;">Upload Image</button>
-</div>
-</div>
+          </div>
+        </div>
 <!-- Templates Modal -->
 <div class="modal" id="templatesModal">
 <div class="modal-content" style="max-width: 900px;">
@@ -2072,8 +2072,8 @@ input[type="color"]{
 <div class="modal-header">Choose Layout</div>
 <div class="bg-grid" id="templatesGrid">
 <!-- Templates will be loaded here -->
-</div>
-</div>
+          </div>
+          </div>
 </div>
 <!-- Crop Modal -->
 <div class="modal" id="cropModal">
@@ -2111,48 +2111,48 @@ input[type="color"]{
 <div style="margin-bottom: 24px; padding: 16px; background: #f9fafb; border-radius: 12px;">
 <h3 style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #374151;">Correction</h3>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-<div>
+              <div>
 <label style="display: block; font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 8px;">Sharpen / Soften</label>
 <div style="display: flex; align-items: center; gap: 12px;">
 <input type="range" id="sharpenSlider" min="-100" max="100" value="0" oninput="app.updateImageFilter('sharpen', this.value)" style="flex: 1; height: 6px; border-radius: 3px; background: #e5e7eb; outline: none; cursor: pointer; -webkit-appearance: none; appearance: none;">
 <input type="number" id="sharpenInput" min="-100" max="100" value="0" onchange="app.updateImageFilter('sharpen', this.value)" style="width: 70px; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; text-align: center;">
-</div>
-</div>
+              </div>
+                </div>
 <div>
 <label style="display: block; font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 8px;">Brightness</label>
 <div style="display: flex; align-items: center; gap: 12px;">
 <input type="range" id="brightnessSlider" min="-100" max="100" value="0" oninput="app.updateImageFilter('brightness', this.value)" style="flex: 1; height: 6px; border-radius: 3px; background: #e5e7eb; outline: none; cursor: pointer; -webkit-appearance: none; appearance: none;">
 <input type="number" id="brightnessInput" min="-100" max="100" value="0" onchange="app.updateImageFilter('brightness', this.value)" style="width: 70px; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; text-align: center;">
-</div>
-</div>
+              </div>
+            </div>
 <div>
 <label style="display: block; font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 8px;">Contrast</label>
 <div style="display: flex; align-items: center; gap: 12px;">
 <input type="range" id="contrastSlider" min="-100" max="100" value="0" oninput="app.updateImageFilter('contrast', this.value)" style="flex: 1; height: 6px; border-radius: 3px; background: #e5e7eb; outline: none; cursor: pointer; -webkit-appearance: none; appearance: none;">
 <input type="number" id="contrastInput" min="-100" max="100" value="0" onchange="app.updateImageFilter('contrast', this.value)" style="width: 70px; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; text-align: center;">
+          </div>
 </div>
-</div>
-</div>
-</div>
+            </div>
+          </div>
 
 <!-- Color Section -->
 <div style="margin-bottom: 24px; padding: 16px; background: #f9fafb; border-radius: 12px;">
 <h3 style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #374151;">Color</h3>
 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
-<div>
+          <div>
 <label style="display: block; font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 8px;">Saturation</label>
 <div style="display: flex; align-items: center; gap: 12px;">
 <input type="range" id="saturationSlider" min="-100" max="100" value="0" oninput="app.updateImageFilter('saturation', this.value)" style="flex: 1; height: 6px; border-radius: 3px; background: #e5e7eb; outline: none; cursor: pointer; -webkit-appearance: none; appearance: none;">
 <input type="number" id="saturationInput" min="-100" max="100" value="0" onchange="app.updateImageFilter('saturation', this.value)" style="width: 70px; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; text-align: center;">
-</div>
-</div>
+          </div>
+            </div>
 <div>
 <label style="display: block; font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 8px;">Color Tone</label>
 <div style="display: flex; align-items: center; gap: 12px;">
 <input type="range" id="toneSlider" min="-100" max="100" value="0" oninput="app.updateImageFilter('tone', this.value)" style="flex: 1; height: 6px; border-radius: 3px; background: #e5e7eb; outline: none; cursor: pointer; -webkit-appearance: none; appearance: none;">
 <input type="number" id="toneInput" min="-100" max="100" value="0" onchange="app.updateImageFilter('tone', this.value)" style="width: 70px; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; text-align: center;">
-</div>
-</div>
+              </div>
+            </div>
 <div>
 <label style="display: block; font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 8px;">Recolor</label>
 <select id="recolorSelect" onchange="app.updateImageFilter('recolor', this.value)" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; background: white;">
@@ -2163,9 +2163,9 @@ input[type="color"]{
 <option value="warm">Warm</option>
 <option value="cool">Cool</option>
 </select>
-</div>
-</div>
-</div>
+            </div>
+          </div>
+    </div>
 
 <!-- Artistic Effects Section -->
 <div style="margin-bottom: 24px; padding: 16px; background: #f9fafb; border-radius: 12px;">
@@ -2218,7 +2218,7 @@ input[type="color"]{
 </div>
 </div>
 </div>
-<script>
+    <script>
         const app = {
             data: [{ els: [], bg: 'white', transition: 'fade' }],
             curr: 0,
@@ -2394,8 +2394,8 @@ input[type="color"]{
                             </div>
                             <button class="tool-btn" onclick="app.showTemplates()">Layout</button>
                             <button class="tool-btn" onclick="app.showThemes()">Themes</button>
-                        </div>
-                    `,
+            </div>
+          `,
                     text: `
                         <div class="category-panel-group">
                             <button class="tool-btn tool-btn-primary" onclick="app.addText()">+ Add Text</button>
@@ -2426,15 +2426,15 @@ input[type="color"]{
                             <button class="tool-btn tool-btn-icon" onclick="app.alignText('left')" title="Align Left">◀</button>
                             <button class="tool-btn tool-btn-icon" onclick="app.alignText('center')" title="Align Center">▬</button>
                             <button class="tool-btn tool-btn-icon" onclick="app.alignText('right')" title="Align Right">▶</button>
-                        </div>
-                    `,
+            </div>
+          `,
                     image: `
                         <div class="category-panel-group">
                             <button class="tool-btn tool-btn-primary" onclick="app.addImage()">Upload Image</button>
-                        </div>
+              </div>
                         <div class="category-panel-group">
                             <button class="tool-btn" onclick="app.removeBackground()">Remove Background</button>
-                        </div>
+              </div>
                     `,
                     'shape-data': `
                         <div class="category-panel-group">
@@ -2475,8 +2475,8 @@ input[type="color"]{
                                     <div class="category-dropdown-item" onclick="app.showSymbols('symbols'); app.closeDropdown('iconsDropdown')">Symbols</div>
                                 </div>
                             </div>
-                        </div>
-                    `,
+            </div>
+          `,
                     arrange: `
                         <div class="category-panel-group">
                             <div class="dropdown-wrapper">
@@ -2488,8 +2488,8 @@ input[type="color"]{
                                     <div class="category-dropdown-item" onclick="app.alignElements('top'); app.closeDropdown('alignDropdown')">Align Top</div>
                                     <div class="category-dropdown-item" onclick="app.alignElements('middle'); app.closeDropdown('alignDropdown')">Align Middle</div>
                                     <div class="category-dropdown-item" onclick="app.alignElements('bottom'); app.closeDropdown('alignDropdown')">Align Bottom</div>
-                                </div>
-                            </div>
+            </div>
+            </div>
                             <button class="tool-btn" onclick="app.groupElements()">Group</button>
                             <button class="tool-btn" onclick="app.ungroupElements()">Ungroup</button>
                             <button class="tool-btn" onclick="app.duplicateElement()">Duplicate</button>
@@ -2865,7 +2865,7 @@ input[type="color"]{
                             <div class="properties-empty">
                                 <div class="properties-empty-title">No Selection</div>
                                 <div class="properties-empty-text">Select an element on the canvas to edit its properties</div>
-                            </div>
+                  </div>
                         `;
                         return;
                     }
@@ -2891,7 +2891,7 @@ input[type="color"]{
                             <div class="properties-empty">
                                 <div class="properties-empty-title">Error</div>
                                 <div class="properties-empty-text">Invalid element data</div>
-                            </div>
+                    </div>
                         `;
                         return;
                     }
@@ -2901,11 +2901,11 @@ input[type="color"]{
                         <div class="properties-group">
                             <label class="properties-label">Fill Color</label>
                             <input type="color" class="properties-color-input" id="propFillColor" value="${data.bg || '#10b981'}" onchange="app.updateShapeProperty('bg', this.value)">
-                        </div>
+                    </div>
                         <div class="properties-group">
                             <label class="properties-label">Border Color</label>
                             <input type="color" class="properties-color-input" id="propBorderColor" value="${data.border || '#047857'}" onchange="app.updateShapeProperty('border', this.value)">
-                        </div>
+                  </div>
                         <div class="properties-group">
                             <label class="properties-label">Border Width</label>
                             <div style="display: flex; align-items: center; gap: 8px;">
@@ -2913,9 +2913,9 @@ input[type="color"]{
                                 <div style="display: flex; flex-direction: column; gap: 2px;">
                                     <button type="button" onclick="app.adjustProperty('propBorderWidth', 1)" style="width: 20px; height: 14px; border: 1px solid #d1d5db; border-radius: 4px 4px 0 0; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 8px; color: #374151;">▲</button>
                                     <button type="button" onclick="app.adjustProperty('propBorderWidth', -1)" style="width: 20px; height: 14px; border: 1px solid #d1d5db; border-top: none; border-radius: 0 0 4px 4px; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 8px; color: #374151;">▼</button>
-                                </div>
-                            </div>
-                        </div>
+                </div>
+                  </div>
+                  </div>
                         <div class="properties-group">
                             <label class="properties-label">Arrange</label>
                             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
@@ -2925,23 +2925,23 @@ input[type="color"]{
                                 <button class="properties-arrange-btn" onclick="app.arrangeElement('top')" title="Align Top">▲</button>
                                 <button class="properties-arrange-btn" onclick="app.arrangeElement('middle')" title="Align Middle">▬</button>
                                 <button class="properties-arrange-btn" onclick="app.arrangeElement('bottom')" title="Align Bottom">▼</button>
-                            </div>
-                        </div>
+                  </div>
+                </div>
                     `;
                 } else if (data.type === 'text') {
                     html = `
                         <div class="properties-group">
                             <label class="properties-label">Text Color</label>
                             <input type="color" class="properties-color-input" id="propTextColor" value="${data.color || '#000000'}" onchange="app.updateTextProperty('color', this.value)">
-                        </div>
+              </div>
                         <div class="properties-group">
                             <label class="properties-label">Background Color</label>
                             <input type="color" class="properties-color-input" id="propTextBg" value="${data.bg || 'transparent'}" onchange="app.updateTextProperty('bg', this.value)">
-                        </div>
+            </div>
                         <div class="properties-group">
                             <label class="properties-label">Border Color</label>
                             <input type="color" class="properties-color-input" id="propTextBorderColor" value="${data.borderColor || '#000000'}" onchange="app.updateTextProperty('borderColor', this.value)">
-                        </div>
+            </div>
                         <div class="properties-group">
                             <label class="properties-label">Border Width</label>
                             <div style="display: flex; align-items: center; gap: 8px;">
@@ -2949,9 +2949,9 @@ input[type="color"]{
                                 <div style="display: flex; flex-direction: column; gap: 2px;">
                                     <button type="button" onclick="app.adjustProperty('propTextBorderWidth', 1)" style="width: 20px; height: 14px; border: 1px solid #d1d5db; border-radius: 4px 4px 0 0; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 8px; color: #374151;">▲</button>
                                     <button type="button" onclick="app.adjustProperty('propTextBorderWidth', -1)" style="width: 20px; height: 14px; border: 1px solid #d1d5db; border-top: none; border-radius: 0 0 4px 4px; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 8px; color: #374151;">▼</button>
-                                </div>
-                            </div>
-                        </div>
+              </div>
+              </div>
+            </div>
                         <div class="properties-group">
                             <label class="properties-label">Font Size</label>
                             <div style="display: flex; align-items: center; gap: 8px;">
@@ -4158,12 +4158,6 @@ input[type="color"]{
                         stageContainer.innerHTML = slide.stageHtml;
                         slideDiv.appendChild(stageContainer);
                         
-                        // Add slide number badge
-                        const badge = document.createElement('div');
-                        badge.className = 'slide-number-badge';
-                        badge.textContent = `Slide ${slideIndex + 1}`;
-                        slideDiv.appendChild(badge);
-                        
                         // Add grid overlay for this slide
                         const gridOverlay = document.createElement('div');
                         gridOverlay.className = 'canvas-grid-overlay';
@@ -4235,12 +4229,6 @@ input[type="color"]{
                     gradientLine.style.cssText = 'height: 10px; width: 100%; background: linear-gradient(to right, #10b981, #14b8a6, #38bdf8); position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; pointer-events: none;';
                     slideDiv.appendChild(gradientLine);
 
-                    // Add slide number badge
-                    const badge = document.createElement('div');
-                    badge.className = 'slide-number-badge';
-                    badge.textContent = `Slide ${slideIndex + 1}`;
-                    slideDiv.appendChild(badge);
-
                     // Add grid overlay for this slide
                     const gridOverlay = document.createElement('div');
                     gridOverlay.className = 'canvas-grid-overlay';
@@ -4260,9 +4248,8 @@ input[type="color"]{
 
                     // Click to select slide
                     slideDiv.addEventListener('click', (e) => {
-                        const badge = slideDiv.querySelector('.slide-number-badge');
                         const gridOverlay = slideDiv.querySelector('.canvas-grid-overlay');
-                        if (e.target === slideDiv || e.target === badge || e.target === gridOverlay || e.target.closest('.slide-number-badge') || e.target.closest('.canvas-grid-overlay')) {
+                        if (e.target === slideDiv || e.target === gridOverlay || e.target.closest('.canvas-grid-overlay')) {
                             this.switchSlide(slideIndex);
                         }
                     });
@@ -5292,7 +5279,7 @@ input[type="color"]{
                 presentDiv.innerHTML = `
                     <div class="present-slide">
                         <div class="present-canvas" id="presentCanvas"></div>
-                    </div>
+              </div>
                     <div class="present-controls">
                         <button class="present-btn" onclick="app.prevPresentSlide()">◀</button>
                         <div class="present-counter"><span id="presentCounter">1 / ${this.data.length}</span></div>
@@ -6153,8 +6140,8 @@ input[type="color"]{
                             break;
                         default:
                             console.warn('Unknown chart type:', type);
-                    }
-                } catch (error) {
+          }
+        } catch (error) {
                     console.error('Error drawing chart:', error);
                     ctx.fillStyle = '#ef4444';
                     ctx.font = '14px Inter, sans-serif';
@@ -6938,7 +6925,7 @@ Generate comprehensive, accurate, factual content now:`
                     const responseData = await response.json()
                     if (responseData.choices && responseData.choices[0] && responseData.choices[0].message) {
                         rawText = responseData.choices[0].message.content
-                    } else {
+        } else {
                         throw new Error('Invalid response format from AI service.')
                     }
                 } else {
@@ -7009,16 +6996,16 @@ Generate comprehensive, accurate, factual content now:`
                     window.clearTimeout(timeoutId)
                 }
             }
-        }
+      }
 
-        function escapeHtml(text = '') {
-            return text
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;')
-        }
+      function escapeHtml(text = '') {
+        return text
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;')
+      }
 
         function deriveFocusTiles(slide, context) {
             const rawChunks = (slide.notes || '')
@@ -7056,15 +7043,15 @@ Generate comprehensive, accurate, factual content now:`
             const currentSlideId = slideId || slide.id || `slide-${index + 1}`
 
             const tileHtml = tiles
-                .map(
+          .map(
                     (tile, idx) => `
                       <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
                         <p class="text-[0.6rem] uppercase tracking-[0.3em] text-emerald-200">Focus ${idx + 1}</p>
                         <p class="mt-1.5 text-xs text-slate-100">${escapeHtml(tile)}</p>
-                      </div>
-                    `
-                )
-                .join('')
+                </div>
+            `
+          )
+          .join('')
 
             const presenterNote =
                 slide.notes && slide.notes.trim().length
@@ -7182,7 +7169,7 @@ Generate comprehensive, accurate, factual content now:`
                   </div>
                   ${customElementsHtml}
                 </div>
-              </div>
+                  </div>
             `
         }
 
@@ -7195,9 +7182,9 @@ Generate comprehensive, accurate, factual content now:`
                 <div>
                   <div class="h-2 w-16 rounded bg-white/30"></div>
                   <p class="mt-1.5 line-clamp-3 font-semibold leading-tight">${heading}</p>
-                </div>
+                    </div>
                 <p class="line-clamp-3 text-[0.45rem] leading-tight text-white/80">${body}</p>
-              </div>
+                  </div>
             `
         }
 
@@ -7969,7 +7956,7 @@ Generate comprehensive, accurate, factual content now:`
     if (activeTarget) positionTooltip(activeTarget);
   });
 })();
-</script>
+    </script>
 
     <!-- Chatbot Modal -->
     <div id="chatbot-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/40 backdrop-blur-sm">

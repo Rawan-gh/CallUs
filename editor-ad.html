@@ -4075,12 +4075,6 @@ input[type="color"]{
                     gradientLine.style.cssText = 'height: 10px; width: 100%; background: linear-gradient(to right, #10b981, #14b8a6, #38bdf8); position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; pointer-events: none;';
                     slideDiv.appendChild(gradientLine);
 
-                    // Add slide number badge
-                    const badge = document.createElement('div');
-                    badge.className = 'slide-number-badge';
-                    badge.textContent = `Slide ${slideIndex + 1}`;
-                    slideDiv.appendChild(badge);
-
                     // Add grid overlay for this slide
                     const gridOverlay = document.createElement('div');
                     gridOverlay.className = 'canvas-grid-overlay';
@@ -4097,7 +4091,7 @@ input[type="color"]{
 
                     // Click to select slide
                     slideDiv.addEventListener('click', (e) => {
-                        if (e.target === slideDiv || e.target === badge || e.target === gridOverlay) {
+                        if (e.target === slideDiv || e.target === gridOverlay) {
                             this.switchSlide(slideIndex);
                         }
                     });

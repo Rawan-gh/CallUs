@@ -3911,12 +3911,6 @@ input[type="color"]{
                         }
                     }
 
-                    // Add slide number badge
-                    const badge = document.createElement('div');
-                    badge.className = 'slide-number-badge';
-                    badge.textContent = `Slide ${slideIndex + 1}`;
-                    slideDiv.appendChild(badge);
-
                     // Add grid overlay for this slide
                     const gridOverlay = document.createElement('div');
                     gridOverlay.className = 'canvas-grid-overlay';
@@ -3933,7 +3927,7 @@ input[type="color"]{
 
                     // Click to select slide
                     slideDiv.addEventListener('click', (e) => {
-                        if (e.target === slideDiv || e.target === badge || e.target === gridOverlay) {
+                        if (e.target === slideDiv || e.target === gridOverlay) {
                             this.switchSlide(slideIndex);
                         }
                     });
