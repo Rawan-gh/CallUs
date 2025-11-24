@@ -1124,7 +1124,10 @@
         footer.className = 'mt-4 flex items-center justify-between gap-3';
         
         const openBtn = document.createElement('a');
-        openBtn.href = `editor.html?presentationId=${encodeURIComponent(docId)}`;
+        // Determine which editor to use based on editorType, default to editor-1
+        const editorType = data?.editorType || 'editor-1';
+        const editorFile = editorType + '.html';
+        openBtn.href = `${editorFile}?presentationId=${encodeURIComponent(docId)}`;
         openBtn.className = 'inline-flex items-center rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400';
         openBtn.textContent = 'Open deck';
         footer.appendChild(openBtn);

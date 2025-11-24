@@ -4901,13 +4901,19 @@ input[type="color"]{
                     const presentationData = {
                         title: title,
                         slides: this.data,
+                        editorType: 'editor-ai',
                         updatedAt: serverTimestamp(),
                         createdAt: serverTimestamp()
                     };
 
                     // Check if we're editing an existing presentation
                     const urlParams = new URLSearchParams(window.location.search);
-                    const presentationId = urlParams.get('presentationId');
+                    let presentationId = urlParams.get('presentationId');
+                    
+                    // Also check if we have a stored presentationId (for cases where URL might not have it)
+                    if (!presentationId && this.currentPresentationId) {
+                        presentationId = this.currentPresentationId;
+                    }
                     
                     if (presentationId) {
                         // Update existing presentation
@@ -4916,11 +4922,26 @@ input[type="color"]{
                             ...presentationData,
                             updatedAt: serverTimestamp()
                         }, { merge: true });
+                        
+                        // Store presentationId for future saves
+                        this.currentPresentationId = presentationId;
+                        
                         this.showNotification('Presentation updated successfully');
                     } else {
                         // Create new presentation
                         const presentationsRef = collection(window.firebaseDb, 'users', window.currentUserId, 'presentations');
-                        await addDoc(presentationsRef, presentationData);
+                        const docRef = await addDoc(presentationsRef, {
+                            ...presentationData,
+                            createdAt: serverTimestamp()
+                        });
+                        
+                        // Store presentationId for future saves
+                        this.currentPresentationId = docRef.id;
+                        
+                        // Update URL with the new presentation ID
+                        const newUrl = new URL(window.location);
+                        newUrl.searchParams.set('presentationId', docRef.id);
+                        window.history.replaceState({}, '', newUrl);
                         this.showNotification('Presentation saved to cloud successfully');
                     }
                 } catch (error) {
@@ -7415,6 +7436,8 @@ Generate comprehensive, accurate, factual content now:`
                             app.data = data.slides || [];
                             document.getElementById('title').value = data.title || '';
                             app.curr = 0;
+                            // Store presentationId for future saves
+                            app.currentPresentationId = presentationId;
                             app.saveState();
                             app.loadCanvas();
                             app.renderSlides();
