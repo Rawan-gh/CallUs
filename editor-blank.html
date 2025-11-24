@@ -10,6 +10,69 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js'
+      import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js'
+      import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js'
+      import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js'
+
+      const firebaseConfig = {
+        apiKey: 'AIzaSyDPzRqV-_hGNedZoeGNtorLTGWTBMmqdkc',
+        authDomain: 'prj-adc-gcp-coop-test.firebaseapp.com',
+        projectId: 'prj-adc-gcp-coop-test',
+        storageBucket: 'prj-adc-gcp-coop-test.firebasestorage.app',
+        messagingSenderId: '472242813268',
+        appId: '1:472242813268:web:4e7b4650015fd473d4f0c1',
+        measurementId: 'G-RGEPGD1T9T',
+      }
+
+      const firebaseApp = initializeApp(firebaseConfig)
+      const analytics = getAnalytics(firebaseApp)
+      const db = getFirestore(firebaseApp, 'bettercallus')
+      const auth = getAuth(firebaseApp)
+
+      window.firebaseApp = firebaseApp
+      window.firebaseAnalytics = analytics
+      window.firebaseDb = db
+      window.firebaseAuth = auth
+
+      const markLoggedOut = () => {
+        localStorage.removeItem('pm-logged-in')
+        localStorage.removeItem('pm-user-id')
+      }
+
+      // Get stored user ID if available
+      const storedUserId = localStorage.getItem('pm-user-id')
+      if (storedUserId) {
+        window.currentUserId = storedUserId
+      }
+
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          window.currentUser = user
+          window.currentUserId = user.uid
+          localStorage.setItem('pm-logged-in', 'true')
+          localStorage.setItem('pm-user-id', user.uid)
+          if (user.email) {
+            localStorage.setItem('pm-user-email', user.email)
+          }
+          if (user.displayName) {
+            localStorage.setItem('pm-user-name', user.displayName)
+          }
+          window.dispatchEvent(new CustomEvent('pm-user-ready', { detail: { user } }))
+        } else {
+          window.currentUser = null
+          window.currentUserId = storedUserId || null
+          markLoggedOut()
+          if (localStorage.getItem('pm-logged-in') !== 'true') {
+            window.location.replace('login.html')
+          }
+        }
+      })
+
+      console.log('Firebase initialized in editor with database: bettercallus')
+    </script>
 <style>
         @font-face {
             font-family: 'Kraft Mono';
@@ -4621,18 +4684,70 @@ input[type="color"]{
                 }
             },
 
+            async saveToFirebase() {
+                if (!window.firebaseDb || !window.currentUserId) {
+                    this.showNotification('Please log in to save to cloud', 'error');
+                    return;
+                }
+
+                try {
+                    const { collection, addDoc, doc, setDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                    const title = document.getElementById('title').value || 'Untitled presentation';
+                    const presentationData = {
+                        title: title,
+                        slides: this.data,
+                        editorType: 'editor-blank',
+                        updatedAt: serverTimestamp(),
+                        createdAt: serverTimestamp()
+                    };
+
+                    // Check if we're editing an existing presentation
+                    const urlParams = new URLSearchParams(window.location.search);
+                    let presentationId = urlParams.get('presentationId');
+                    
+                    // Also check if we have a stored presentationId (for cases where URL might not have it)
+                    if (!presentationId && this.currentPresentationId) {
+                        presentationId = this.currentPresentationId;
+                    }
+                    
+                    if (presentationId) {
+                        // Update existing presentation
+                        const presentationRef = doc(window.firebaseDb, 'users', window.currentUserId, 'presentations', presentationId);
+                        await setDoc(presentationRef, {
+                            ...presentationData,
+                            updatedAt: serverTimestamp()
+                        }, { merge: true });
+                        
+                        // Store presentationId for future saves
+                        this.currentPresentationId = presentationId;
+                        
+                        this.showNotification('Presentation updated successfully');
+                    } else {
+                        // Create new presentation
+                        const presentationsRef = collection(window.firebaseDb, 'users', window.currentUserId, 'presentations');
+                        const docRef = await addDoc(presentationsRef, {
+                            ...presentationData,
+                            createdAt: serverTimestamp()
+                        });
+                        
+                        // Store presentationId for future saves
+                        this.currentPresentationId = docRef.id;
+                        
+                        // Update URL with the new presentation ID
+                        const newUrl = new URL(window.location);
+                        newUrl.searchParams.set('presentationId', docRef.id);
+                        window.history.replaceState({}, '', newUrl);
+                        this.showNotification('Presentation saved to cloud successfully');
+                    }
+                } catch (error) {
+                    console.error('Failed to save to Firebase:', error);
+                    this.showNotification('Failed to save to cloud: ' + error.message, 'error');
+                }
+            },
+
             saveJSON() {
-                const json = JSON.stringify({
-                    title: document.getElementById('title').value,
-                    slides: this.data
-                });
-                const blob = new Blob([json], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = (document.getElementById('title').value || 'presentation') + '.json';
-                a.click();
-                this.showNotification('Presentation saved successfully');
+                // Save to Firebase
+                this.saveToFirebase();
             },
 
             loadJSON() {
@@ -6094,8 +6209,38 @@ input[type="color"]{
             }
         };
 
-        window.onload = () => {
+        window.onload = async () => {
             app.init();
+            
+            // Load from Firebase if presentationId is in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const presentationId = urlParams.get('presentationId');
+            
+            if (presentationId && window.firebaseDb && window.currentUserId) {
+                try {
+                    const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                    const presentationRef = doc(window.firebaseDb, 'users', window.currentUserId, 'presentations', presentationId);
+                    const presentationSnap = await getDoc(presentationRef);
+                    
+                    if (presentationSnap.exists()) {
+                        const data = presentationSnap.data();
+                        app.data = data.slides || app.data;
+                        document.getElementById('title').value = data.title || '';
+                        app.curr = 0;
+                        // Store presentationId for future saves
+                        app.currentPresentationId = presentationId;
+                        app.saveState();
+                        app.loadCanvas();
+                        app.renderSlides();
+                        app.showNotification('Presentation loaded from cloud');
+                    } else {
+                        app.showNotification('Presentation not found', 'error');
+                    }
+                } catch (error) {
+                    console.error('Failed to load from Firebase:', error);
+                    app.showNotification('Failed to load from cloud: ' + error.message, 'error');
+                }
+            }
             
             const params = new URLSearchParams(window.location.search);
             const shared = params.get('data');
