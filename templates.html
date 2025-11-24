@@ -423,46 +423,74 @@
             <div>
               <h2 class="text-2xl font-semibold text-slate-900">Recent Work</h2>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 flex-wrap">
               <button
-                id="selectAllPresentationsBtn"
-                class="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition"
+                id="selectModeBtn"
+                class="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="9 11 12 14 22 4"></polyline>
                   <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                 </svg>
-                Select All
+                Select
               </button>
+              <div id="selectionActions" class="hidden flex items-center gap-2 flex-wrap">
+                <button
+                  id="selectAllPresentationsBtn"
+                  class="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 11 12 14 22 4"></polyline>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                  </svg>
+                  Select All
+                </button>
+                <button
+                  id="deleteSelectedPresentationsBtn"
+                  class="inline-flex items-center gap-1.5 rounded-full border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-600 shadow-sm hover:bg-red-50 hover:border-red-400 transition"
+                  disabled
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18"></path>
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                  </svg>
+                  Delete Selected (<span id="selectedCount">0</span>)
+                </button>
+                <button
+                  id="deleteAllPresentationsBtn"
+                  class="inline-flex items-center gap-1.5 rounded-full border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-600 shadow-sm hover:bg-red-50 hover:border-red-400 transition"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18"></path>
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                  </svg>
+                  Delete All
+                </button>
+                <button
+                  id="duplicateSelectedPresentationsBtn"
+                  class="inline-flex items-center gap-1.5 rounded-full border border-sky-300 bg-white px-3 py-1.5 text-xs font-medium text-sky-600 shadow-sm hover:bg-sky-50 hover:border-sky-400 transition"
+                  disabled
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  Duplicate Selected (<span id="duplicateSelectedCount">0</span>)
+                </button>
+              </div>
               <button
-                id="deleteSelectedPresentationsBtn"
-                class="inline-flex items-center gap-2 rounded-full border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-600 shadow-sm hover:bg-red-50 hover:border-red-400 transition"
-                disabled
+                id="shareAllPresentationsBtn"
+                class="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 6h18"></path>
-                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                  <polyline points="16 6 12 2 8 6"></polyline>
+                  <line x1="12" y1="2" x2="12" y2="15"></line>
                 </svg>
-                Delete Selected (<span id="selectedCount">0</span>)
+                Share
               </button>
-              <button
-                id="deleteAllPresentationsBtn"
-                class="inline-flex items-center gap-2 rounded-full border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-600 shadow-sm hover:bg-red-50 hover:border-red-400 transition"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 6h18"></path>
-                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                </svg>
-                Delete All
-              </button>
-            <a
-              href="#"
-              class="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
-            >
-              View all decks
-            </a>
             </div>
           </div>
 
@@ -473,6 +501,14 @@
           <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 hidden" data-user-presentations-list></div>
           <div class="mt-6 rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500" data-user-presentations-empty>
             Saved presentations will appear here once you create your first deck.
+          </div>
+          <div class="mt-6 flex justify-center">
+            <a
+              href="#"
+              class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+            >
+              View all decks
+            </a>
           </div>
         </section>
 
@@ -688,6 +724,12 @@
             }
 
           })
+        })
+
+        // Share All button
+        const shareAllBtn = document.getElementById('shareAllPresentationsBtn');
+        shareAllBtn?.addEventListener('click', () => {
+          showActionMessage('info', 'Select presentations first, then use the Share button on each card to share them.')
         })
 
         importInput?.addEventListener('change', (event) => {
@@ -919,6 +961,7 @@
         const count = checkboxes.length;
         const selectedCountEl = document.getElementById('selectedCount');
         const deleteSelectedBtn = document.getElementById('deleteSelectedPresentationsBtn');
+        const duplicateSelectedBtn = document.getElementById('duplicateSelectedPresentationsBtn');
         
         if (selectedCountEl) {
           selectedCountEl.textContent = count;
@@ -926,6 +969,10 @@
         
         if (deleteSelectedBtn) {
           deleteSelectedBtn.disabled = count === 0;
+        }
+        
+        if (duplicateSelectedBtn) {
+          duplicateSelectedBtn.disabled = count === 0;
         }
       }
 
@@ -940,12 +987,15 @@
         card.className = 'group relative flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:border-emerald-400 hover:shadow-md';
         card.dataset.presentationId = docId;
 
-        // Checkbox for selection
+        // Checkbox for selection (hidden by default)
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.className = 'presentation-checkbox absolute top-4 right-4 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-2 focus:ring-emerald-500 cursor-pointer';
+        checkbox.className = 'presentation-checkbox absolute top-4 right-4 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-2 focus:ring-emerald-500 cursor-pointer hidden';
         checkbox.dataset.presentationId = docId;
-        checkbox.addEventListener('change', updateSelectedCount);
+        checkbox.addEventListener('change', () => {
+          updateSelectedCount();
+          checkAndShowActions();
+        });
         card.appendChild(checkbox);
 
         const header = document.createElement('div');
@@ -1308,6 +1358,55 @@
         }
       });
 
+      // Select Mode button - toggle checkboxes visibility
+      const selectModeBtn = document.getElementById('selectModeBtn');
+      const selectionActions = document.getElementById('selectionActions');
+      let isSelectMode = false;
+      
+      selectModeBtn?.addEventListener('click', () => {
+        isSelectMode = !isSelectMode;
+        const checkboxes = document.querySelectorAll('.presentation-checkbox');
+        
+        if (isSelectMode) {
+          // Show checkboxes
+          checkboxes.forEach(checkbox => {
+            checkbox.classList.remove('hidden');
+          });
+          selectModeBtn.textContent = 'Cancel';
+          selectModeBtn.classList.add('bg-emerald-50', 'border-emerald-400', 'text-emerald-700');
+          selectModeBtn.classList.remove('border-slate-300', 'text-slate-700');
+        } else {
+          // Hide checkboxes and uncheck all
+          checkboxes.forEach(checkbox => {
+            checkbox.classList.add('hidden');
+            checkbox.checked = false;
+          });
+          selectModeBtn.textContent = 'Select';
+          selectModeBtn.classList.remove('bg-emerald-50', 'border-emerald-400', 'text-emerald-700');
+          selectModeBtn.classList.add('border-slate-300', 'text-slate-700');
+          selectionActions?.classList.add('hidden');
+          updateSelectedCount();
+          allSelected = false;
+        }
+      });
+
+      // Function to check if any checkbox is selected and show actions
+      function checkAndShowActions() {
+        const checkboxes = document.querySelectorAll('.presentation-checkbox:checked');
+        const count = checkboxes.length;
+        const duplicateSelectedCount = document.getElementById('duplicateSelectedCount');
+        
+        if (duplicateSelectedCount) {
+          duplicateSelectedCount.textContent = count;
+        }
+        
+        if (count > 0 && selectionActions) {
+          selectionActions.classList.remove('hidden');
+        } else if (count === 0 && selectionActions) {
+          selectionActions.classList.add('hidden');
+        }
+      }
+
       // Select All button
       const selectAllBtn = document.getElementById('selectAllPresentationsBtn');
       let allSelected = false;
@@ -1320,6 +1419,7 @@
         });
         
         updateSelectedCount();
+        checkAndShowActions();
         selectAllBtn.textContent = allSelected ? 'Deselect All' : 'Select All';
       });
 
@@ -1370,6 +1470,7 @@
           if (selectAllBtn) {
             selectAllBtn.textContent = 'Select All';
           }
+          checkAndShowActions();
         } catch (error) {
           console.error('Delete error:', error);
           if (window.showActionMessage) {
@@ -1387,6 +1488,78 @@
                 <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
               </svg>
               Delete Selected (<span id="selectedCount">0</span>)
+            `;
+          }
+        }
+      });
+
+      // Duplicate Selected button
+      const duplicateSelectedBtn = document.getElementById('duplicateSelectedPresentationsBtn');
+      duplicateSelectedBtn?.addEventListener('click', async () => {
+        const checkboxes = document.querySelectorAll('.presentation-checkbox:checked');
+        const selectedIds = Array.from(checkboxes).map(cb => cb.dataset.presentationId);
+        
+        if (selectedIds.length === 0) {
+          if (window.showActionMessage) {
+            window.showActionMessage('info', 'No presentations selected.');
+          }
+          return;
+        }
+
+        if (!window.duplicatePresentation) {
+          alert('Duplicate function is not available. Please refresh the page.');
+          return;
+        }
+
+        try {
+          if (duplicateSelectedBtn) {
+            duplicateSelectedBtn.disabled = true;
+            duplicateSelectedBtn.innerHTML = `
+              <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Duplicating...
+            `;
+          }
+
+          // Duplicate all selected presentations
+          for (const id of selectedIds) {
+            await window.duplicatePresentation(id);
+          }
+          
+          if (window.showActionMessage) {
+            window.showActionMessage('success', `Successfully duplicated ${selectedIds.length} presentation${selectedIds.length === 1 ? '' : 's'}.`);
+          } else {
+            alert(`Successfully duplicated ${selectedIds.length} presentation${selectedIds.length === 1 ? '' : 's'}.`);
+          }
+          
+          // Uncheck all after duplication
+          checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+          });
+          updateSelectedCount();
+          checkAndShowActions();
+          allSelected = false;
+          if (selectAllBtn) {
+            selectAllBtn.textContent = 'Select All';
+          }
+        } catch (error) {
+          console.error('Duplicate error:', error);
+          if (window.showActionMessage) {
+            window.showActionMessage('warning', error.message || 'Failed to duplicate presentations. Please try again.');
+          } else {
+            alert(error.message || 'Failed to duplicate presentations. Please try again.');
+          }
+        } finally {
+          if (duplicateSelectedBtn) {
+            duplicateSelectedBtn.disabled = false;
+            duplicateSelectedBtn.innerHTML = `
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              Duplicate Selected (<span id="duplicateSelectedCount">0</span>)
             `;
           }
         }
@@ -1520,26 +1693,6 @@
       let sharedUnsubscribe = null;
       let sharedSubscriptionEmail = null;
 
-      const toDate = (value) => {
-        if (!value) return null;
-        if (value.toDate) return value.toDate();
-        if (value instanceof Date) return value;
-        return null;
-      };
-
-      const formatRelativeTime = (date) => {
-        if (!date) return 'Just now';
-        const diffMs = Date.now() - date.getTime();
-        const diffMinutes = Math.max(0, Math.round(diffMs / 60000));
-        if (diffMinutes < 1) return 'Just now';
-        if (diffMinutes < 60) return `${diffMinutes} min${diffMinutes === 1 ? '' : 's'} ago`;
-        const diffHours = Math.round(diffMinutes / 60);
-        if (diffHours < 24) return `${diffHours} hr${diffHours === 1 ? '' : 's'} ago`;
-        const diffDays = Math.round(diffHours / 24);
-        if (diffDays < 7) return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
-        return date.toLocaleDateString();
-      };
-
       const clearSharedList = () => {
         if (!sharedPresentationsListEl) return;
         sharedPresentationsListEl.innerHTML = '';
@@ -1556,12 +1709,15 @@
         card.className = 'group relative flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:border-emerald-400 hover:shadow-md';
         card.dataset.presentationId = docId;
 
-        // Checkbox for selection
+        // Checkbox for selection (hidden by default)
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.className = 'presentation-checkbox absolute top-4 right-4 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-2 focus:ring-emerald-500 cursor-pointer z-10';
+        checkbox.className = 'presentation-checkbox absolute top-4 right-4 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-2 focus:ring-emerald-500 cursor-pointer z-10 hidden';
         checkbox.dataset.presentationId = docId;
-        checkbox.addEventListener('change', updateSelectedCount);
+        checkbox.addEventListener('change', () => {
+          updateSelectedCount();
+          checkAndShowActions();
+        });
         card.appendChild(checkbox);
 
         const header = document.createElement('div');
