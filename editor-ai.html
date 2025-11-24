@@ -7,7 +7,7 @@
 <title>Presentation Studio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -75,6 +75,56 @@
       console.log('Firebase initialized in editor with database: bettercallus')
     </script>
     <style>
+        @font-face {
+            font-family: 'Kraft Mono';
+            src: url('assets/fonts/KraftMono.woff2') format('woff2'),
+                 url('assets/fonts/KraftMono.woff') format('woff'),
+                 url('assets/fonts/KraftMono.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'ID Grotesk';
+            src: url('assets/fonts/IDGrotesk-Regular.woff2') format('woff2'),
+                 url('assets/fonts/IDGrotesk-Regular.woff') format('woff'),
+                 url('assets/fonts/IDGrotesk-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'ID Grotesk';
+            src: url('assets/fonts/IDGrotesk-Medium.woff2') format('woff2'),
+                 url('assets/fonts/IDGrotesk-Medium.woff') format('woff'),
+                 url('assets/fonts/IDGrotesk-Medium.ttf') format('truetype');
+            font-weight: 500;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'ID Grotesk';
+            src: url('assets/fonts/IDGrotesk-SemiBold.woff2') format('woff2'),
+                 url('assets/fonts/IDGrotesk-SemiBold.woff') format('woff'),
+                 url('assets/fonts/IDGrotesk-SemiBold.ttf') format('truetype');
+            font-weight: 600;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'ID Grotesk';
+            src: url('assets/fonts/IDGrotesk-Bold.woff2') format('woff2'),
+                 url('assets/fonts/IDGrotesk-Bold.woff') format('woff'),
+                 url('assets/fonts/IDGrotesk-Bold.ttf') format('truetype');
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
@@ -2440,6 +2490,8 @@ input[type="color"]{
                                 <option value="Courier New">Courier New</option>
                                 <option value="Georgia">Georgia</option>
                                 <option value="Verdana">Verdana</option>
+                                <option value="Kraft Mono">Kraft Mono</option>
+                                <option value="ID Grotesk">ID Grotesk</option>
                             </select>
                             <input class="tool-btn" id="fontSize" type="number" min="8" max="200" value="24" onchange="app.changeFontSize()" placeholder="Size" style="width: 80px; text-transform: none; letter-spacing: 0;" />
                         </div>
@@ -2733,21 +2785,32 @@ input[type="color"]{
                 
                 wrapper.addEventListener('mousedown', (e) => {
                     if (e.target.classList.contains('resize-handle')) {
+                        const parentEl = e.target.parentElement;
+                        // Don't allow resizing locked elements
+                        if (parentEl.dataset.locked === 'true') {
+                            return;
+                        }
                         this.resize = {
-                            el: e.target.parentElement,
+                            el: parentEl,
                             handle: e.target.className.split(' ')[1],
                             startX: e.clientX,
                             startY: e.clientY,
-                            startWidth: e.target.parentElement.offsetWidth,
-                            startHeight: e.target.parentElement.offsetHeight,
-                            startLeft: e.target.parentElement.offsetLeft,
-                            startTop: e.target.parentElement.offsetTop
+                            startWidth: parentEl.offsetWidth,
+                            startHeight: parentEl.offsetHeight,
+                            startLeft: parentEl.offsetLeft,
+                            startTop: parentEl.offsetTop
                         };
                         return;
                     }
                     
                     if (e.target.classList.contains('element') || e.target.closest('.element')) {
                         const el = e.target.classList.contains('element') ? e.target : e.target.closest('.element');
+                        
+                        // Check if element is locked
+                        if (el.dataset.locked === 'true') {
+                            return; // Don't allow interaction with locked elements
+                        }
+                        
                         const slideIndex = parseInt(el.dataset.slideIndex);
                         
                         // Switch to this slide if not current
@@ -2839,6 +2902,11 @@ input[type="color"]{
             selectElement(el) {
                 if (!el || !el.dataset || !el.dataset.id) {
                     console.error('Invalid element selected');
+                    return;
+                }
+                
+                // Don't allow selection of locked elements
+                if (el.dataset.locked === 'true') {
                     return;
                 }
                 
@@ -3235,6 +3303,12 @@ input[type="color"]{
                 if (!this.sel) return;
                 const data = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
                 if (!data || data.type !== 'text') return;
+
+                // Preserve content when updating properties
+                if (prop === 'size' || prop === 'width' || prop === 'height') {
+                    const currentContent = this.sel.innerText || this.sel.textContent || data.content || '';
+                    data.content = currentContent;
+                }
 
                 data[prop] = value;
                 
@@ -3880,6 +3954,13 @@ input[type="color"]{
                 div.style.top = data.y + 'px';
                 div.style.width = data.width + 'px';
                 div.style.height = data.height + 'px';
+                
+                // Mark locked elements
+                if (data.locked) {
+                    div.dataset.locked = 'true';
+                    div.style.pointerEvents = 'none';
+                    div.style.userSelect = 'none';
+                }
 
                 if (data.shadow) {
                     div.style.boxShadow = data.shadow;
@@ -3887,14 +3968,23 @@ input[type="color"]{
 
                 if (data.type === 'text') {
                     div.contentEditable = true;
-                    div.textContent = data.content;
-                    div.style.fontFamily = data.font || 'Arial';
+                    div.innerText = data.content || '';
+                    let fontFamily = data.font || 'Arial';
+                    if (fontFamily === 'Kraft Mono') {
+                        fontFamily = "'Kraft Mono', 'JetBrains Mono', monospace";
+                    } else if (fontFamily === 'ID Grotesk') {
+                        fontFamily = "'ID Grotesk', 'Work Sans', sans-serif";
+                    }
+                    div.style.fontFamily = fontFamily;
                     div.style.fontSize = (data.size || 24) + 'px';
                     div.style.color = data.color || '#000000';
                     div.style.backgroundColor = data.bg || 'transparent';
                     div.style.fontWeight = data.weight || 'normal';
                     div.style.textAlign = data.align || 'left';
                     div.style.padding = '8px';
+                    div.style.whiteSpace = 'pre-wrap';
+                    div.style.wordWrap = 'break-word';
+                    div.style.overflowWrap = 'break-word';
                     
                     // Apply fontStyle and textDecoration if they exist
                     if (data.fontStyle) {
@@ -3914,7 +4004,7 @@ input[type="color"]{
                     div.addEventListener('blur', () => {
                         const el = this.data[slideIndex].els.find(e => e.id == data.id);
                         if (el) {
-                            el.content = div.textContent;
+                            el.content = div.innerText;
                             this.saveState();
                             this.renderSlides();
                         }
@@ -4369,7 +4459,13 @@ input[type="color"]{
                 div.style.pointerEvents = 'none';
                 
                 if (data.type === 'text') {
-                    div.style.fontFamily = data.font || 'Arial';
+                    let fontFamily = data.font || 'Arial';
+                    if (fontFamily === 'Kraft Mono') {
+                        fontFamily = "'Kraft Mono', 'JetBrains Mono', monospace";
+                    } else if (fontFamily === 'ID Grotesk') {
+                        fontFamily = "'ID Grotesk', 'Work Sans', sans-serif";
+                    }
+                    div.style.fontFamily = fontFamily;
                     div.style.fontSize = ((data.size || 24) * scale) + 'px';
                     div.style.color = data.color || '#000000';
                     div.style.backgroundColor = data.bg || 'transparent';
@@ -4694,6 +4790,13 @@ input[type="color"]{
                     el.y = parseInt(this.sel.style.top);
                     el.width = parseInt(this.sel.style.width);
                     el.height = parseInt(this.sel.style.height);
+                    
+                    // Preserve text content when resizing
+                    if (el.type === 'text') {
+                        const currentContent = this.sel.innerText || this.sel.textContent || el.content || '';
+                        el.content = currentContent;
+                    }
+                    
                     this.saveState();
                     
                     // Update properties panel
@@ -4713,7 +4816,16 @@ input[type="color"]{
                 if (!this.sel) return;
                 
                 const font = document.getElementById('fontFamily').value;
-                this.sel.style.fontFamily = font;
+                let fontFamily = font;
+                
+                // Add fallback fonts
+                if (font === 'Kraft Mono') {
+                    fontFamily = "'Kraft Mono', 'JetBrains Mono', monospace";
+                } else if (font === 'ID Grotesk') {
+                    fontFamily = "'ID Grotesk', 'Work Sans', sans-serif";
+                }
+                
+                this.sel.style.fontFamily = fontFamily;
                 
                 const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
                 if (el) {
@@ -4727,9 +4839,15 @@ input[type="color"]{
                 if (!this.sel) return;
                 
                 const size = document.getElementById('fontSize').value;
+                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
+                if (el && el.type === 'text') {
+                    // Preserve content when changing size
+                    const currentContent = this.sel.innerText || this.sel.textContent || el.content || '';
+                    el.content = currentContent;
+                }
+                
                 this.sel.style.fontSize = size + 'px';
                 
-                const el = this.data[this.curr].els.find(e => e.id == this.sel.dataset.id);
                 if (el) {
                     el.size = parseInt(size);
                     this.saveState();
