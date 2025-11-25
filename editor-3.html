@@ -2185,7 +2185,15 @@ input[type="color"]{
 </div>
 <script>
         const app = {
-            data: [{ els: [], bg: 'white', transition: 'fade' }],
+            data: [
+                { els: [], bg: 'url("assets/SAO PowerPoint Master Template1/SAO-slide-1-bg.png")', transition: 'fade' },
+                { els: [], bg: 'url("assets/SAO PowerPoint Master Template1/SAO-slide-2-bg.png")', transition: 'fade' },
+                { els: [], bg: 'url("assets/SAO PowerPoint Master Template1/SAO-slide-3-bg.png")', transition: 'fade' },
+                { els: [], bg: 'url("assets/SAO PowerPoint Master Template1/SAO-slide-4-bg.png")', transition: 'fade' },
+                { els: [], bg: 'url("assets/SAO PowerPoint Master Template1/SAO-slide-5-bg.png")', transition: 'fade' },
+                { els: [], bg: 'url("assets/SAO PowerPoint Master Template1/SAO-slide-6-bg.png")', transition: 'fade' },
+                { els: [], bg: 'url("assets/SAO PowerPoint Master Template1/SAO-slide-7-bg.png")', transition: 'fade' }
+            ],
             curr: 0,
             sel: null,
             drag: null,
@@ -4050,6 +4058,7 @@ input[type="color"]{
                         slideDiv.style.backgroundImage = bg;
                         slideDiv.style.backgroundSize = 'cover';
                         slideDiv.style.backgroundPosition = 'center';
+                        slideDiv.style.backgroundRepeat = 'no-repeat';
                         slideDiv.style.opacity = opacity;
                     } else if (bg.startsWith('linear-gradient')) {
                         slideDiv.style.background = bg;
@@ -4113,6 +4122,7 @@ input[type="color"]{
                         preview.style.backgroundImage = slide.bg;
                         preview.style.backgroundSize = 'cover';
                         preview.style.backgroundPosition = 'center';
+                        preview.style.backgroundRepeat = 'no-repeat';
                     }
                     
                     // Add slide number
