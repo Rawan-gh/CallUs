@@ -429,6 +429,34 @@
             background: #10b981;
         }
 
+        .ai-button-glow {
+            animation: glow 2s ease-in-out infinite;
+            position: relative;
+            transition: all 0.3s ease;
+            transform: scale(1);
+        }
+
+        .ai-button-glow:hover {
+            transform: scale(1.05);
+            animation: glow 1.5s ease-in-out infinite;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.9), 0 0 25px rgba(255, 255, 255, 0.6), 0 0 35px rgba(255, 255, 255, 0.4) !important;
+        }
+
+        .ai-button-glow:active {
+            transform: scale(0.98);
+        }
+
+        .ai-button-glow::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 3s infinite;
+        }
+
         .category-panel {
             display: none;
             border-top: 1px solid rgba(226, 232, 240, 0.8);
@@ -1999,7 +2027,7 @@ input[type="color"]{
 }
 
 .ai-message.user .ai-message-content {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #38bdf8 100%);
     color: white;
     border-bottom-right-radius: 4px;
 }
@@ -2007,9 +2035,9 @@ input[type="color"]{
 .ai-message.ai-assistant .ai-message-content {
     background: white;
     color: #0f172a;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #10b981;
     border-bottom-left-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px rgba(16, 185, 129, 0.1);
 }
 
 .ai-message-content ul {
@@ -2024,8 +2052,8 @@ input[type="color"]{
 .ai-spinner {
     width: 16px;
     height: 16px;
-    border: 2px solid #e0e7ff;
-    border-top-color: #667eea;
+    border: 2px solid #bae6fd;
+    border-top-color: #10b981;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
@@ -2039,9 +2067,27 @@ input[type="color"]{
     to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.6), 0 0 15px rgba(255, 255, 255, 0.4), 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 12px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.3);
+    }
+}
+
 #aiChatInput:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
 .ai-lang-btn:hover {
@@ -2069,9 +2115,9 @@ input[type="color"]{
 .ai-sidebar {
     position: fixed;
     right: 0;
-    top: 160px;
+    top: 120px;
     width: 400px;
-    height: calc(100vh - 160px);
+    height: calc(100vh - 120px);
     background: white;
     border-left: 1px solid #e5e7eb;
     box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
@@ -2088,13 +2134,14 @@ input[type="color"]{
 }
 
 .ai-sidebar-header {
-    padding: 16px 20px;
+    padding: 20px 20px 16px 20px;
     border-bottom: 1px solid #e5e7eb;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #38bdf8 100%);
     color: white;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-top: 0;
 }
 
 .ai-sidebar-header h3 {
@@ -2180,9 +2227,6 @@ input[type="color"]{
 <input class="title-input" id="title" placeholder="Untitled Presentation" type="text"/>
 </div>
 <div class="header-right">
-<button class="header-btn" onclick="app.toggleAIPanel()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
-🤖 مساعد AI
-</button>
 <button class="header-btn grey-style" onclick="app.newPresentation()">New</button>
 <button class="header-btn grey-style" onclick="app.saveJSON()">Save</button>
 <button class="header-btn grey-style" onclick="app.loadJSON()">Load</button>
@@ -2215,6 +2259,9 @@ input[type="color"]{
 </button>
 <button class="category-tab" data-category="effects" onclick="app.showCategory('effects')">
 <span class="dot"></span> Effects
+</button>
+<button class="category-tab ai-button-glow" onclick="app.toggleAIPanel()" style="background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #38bdf8 100%); color: white; border: none; margin-left: 4px; position: relative; overflow: hidden;">
+<span style="position: relative; z-index: 1;">AI</span>
 </button>
 </nav>
 <div style="display: flex; align-items: center; gap: 8px;">
@@ -2457,7 +2504,6 @@ input[type="color"]{
 <div class="ai-sidebar" id="aiSidebar">
 <div class="ai-sidebar-header">
 <h3>
-<span>🤖</span>
 <span>AI Smart Assistant</span>
 </h3>
 <button class="ai-sidebar-close" onclick="app.toggleAIPanel()">×</button>
@@ -2466,7 +2512,7 @@ input[type="color"]{
 <div class="ai-sidebar-messages" id="aiChatMessages">
 <div class="ai-message ai-assistant">
 <div class="ai-message-content">
-<div style="font-weight: 600; margin-bottom: 4px; color: #667eea;">AI Assistant</div>
+<div style="font-weight: 600; margin-bottom: 4px; color: #10b981;">AI Assistant</div>
 <div>Hello! I'm your creative AI assistant. I can automatically:</div>
 <ul style="margin: 8px 0; padding-left: 20px; color: #64748b;">
 <li>Create complete slides with titles, content, and visuals</li>
@@ -2490,7 +2536,7 @@ input[type="color"]{
 <div class="ai-sidebar-input-area">
 <div style="display: flex; gap: 8px;">
 <input type="text" id="aiChatInput" placeholder="Type your request... (e.g., Create 5 slides about AI)" style="flex: 1; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.2s;" onkeypress="if(event.key === 'Enter') app.sendAIMessage()">
-<button onclick="app.sendAIMessage()" style="padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Send</button>
+<button onclick="app.sendAIMessage()" style="padding: 12px 24px; background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #38bdf8 100%); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Send</button>
 </div>
 <div id="aiLoading" style="display: none; margin-top: 12px; padding: 12px; background: #f0f9ff; border-radius: 8px; color: #0369a1; font-size: 13px;">
 <div style="display: flex; align-items: center; gap: 8px;">
@@ -2522,11 +2568,25 @@ input[type="color"]{
             thumbnailUpdateTimeout: null,
 
             init() {
+                // Initialize first slide as title slide if it's empty
+                this.initializeTitleSlide();
+                
                 this.loadCanvas();
                 this.renderSlides();
                 this.setupDragDrop();
                 this.setupKeyboardShortcuts();
                 this.saveState();
+                
+                // Update title slide when title input changes
+                const titleInput = document.getElementById('title');
+                if (titleInput) {
+                    titleInput.addEventListener('input', () => {
+                        this.updateTitleFromInput();
+                    });
+                    titleInput.addEventListener('blur', () => {
+                        this.updateTitleFromInput();
+                    });
+                }
                 
                 // Hide context menu on click anywhere
                 document.addEventListener('click', (e) => {
@@ -2534,6 +2594,115 @@ input[type="color"]{
                         this.hideContextMenu();
                     }
                 });
+            },
+            
+            updateTitleFromInput() {
+                const titleInput = document.getElementById('title');
+                if (!titleInput) return;
+                
+                const titleText = titleInput.value.trim() || 'Untitled Presentation';
+                
+                // Ensure first slide exists
+                if (this.data.length === 0) {
+                    this.data = [{ els: [], bg: 'white', transition: 'fade' }];
+                }
+                if (!this.data[0].els) {
+                    this.data[0].els = [];
+                }
+                
+                // Find or create title element
+                let titleEl = this.data[0].els.find(el => this.isTitleElement(el));
+                
+                if (titleEl) {
+                    // Update existing title element
+                    titleEl.content = titleText;
+                } else {
+                    // Create new title element
+                    titleEl = {
+                        id: Date.now() + Math.random(),
+                        type: 'text',
+                        content: titleText,
+                        x: 130,
+                        y: 200,
+                        width: 700,
+                        height: 100,
+                        font: 'Arial',
+                        size: 48,
+                        color: '#0f172a',
+                        bg: 'transparent',
+                        weight: 'bold',
+                        align: 'center',
+                        animation: 'none'
+                    };
+                    this.data[0].els.push(titleEl);
+                }
+                
+                // Update canvas immediately - always reload if on first slide
+                if (this.curr === 0) {
+                    this.loadCanvas();
+                    this.renderSlides();
+                } else {
+                    // Even if not on first slide, update thumbnails
+                    this.renderSlides();
+                }
+                this.saveState();
+            },
+            
+            initializeTitleSlide() {
+                // Always ensure first slide exists
+                if (this.data.length === 0) {
+                    this.data = [{ els: [], bg: 'white', transition: 'fade' }];
+                }
+                
+                // Ensure first slide has els array
+                if (!this.data[0].els) {
+                    this.data[0].els = [];
+                }
+                
+                // Check if title element already exists
+                const hasTitle = this.data[0].els.some(el => this.isTitleElement(el));
+                
+                // If no title element exists, add one
+                if (!hasTitle) {
+                    const titleInput = document.getElementById('title');
+                    const titleText = titleInput ? (titleInput.value || 'Untitled Presentation') : 'Untitled Presentation';
+                    
+                    // Add title text element to first slide
+                    const titleEl = {
+                        id: Date.now() + Math.random(),
+                        type: 'text',
+                        content: titleText,
+                        x: 130,
+                        y: 200,
+                        width: 700,
+                        height: 100,
+                        font: 'Arial',
+                        size: 48,
+                        color: '#0f172a',
+                        bg: 'transparent',
+                        weight: 'bold',
+                        align: 'center',
+                        animation: 'none'
+                    };
+                    
+                    this.data[0].els.push(titleEl);
+                    console.log('Title element added to first slide');
+                }
+            },
+            
+            // Check if an element is the title element in the first slide
+            isTitleElement(el) {
+                return el.type === 'text' && 
+                       (el.weight === 'bold' || el.size >= 36) && 
+                       (el.align === 'center' || el.x === 130 || el.x === 480);
+            },
+            
+            // Get the title element from the first slide
+            getTitleElement() {
+                if (this.data.length > 0 && this.data[0].els && this.data[0].els.length > 0) {
+                    return this.data[0].els.find(el => this.isTitleElement(el));
+                }
+                return null;
             },
 
             showCategory(category) {
@@ -3501,6 +3670,14 @@ input[type="color"]{
                 this.loadCanvas();
                 this.renderSlides();
                 
+                // If this is the title element in the first slide, update the title input
+                if (this.curr === 0 && this.isTitleElement(data)) {
+                    const titleInput = document.getElementById('title');
+                    if (titleInput && prop === 'content') {
+                        titleInput.value = value || 'Untitled Presentation';
+                    }
+                }
+                
                 // Re-select to update properties panel
                 setTimeout(() => {
                     const el = document.querySelector(`[data-id="${data.id}"]`);
@@ -4160,6 +4337,14 @@ input[type="color"]{
                             el.content = div.innerText;
                             this.saveState();
                             this.renderSlides();
+                            
+                            // If this is the title element in the first slide, update the title input
+                            if (slideIndex === 0 && this.isTitleElement(el)) {
+                                const titleInput = document.getElementById('title');
+                                if (titleInput) {
+                                    titleInput.value = div.innerText || 'Untitled Presentation';
+                                }
+                            }
                         }
                     });
 
@@ -4273,7 +4458,7 @@ input[type="color"]{
                     img.onerror = function() {
                         console.error('Image failed to load:', this.src);
                         // Use a simple fallback that definitely works
-                        const fallbackUrl = `https://via.placeholder.com/${data.width || 300}x${data.height || 200}/667eea/ffffff?text=Image`;
+                        const fallbackUrl = `https://via.placeholder.com/${data.width || 300}x${data.height || 200}/10b981/ffffff?text=Image`;
                         console.log('Trying fallback:', fallbackUrl);
                         this.src = fallbackUrl;
                     };
@@ -4284,7 +4469,7 @@ input[type="color"]{
                         let imageUrl = data.src;
                         if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
                             // If not a full URL, create placeholder
-                            imageUrl = `https://via.placeholder.com/${data.width || 300}x${data.height || 200}/667eea/ffffff?text=Image`;
+                            imageUrl = `https://via.placeholder.com/${data.width || 300}x${data.height || 200}/10b981/ffffff?text=Image`;
                         }
                         img.src = imageUrl;
                         console.log('Setting image src to:', imageUrl);
@@ -4442,11 +4627,109 @@ input[type="color"]{
                 return div;
             },
 
+            // Fix overlaps between text and image elements
+            fixOverlaps(slideIndex) {
+                if (!this.data[slideIndex] || !this.data[slideIndex].els) return;
+                
+                const slide = this.data[slideIndex];
+                const elements = slide.els || [];
+                let needsSave = false;
+                
+                // Find all images
+                const images = elements.filter(el => el.type === 'image');
+                
+                // For each text element, check overlap with images
+                elements.forEach(textEl => {
+                    if (textEl.type !== 'text' || textEl.weight === 'bold') return; // Skip titles
+                    
+                    const textX = textEl.x || 0;
+                    const textY = textEl.y || 0;
+                    const textWidth = textEl.width || 300;
+                    const textHeight = textEl.height || 50;
+                    const textRight = textX + textWidth;
+                    const textBottom = textY + textHeight;
+                    
+                    images.forEach(imageEl => {
+                        const imageX = imageEl.x || 0;
+                        const imageY = imageEl.y || 0;
+                        const imageWidth = imageEl.width || 300;
+                        const imageHeight = imageEl.height || 200;
+                        const imageRight = imageX + imageWidth;
+                        const imageBottom = imageY + imageHeight;
+                        
+                        // Check for overlap
+                        const horizontalOverlap = (textX < imageRight && textRight > imageX);
+                        const verticalOverlap = (textY < imageBottom && textBottom > imageY);
+                        
+                        if (horizontalOverlap && verticalOverlap) {
+                            needsSave = true;
+                            
+                            // If image is on right side (x >= 500)
+                            if (imageX >= 500) {
+                                // Reduce text width to leave space for image
+                                const newWidth = Math.max(200, imageX - textX - 20);
+                                if (newWidth < textWidth) {
+                                    textEl.width = newWidth;
+                                }
+                            }
+                            // If image is on left side (x <= 200)
+                            else if (imageX <= 200) {
+                                // Move text to right side
+                                const newX = imageRight + 20;
+                                if (newX + textWidth <= 960) {
+                                    textEl.x = newX;
+                                    textEl.width = Math.min(textWidth, 960 - newX - 20);
+                                } else {
+                                    // Not enough space on right, reduce width on left
+                                    textEl.width = Math.max(200, imageX - textX - 20);
+                                }
+                            }
+                            // If image is in the middle
+                            else {
+                                // Move text to the side with more space
+                                if (textX < 480) {
+                                    // Text is on left, try to move to right
+                                    const newX = imageRight + 20;
+                                    if (newX + textWidth <= 960) {
+                                        textEl.x = newX;
+                                        textEl.width = Math.min(textWidth, 960 - newX - 20);
+                                    } else {
+                                        // Not enough space, reduce width on left
+                                        textEl.width = Math.max(200, imageX - textX - 20);
+                                    }
+                                } else {
+                                    // Text is on right, move to left
+                                    const newX = 120;
+                                    const maxWidth = imageX - newX - 20;
+                                    if (maxWidth >= 200) {
+                                        textEl.x = newX;
+                                        textEl.width = Math.min(textWidth, maxWidth);
+                                    } else {
+                                        // Not enough space, reduce width
+                                        textEl.width = Math.max(200, imageX - textX - 20);
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+                
+                if (needsSave) {
+                    this.saveState();
+                }
+            },
+
             loadCanvas() {
+                // Always ensure title slide exists before rendering
+                this.initializeTitleSlide();
+                
                 const wrapper = document.getElementById('canvasWrapper');
                 wrapper.innerHTML = '';
                 
                 this.data.forEach((slide, slideIndex) => {
+                    // Fix overlaps before rendering
+                    this.fixOverlaps(slideIndex);
+                    
                     const slideDiv = document.createElement('div');
                     slideDiv.className = 'canvas-slide' + (slideIndex === this.curr ? ' active' : '');
                     slideDiv.dataset.slideIndex = slideIndex;
@@ -5114,11 +5397,34 @@ input[type="color"]{
 
             newPresentation() {
                 if (confirm('Start a new presentation? Unsaved changes will be lost.')) {
-                    this.data = [{ els: [], bg: 'white', transition: 'fade' }];
+                    const titleInput = document.getElementById('title');
+                    const titleText = titleInput ? titleInput.value || 'Untitled Presentation' : 'Untitled Presentation';
+                    
+                    // Create first slide as title slide
+                    const titleEl = {
+                        id: Date.now(),
+                        type: 'text',
+                        content: titleText,
+                        x: 130,
+                        y: 200,
+                        width: 700,
+                        height: 100,
+                        font: 'Arial',
+                        size: 48,
+                        color: '#0f172a',
+                        bg: 'transparent',
+                        weight: 'bold',
+                        align: 'center',
+                        animation: 'none'
+                    };
+                    
+                    this.data = [{ els: [titleEl], bg: 'white', transition: 'fade' }];
                     this.curr = 0;
                     this.history = [];
                     this.historyIndex = -1;
-                    document.getElementById('title').value = '';
+                    if (titleInput) {
+                        titleInput.value = '';
+                    }
                     this.saveState();
                     this.loadCanvas();
                     this.renderSlides();
@@ -5520,104 +5826,89 @@ input[type="color"]{
                 if (!canvas) return;
                 
                 const slide = this.data[this.presentSlide];
+                if (!slide) {
+                    console.error('Slide not found at index:', this.presentSlide);
+                    return;
+                }
                 canvas.innerHTML = '';
                 canvas.style.width = '960px';
                 canvas.style.height = '540px';
-                canvas.style.background = slide.bg || '#ffffff';
                 canvas.style.position = 'relative';
+                canvas.style.border = '1px solid #e5e7eb';
+                canvas.style.overflow = 'hidden';
                 
-                if (slide.bg && slide.bg.startsWith('url(')) {
-                    canvas.style.backgroundImage = slide.bg;
+                // Apply background with transparency (EXACT same logic as loadCanvas)
+                const bg = slide.bg || slide.originalBg || 'white';
+                const opacity = slide.bgOpacity !== undefined ? slide.bgOpacity : 1;
+                
+                if (bg.startsWith('url(')) {
+                    canvas.style.backgroundImage = bg;
                     canvas.style.backgroundSize = 'cover';
                     canvas.style.backgroundPosition = 'center';
+                    canvas.style.opacity = opacity;
+                } else if (bg.startsWith('linear-gradient')) {
+                    canvas.style.background = bg;
+                    canvas.style.opacity = opacity;
+                } else if (bg.startsWith('rgba')) {
+                    canvas.style.background = bg;
+                } else {
+                    // Convert hex to rgba with opacity
+                    if (bg.startsWith('#')) {
+                        const r = parseInt(bg.slice(1, 3), 16);
+                        const g = parseInt(bg.slice(3, 5), 16);
+                        const b = parseInt(bg.slice(5, 7), 16);
+                        canvas.style.background = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+                    } else {
+                        canvas.style.background = bg;
+                        canvas.style.opacity = opacity;
+                    }
                 }
                 
                 const transition = slide.transition || 'fade';
                 canvas.className = 'present-canvas slide-transition-' + transition;
                 
-                slide.els.forEach((el, index) => {
-                    const div = document.createElement('div');
-                    div.className = 'element ' + el.type + '-element';
-                    div.style.left = el.x + 'px';
-                    div.style.top = el.y + 'px';
-                    div.style.width = el.width + 'px';
-                    div.style.height = el.height + 'px';
-
-                    if (el.shadow) {
-                        div.style.boxShadow = el.shadow;
+                // Add Aramco Digital template (logo and gradient line) - same as loadCanvas
+                // Logo at top
+                const logoContainer = document.createElement('div');
+                logoContainer.style.cssText = 'display: flex; align-items: center; padding: 32px 40px 0; position: absolute; top: 0; left: 0; right: 0; z-index: 2; pointer-events: none;';
+                const logo = document.createElement('img');
+                logo.src = 'assets/aramco-digital-logo.png';
+                logo.alt = 'Aramco Digital';
+                logo.style.cssText = 'height: 48px; width: auto;';
+                logoContainer.appendChild(logo);
+                canvas.appendChild(logoContainer);
+                
+                // Gradient line at bottom - always show
+                const gradientLine = document.createElement('div');
+                gradientLine.style.cssText = 'height: 10px; width: 100%; background: linear-gradient(to right, #10b981, #14b8a6, #38bdf8); position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; pointer-events: none;';
+                canvas.appendChild(gradientLine);
+                
+                // Check if slide has elements array, if not initialize it
+                if (!slide.els || !Array.isArray(slide.els)) {
+                    slide.els = [];
+                }
+                
+                // Use createEl to render elements exactly as in editor, but make them non-editable
+                slide.els.forEach((el) => {
+                    if (!el || !el.type) {
+                        return;
                     }
-
-                    if (el.type === 'text') {
-                        div.textContent = el.content;
-                        div.style.fontFamily = el.font || 'Arial';
-                        div.style.fontSize = (el.size || 24) + 'px';
-                        div.style.color = el.color || '#000000';
-                        div.style.backgroundColor = el.bg || 'transparent';
-                        div.style.fontWeight = el.weight || 'normal';
-                        div.style.textAlign = el.align || 'left';
-                        div.style.padding = '8px';
+                    
+                    // Create element using the same method as loadCanvas
+                    const element = this.createEl(el, this.presentSlide);
+                    
+                    // Make elements non-editable for presentation mode
+                    if (element.contentEditable !== undefined) {
+                        element.contentEditable = false;
                     }
-
-                    if (el.type === 'shape') {
-                        div.style.backgroundColor = el.bg || '#3b82f6';
-                        div.style.border = `${el.thick || 2}px solid ${el.border || '#1e40af'}`;
-                        
-                        // Apply shape styles for presentation
-                        switch(el.shape) {
-                            case 'circle':
-                                div.style.borderRadius = '50%';
-                                break;
-                            case 'rectangle':
-                                div.style.borderRadius = '4px';
-                                break;
-                            case 'triangle':
-                                div.style.backgroundColor = 'transparent';
-                                div.style.borderLeft = `${el.width / 2}px solid transparent`;
-                                div.style.borderRight = `${el.width / 2}px solid transparent`;
-                                div.style.borderBottom = `${el.height}px solid ${el.bg || '#3b82f6'}`;
-                                div.style.width = '0';
-                                div.style.height = '0';
-                                div.style.border = 'none';
-                                break;
-                            case 'star':
-                                div.style.borderRadius = '4px';
-                                div.style.clipPath = 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)';
-                                break;
-                            case 'pentagon':
-                                div.style.clipPath = 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)';
-                                break;
-                            case 'hexagon':
-                                div.style.clipPath = 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)';
-                                break;
-                            case 'diamond':
-                                div.style.clipPath = 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)';
-                                break;
-                            case 'arrow-right':
-                                div.style.clipPath = 'polygon(0% 25%, 60% 25%, 60% 0%, 100% 50%, 60% 100%, 60% 75%, 0% 75%)';
-                                break;
-                            case 'arrow-left':
-                                div.style.clipPath = 'polygon(40% 25%, 100% 25%, 100% 75%, 40% 75%, 40% 100%, 0% 50%, 40% 0%)';
-                                break;
-                            default:
-                                div.style.borderRadius = '4px';
-                        }
-                    }
-
-                    if (el.type === 'image') {
-                        const img = document.createElement('img');
-                        img.src = el.src;
-                        img.style.width = '100%';
-                        img.style.height = '100%';
-                        img.style.objectFit = 'cover';
-                        div.appendChild(img);
-                    }
-
-                    if (el.animation && el.animation !== 'none') {
-                        setTimeout(() => {
-                            div.classList.add('animate-' + el.animation);
-                        }, index * 200);
-                    }
-                    canvas.appendChild(div);
+                    element.style.pointerEvents = 'none';
+                    element.style.userSelect = 'none';
+                    
+                    // Remove resize handles if any
+                    const handles = element.querySelectorAll('.resize-handle');
+                    handles.forEach(handle => handle.remove());
+                    
+                    canvas.appendChild(element);
                 });
                 
                 document.getElementById('presentCounter').textContent = `${this.presentSlide + 1} / ${this.data.length}`;
@@ -6719,16 +7010,15 @@ input[type="color"]{
 
             // AI Assistant Functions
             getOpenAIKey() {
-                // Get API key from localStorage (user should set it via browser console or settings)
+                // Try to get API key from localStorage first (user can set it)
                 let apiKey = localStorage.getItem('openai_api_key');
                 if (!apiKey) {
-                    // Prompt user to set API key
+                    // Try to get from environment variable or prompt user
                     apiKey = prompt('Please enter your OpenAI API key:');
                     if (apiKey) {
                         localStorage.setItem('openai_api_key', apiKey);
                     } else {
-                        alert('OpenAI API key is required for AI features to work. Please set it in browser console: localStorage.setItem("openai_api_key", "your-key-here")');
-                        return null;
+                        throw new Error('OpenAI API key is required. Please set it in localStorage or enter it when prompted.');
                     }
                 }
                 return apiKey;
@@ -6856,7 +7146,7 @@ input[type="color"]{
                         `أنت مساعد ذكي لتحرير العروض التقديمية. يمكنك:
 1. إضافة سلايدات جديدة (يمكن إضافة عدة سلايدات في مرة واحدة)
 2. إضافة نصوص وصور ورسوم بيانية
-3. تعديل وتنظيم السلايدات
+3. تعديل وتنظيم السلايدات الموجودة - يمكنك تعديل أي سلايد موجود باستخدام "modify_slide" مع slide: [رقم السلايد]
 4. تغيير الألوان والخطوط
 
 قبل تنفيذ أي شيء، يجب أن:
@@ -6864,7 +7154,7 @@ input[type="color"]{
 2. تعرض preview للمحتوى قبل التنفيذ
 3. تنتظر موافقة المستخدم
 
-مهم جداً: تذكر دائماً سياق المحادثة. إذا قال المستخدم "أضف المزيد" أو "غير هذا" أو "نفس الموضوع"، يجب أن تفهم ما كان يتحدث عنه في الرسائل السابقة.
+مهم جداً: تذكر دائماً سياق المحادثة. إذا قال المستخدم "أضف المزيد" أو "غير هذا" أو "نفس الموضوع" أو "عدل"، يجب أن تفهم ما كان يتحدث عنه في الرسائل السابقة وتعدل على السلايدات الموجودة بدلاً من إنشاء سلايدات جديدة.
 
 يجب أن ترد بـ JSON يحتوي على:
 {
@@ -6886,52 +7176,77 @@ SLIDE CANVAS: 960px × 540px
 
 IMPORTANT RULES:
 1. USE VARIED CONTENT FORMATS - Mix different text styles:
-   - Regular paragraphs (descriptive text, explanations)
-   - Bullet points (• for lists of items)
-   - Numbered lists (1. 2. 3. for steps or sequences)
+   - Regular paragraphs (descriptive text, explanations) - Keep 2-3 sentences max
+   - Bullet points (• for lists of items) - 3-5 points max, each point brief
+   - Numbered lists (1. 2. 3. for steps or sequences) - 3-5 items max
    - Don't use only bullet points - vary the format!
-2. CREATE DETAILED CONTENT - Add comprehensive information (5-8 items or substantial paragraphs)
-3. You can MODIFY the FIRST slide (slide 0) - use type "modify_slide" with slide: 0 to add content to the existing first slide
-4. DO NOT duplicate the title - use EITHER action.title OR a title element in elements array, NOT both
-5. ALWAYS use the SAME background color as the first slide (check firstSlideStyle.bg in currentState)
-6. ALWAYS use the SAME text styles as the first slide:
+2. KEEP CONTENT FITTING - Content must fit within slide boundaries (height max 300px, NOT 350px)
+3. CONCISE CONTENT - CRITICAL: Maximum 400 characters per text element. Each sentence max 20 words. Each bullet max 12 words. Keep it VERY short and readable
+4. MODIFY EXISTING SLIDES - You can modify ANY existing slide using "modify_slide" with slide: [index]. When user asks to modify/edit, check existing slides and modify them instead of creating new ones.
+5. DO NOT duplicate the title - use EITHER action.title OR a title element in elements array, NOT both
+6. ALWAYS use the SAME background color as the first slide (check firstSlideStyle.bg in currentState)
+7. ALWAYS use the SAME text styles as the first slide:
    - Title: Use titleStyle from currentState (size, color, weight, align, font)
    - Content: Use contentStyle from currentState (size, color, align, font)
-7. Use proper coordinates within canvas bounds (0-960 width, 0-540 height)
-8. Don't overlap elements
-9. Match the visual style and formatting of the existing first slide
-10. ADD MORE CONTENT - Each slide should have substantial information, not minimal content
+8. Use proper coordinates within canvas bounds (0-960 width, 0-540 height)
+9. DON'T OVERLAP ELEMENTS - CRITICAL: If adding an image, ensure text doesn't overlap with it:
+   - If image is on RIGHT side (x: 550-600): Text should be on LEFT (x: 120-150, width: 400-450 max)
+   - If image is on LEFT side (x: 120-150): Text should be on RIGHT (x: 550-600, width: 400-450 max)
+   - If image is at TOP (y: 180-220): Text should be BELOW image (y: 400+)
+   - If image is at BOTTOM (y: 320+): Text should be ABOVE image (y: 180-250)
+   - Always leave proper spacing between text and image (at least 20px gap)
+10. Match the visual style and formatting of the existing first slide
+11. CONTENT LENGTH: Maximum 3-5 bullet points OR 1-2 very short paragraphs per slide. Total text per element: MAX 400 characters. Each sentence: MAX 20 words. Each bullet: MAX 12 words.
+12. IMAGE PLACEMENT: When adding images, use standard positions:
+    - Right side: x: 550-600, y: 180-200, width: 280-320, height: 200-240
+    - Left side: x: 120-150, y: 180-200, width: 280-320, height: 200-240
+    - Adjust text position accordingly to avoid overlap
 
 ELEMENT SPECIFICATIONS:
 
-TITLE (choose ONE method):
-- Option A: Use action.title field (recommended)
+TITLE (REQUIRED - choose ONE method):
+- Option A: Use action.title field (REQUIRED - always include this for every slide)
 - Option B: Include in elements array with: type:"text", size:36-42, weight:"bold", align:"center", x:130, y:60, width:700, height:80
 
+CRITICAL: Every slide MUST have a title. Always use action.title field for every add_slide action.
+
 CONTENT TEXT - USE VARIED FORMATS (IMPORTANT!):
-You MUST use different text formats, not only bullet points:
+You MUST use different text formats, not only bullet points. Keep content FIT WITHIN the slide - don't make it too long!
 
-1. Regular paragraphs (no bullets, no numbers):
-   - content: "This is a paragraph explaining the topic in detail. It provides comprehensive information and context. Use this for introductions, explanations, and descriptions."
-   - Example: "Artificial intelligence is transforming how we work and live. It enables machines to learn from data and make intelligent decisions."
+SLIDE DIMENSIONS: 960px × 540px
+TEXT AREA: Typically 450-550px width, 300-350px height (y: 180-200)
 
-2. Bullet points (use •):
-   - content: "• First key point\\n• Second key point\\n• Third key point"
-   - Use for lists of features, benefits, items
+CONTENT GUIDELINES - STRICT LENGTH LIMITS:
+1. Regular paragraphs (2-3 sentences MAX, 150-200 characters total):
+   - content: "Brief paragraph. Keep it very short. Maximum 2 sentences only."
+   - Example: "AI transforms work. Machines learn and decide."
+   - NEVER exceed 250 characters for a paragraph
 
-3. Numbered lists (use 1. 2. 3.):
-   - content: "1. First step or item\\n2. Second step or item\\n3. Third step or item"
-   - Use for steps, processes, sequences, rankings
+2. Bullet points (3-5 points max, each point 8-12 words MAX):
+   - content: "• Short point\\n• Another point\\n• Final point"
+   - Each point: Maximum 12 words, 60 characters
+   - Total bullet content: Maximum 300 characters
 
-4. Mixed content (RECOMMENDED):
-   - content: "Introduction paragraph explaining the topic in detail.\\n\\n• Key feature one\\n• Key feature two\\n• Key feature three\\n\\nConclusion or summary paragraph."
-   - Combine paragraphs with bullets for rich, varied content
+3. Numbered lists (3-5 items max, each item 8-12 words):
+   - content: "1. First step\\n2. Second step\\n3. Third step"
+   - Each step: Maximum 12 words
 
-CRITICAL: Vary content format across slides - don't use only bullet points! Mix paragraphs, bullets, and numbered lists.
+4. Mixed content (keep VERY short):
+   - content: "Brief intro (1 sentence).\\n\\n• Point 1\\n• Point 2\\n• Point 3"
+   - Total content: Maximum 400 characters including all text
+
+CRITICAL RULES - ENFORCE STRICTLY:
+- MAXIMUM content length: 400 characters per text element
+- Keep content CONCISE - fit within slide boundaries
+- Maximum 3-5 bullet points OR 1-2 very short paragraphs
+- Don't exceed height: 300px for text elements (not 350px!)
+- Each sentence: Maximum 20 words
+- Each bullet point: Maximum 12 words
+- Vary formats but keep content SHORT and readable
 - x: 120-150
 - y: 180-200
-- width: 450-550
-- height: 300-400 (adjust based on content amount)
+- width: 400-500 (reduce if image present)
+- height: 200-300 (NEVER exceed 300px)
 - size: 22-26
 - color: "#374151"
 - align: "left"
@@ -6939,10 +7254,13 @@ CRITICAL: Vary content format across slides - don't use only bullet points! Mix 
 IMAGES:
 - type: "image"
 - imageUrl: Search term (e.g., "technology", "business", "team", "alexa")
-- x: 550-600 (right side)
-- y: 180-200
-- width: 280-320
-- height: 200-240
+- Standard positions:
+  * RIGHT side: x: 550-600, y: 180-200, width: 280-320, height: 200-240
+  * LEFT side: x: 120-150, y: 180-200, width: 280-320, height: 200-240
+- CRITICAL: When adding image, adjust text position to avoid overlap:
+  * If image on RIGHT: Text should be on LEFT (x: 120-150, width: 400-450 max)
+  * If image on LEFT: Text should be on RIGHT (x: 550-600, width: 400-450 max)
+  * Always leave 20px gap between text and image
 
 CHARTS:
 - type: "chart"
@@ -6975,7 +7293,7 @@ RESPONSE FORMAT (JSON ONLY):
       "title": "Introduction to Topic",
       "bg": "white",
       "elements": [
-        {"type": "text", "content": "This is an introduction paragraph that explains the topic in detail. It provides comprehensive background information and context for the presentation.\\n\\n• Key feature one with explanation\\n• Key feature two with explanation\\n• Key feature three with explanation\\n\\nIn conclusion, this topic is important because...", "x": 120, "y": 180, "width": 500, "height": 350, "size": 24, "color": "#374151", "align": "left"},
+        {"type": "text", "content": "Brief introduction explaining the topic. This provides essential context.\\n\\n• Key feature one\\n• Key feature two\\n• Key feature three", "x": 120, "y": 180, "width": 500, "height": 300, "size": 24, "color": "#374151", "align": "left"},
         {"type": "image", "imageUrl": "topic", "x": 550, "y": 180, "width": 300, "height": 220}
       ]
     },
@@ -6984,7 +7302,7 @@ RESPONSE FORMAT (JSON ONLY):
       "title": "Process Steps",
       "bg": "white",
       "elements": [
-        {"type": "text", "content": "The following steps outline the process:\\n\\n1. First step with detailed explanation\\n2. Second step with detailed explanation\\n3. Third step with detailed explanation\\n4. Fourth step with detailed explanation", "x": 120, "y": 180, "width": 500, "height": 350, "size": 24, "color": "#374151", "align": "left"}
+        {"type": "text", "content": "The process includes:\\n\\n1. First step\\n2. Second step\\n3. Third step\\n4. Fourth step", "x": 120, "y": 180, "width": 500, "height": 300, "size": 24, "color": "#374151", "align": "left"}
       ]
     }
   ],
@@ -6995,10 +7313,12 @@ RESPONSE FORMAT (JSON ONLY):
 
 ACTION TYPES:
 - "add_slide": Add a new slide
-- "modify_slide": Modify existing slide (use slide: 0 for first slide)
+- "modify_slide": Modify existing slide (use slide: [index] for any slide - 0 for first, 1 for second, etc.)
 - "add_text": Add text to specific slide
 - "add_image": Add image to specific slide
 - "add_chart": Add chart to specific slide
+
+IMPORTANT: When user asks to "modify", "edit", "change", or "update", use "modify_slide" to edit existing slides instead of creating new ones. Check currentState.slides to see existing slides and their indices.
 
 CONTENT VARIETY EXAMPLES:
 - Slide 1: Paragraph + bullets
@@ -7231,7 +7551,7 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                 
                 if (type === 'assistant') {
                     const header = document.createElement('div');
-                    header.style.cssText = 'font-weight: 600; margin-bottom: 4px; color: #667eea;';
+                    header.style.cssText = 'font-weight: 600; margin-bottom: 4px; color: #10b981;';
                     header.textContent = 'AI Assistant';
                     contentDiv.appendChild(header);
                 }
@@ -7265,12 +7585,13 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                                     hasTitleInElements = action.elements.some(el => 
                                         el.type === 'text' && 
                                         (el.weight === 'bold' || el.size >= 36) &&
-                                        el.align === 'center'
+                                        (el.align === 'center' || el.y < 100) &&
+                                        el.content === action.title
                                     );
                                 }
                                 
-                                // Add title only if not already in elements
-                                if (action.title && !hasTitleInElements) {
+                                // Always add title if provided (unless it's already in elements)
+                                if (action.title && action.title.trim() && !hasTitleInElements) {
                                     // Get style from first slide
                                     const firstSlide = this.data[0] || { els: [] };
                                     let titleStyle = { size: 42, color: '#0f172a', weight: 'bold', align: 'center', font: 'Arial' };
@@ -7365,24 +7686,74 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                                                 console.log('Got image URL:', imageUrl);
                                             }
                                             
+                                            const imageX = element.x || 550;
+                                            const imageY = element.y || 180;
+                                            const imageWidth = element.width || 300;
+                                            const imageHeight = element.height || 220;
+                                            
+                                            // Adjust text elements to avoid overlap with image
+                                            const slideElements = this.data[newSlideIndex].els || [];
+                                            slideElements.forEach(existingEl => {
+                                                if (existingEl.type === 'text' && !existingEl.weight) {
+                                                    // Check if text overlaps with image
+                                                    const textRight = existingEl.x + existingEl.width;
+                                                    const textBottom = existingEl.y + existingEl.height;
+                                                    const imageRight = imageX + imageWidth;
+                                                    const imageBottom = imageY + imageHeight;
+                                                    
+                                                    // Check for both horizontal and vertical overlap
+                                                    const horizontalOverlap = (existingEl.x < imageRight && textRight > imageX);
+                                                    const verticalOverlap = (existingEl.y < imageBottom && textBottom > imageY);
+                                                    
+                                                    // If there's overlap
+                                                    if (horizontalOverlap && verticalOverlap) {
+                                                        // If image is on right side (x >= 500)
+                                                        if (imageX >= 500) {
+                                                            // Reduce text width to leave space for image
+                                                            const newWidth = Math.max(200, imageX - existingEl.x - 20);
+                                                            existingEl.width = newWidth;
+                                                        }
+                                                        // If image is on left side (x <= 200)
+                                                        else if (imageX <= 200) {
+                                                            // Move text to right side
+                                                            existingEl.x = imageRight + 20;
+                                                            existingEl.width = Math.min(existingEl.width, 960 - existingEl.x - 20);
+                                                        }
+                                                        // If image is in the middle
+                                                        else {
+                                                            // Move text to the side with more space
+                                                            if (existingEl.x < 480) {
+                                                                // Text is on left, move to right
+                                                                existingEl.x = imageRight + 20;
+                                                                existingEl.width = Math.min(existingEl.width, 960 - existingEl.x - 20);
+                                                            } else {
+                                                                // Text is on right, move to left
+                                                                existingEl.x = 120;
+                                                                existingEl.width = Math.min(existingEl.width, imageX - existingEl.x - 20);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                            
                                             if (imageUrl) {
                                                 console.log('Adding image element with URL:', imageUrl);
                                                 this.addImageElement(newSlideIndex, {
                                                     src: imageUrl,
-                                                    x: element.x || 550,
-                                                    y: element.y || 180,
-                                                    width: element.width || 300,
-                                                    height: element.height || 220
+                                                    x: imageX,
+                                                    y: imageY,
+                                                    width: imageWidth,
+                                                    height: imageHeight
                                                 });
                                             } else {
                                                 console.warn('No image URL available, using fallback');
                                                 // Use fallback
                                                 this.addImageElement(newSlideIndex, {
-                                                    src: `https://via.placeholder.com/${element.width || 300}x${element.height || 220}/667eea/ffffff?text=Image`,
-                                                    x: element.x || 550,
-                                                    y: element.y || 180,
-                                                    width: element.width || 300,
-                                                    height: element.height || 220
+                                                    src: `https://via.placeholder.com/${imageWidth}x${imageHeight}/10b981/ffffff?text=Image`,
+                                                    x: imageX,
+                                                    y: imageY,
+                                                    width: imageWidth,
+                                                    height: imageHeight
                                                 });
                                             }
                                         }
@@ -7447,13 +7818,67 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                                                 if (typeof imageUrl === 'string' && !imageUrl.startsWith('http')) {
                                                     imageUrl = await this.getImageFromUnsplash(imageUrl);
                                                 }
+                                                
+                                                const imageX = element.x || 550;
+                                                const imageY = element.y || 180;
+                                                const imageWidth = element.width || 300;
+                                                const imageHeight = element.height || 220;
+                                                
+                                                // Adjust existing text elements to avoid overlap with image
+                                                const slideElements = this.data[modifySlideIndex].els || [];
+                                                slideElements.forEach(existingEl => {
+                                                    if (existingEl.type === 'text' && !existingEl.weight) {
+                                                        // Check if text overlaps with image
+                                                        const textRight = existingEl.x + existingEl.width;
+                                                        const textBottom = existingEl.y + existingEl.height;
+                                                        const imageRight = imageX + imageWidth;
+                                                        const imageBottom = imageY + imageHeight;
+                                                        
+                                                        // Check for both horizontal and vertical overlap
+                                                        const horizontalOverlap = (existingEl.x < imageRight && textRight > imageX);
+                                                        const verticalOverlap = (existingEl.y < imageBottom && textBottom > imageY);
+                                                        
+                                                        // If there's overlap
+                                                        if (horizontalOverlap && verticalOverlap) {
+                                                            // If image is on right side (x >= 500)
+                                                            if (imageX >= 500) {
+                                                                // Reduce text width to leave space for image
+                                                                const newWidth = Math.max(200, imageX - existingEl.x - 20);
+                                                                existingEl.width = newWidth;
+                                                                this.saveState();
+                                                            }
+                                                            // If image is on left side (x <= 200)
+                                                            else if (imageX <= 200) {
+                                                                // Move text to right side
+                                                                existingEl.x = imageRight + 20;
+                                                                existingEl.width = Math.min(existingEl.width, 960 - existingEl.x - 20);
+                                                                this.saveState();
+                                                            }
+                                                            // If image is in the middle
+                                                            else {
+                                                                // Move text to the side with more space
+                                                                if (existingEl.x < 480) {
+                                                                    // Text is on left, move to right
+                                                                    existingEl.x = imageRight + 20;
+                                                                    existingEl.width = Math.min(existingEl.width, 960 - existingEl.x - 20);
+                                                                } else {
+                                                                    // Text is on right, move to left
+                                                                    existingEl.x = 120;
+                                                                    existingEl.width = Math.min(existingEl.width, imageX - existingEl.x - 20);
+                                                                }
+                                                                this.saveState();
+                                                            }
+                                                        }
+                                                    }
+                                                });
+                                                
                                                 if (imageUrl) {
                                                     this.addImageElement(modifySlideIndex, {
                                                         src: imageUrl,
-                                                        x: element.x || 550,
-                                                        y: element.y || 180,
-                                                        width: element.width || 300,
-                                                        height: element.height || 220
+                                                        x: imageX,
+                                                        y: imageY,
+                                                        width: imageWidth,
+                                                        height: imageHeight
                                                     });
                                                 }
                                             } else if (element.type === 'chart') {
@@ -7537,17 +7962,115 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
             addTextElement(slideIndex, options) {
                 if (!this.data[slideIndex]) return;
                 
+                let content = options.content || 'نص جديد';
+                const fontSize = options.size || 24;
+                const width = options.width || 300;
+                const maxHeight = 300; // Maximum height to fit within slide (reduced from 350)
+                
+                // Calculate how many characters can fit per line
+                // Approximate: each character is about 0.6 * fontSize wide
+                const charsPerLine = Math.floor(width / (fontSize * 0.6));
+                
+                // Calculate maximum lines that fit in maxHeight
+                const lineHeight = fontSize * 1.4;
+                const maxLines = Math.floor(maxHeight / lineHeight);
+                const maxChars = charsPerLine * maxLines;
+                
+                // Truncate content if it's too long
+                if (content.length > maxChars) {
+                    // Try to cut at a word boundary
+                    const truncated = content.substring(0, maxChars - 10);
+                    const lastSpace = truncated.lastIndexOf(' ');
+                    if (lastSpace > maxChars * 0.7) {
+                        content = truncated.substring(0, lastSpace) + '...';
+                    } else {
+                        content = truncated + '...';
+                    }
+                }
+                
+                // Calculate appropriate height based on content
+                let calculatedHeight = options.height || 50;
+                if (content) {
+                    // Count actual lines (including line breaks)
+                    const actualLines = content.split('\\n').length;
+                    const estimatedLines = Math.ceil(content.length / charsPerLine);
+                    const totalLines = Math.max(actualLines, estimatedLines);
+                    const minHeight = Math.max(50, totalLines * lineHeight + 20); // Add padding
+                    calculatedHeight = Math.min(minHeight, maxHeight);
+                }
+                
+                // Ensure content fits within slide boundaries (540px height)
+                const maxY = 540 - calculatedHeight - 20; // 20px margin from bottom
+                let finalY = Math.min(options.y || 100, maxY);
+                let finalX = options.x || 100;
+                let finalWidth = width;
+                
+                // Check for existing images in the slide and adjust text position
+                const slideElements = this.data[slideIndex].els || [];
+                slideElements.forEach(existingEl => {
+                    if (existingEl.type === 'image') {
+                        const imageX = existingEl.x || 0;
+                        const imageY = existingEl.y || 0;
+                        const imageWidth = existingEl.width || 0;
+                        const imageHeight = existingEl.height || 0;
+                        const imageRight = imageX + imageWidth;
+                        const imageBottom = imageY + imageHeight;
+                        
+                        // Calculate text boundaries
+                        const textRight = finalX + finalWidth;
+                        const textBottom = finalY + calculatedHeight;
+                        
+                        // Check for horizontal overlap
+                        const horizontalOverlap = (finalX < imageRight && textRight > imageX);
+                        // Check for vertical overlap
+                        const verticalOverlap = (finalY < imageBottom && textBottom > imageY);
+                        
+                        // If there's overlap
+                        if (horizontalOverlap && verticalOverlap) {
+                            // If image is on the right side (x >= 500)
+                            if (imageX >= 500) {
+                                // Reduce text width to leave space for image
+                                finalWidth = Math.max(200, imageX - finalX - 20);
+                                // If not enough space, move text to left side
+                                if (finalWidth < 250) {
+                                    finalX = 120;
+                                    finalWidth = Math.max(200, imageX - finalX - 20);
+                                }
+                            }
+                            // If image is on the left side (x <= 200)
+                            else if (imageX <= 200) {
+                                // Move text to right side
+                                finalX = imageRight + 20;
+                                finalWidth = Math.min(width, 960 - finalX - 20);
+                            }
+                            // If image is in the middle, adjust text position
+                            else {
+                                // Try to place text on the opposite side
+                                if (finalX < 480) {
+                                    // Text is on left, move to right
+                                    finalX = imageRight + 20;
+                                    finalWidth = Math.min(width, 960 - finalX - 20);
+                                } else {
+                                    // Text is on right, move to left
+                                    finalX = 120;
+                                    finalWidth = Math.min(width, imageX - finalX - 20);
+                                }
+                            }
+                        }
+                    }
+                });
+                
                 const id = Date.now() + Math.random();
                 const el = {
                     id: id,
                     type: 'text',
-                    content: options.content || 'نص جديد',
-                    x: options.x || 100,
-                    y: options.y || 100,
-                    width: options.width || 300,
-                    height: options.height || 50,
+                    content: content,
+                    x: finalX,
+                    y: finalY,
+                    width: finalWidth,
+                    height: calculatedHeight,
                     font: options.font || 'Arial',
-                    size: options.size || 24,
+                    size: fontSize,
                     color: options.color || '#000000',
                     bg: options.bg || 'transparent',
                     weight: options.weight || 'normal',
@@ -7556,6 +8079,10 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                 };
                 
                 this.data[slideIndex].els.push(el);
+                
+                // Fix overlaps after adding text
+                this.fixOverlaps(slideIndex);
+                
                 this.saveState();
                 this.loadCanvas();
                 this.renderSlides();
@@ -7600,8 +8127,8 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                         console.warn('DALL-E generation failed, using placeholder:', dalleError);
                     }
                     
-                    // Fallback: Use placeholder.com with nice colors
-                    const colors = ['667eea', '10b981', '3b82f6', 'f59e0b', 'ef4444', '8b5cf6', 'ec4899', '14b8a6'];
+                    // Fallback: Use placeholder.com with Aramco theme colors
+                    const colors = ['10b981', '14b8a6', '38bdf8', '0ea5e9', '3b82f6', '059669', '0284c7', '0891b2'];
                     const seed = searchTerm.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
                     const colorIndex = seed % colors.length;
                     const color = colors[colorIndex];
@@ -7610,7 +8137,7 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                     return placeholderUrl;
                 } catch (error) {
                     console.error('Error fetching image:', error);
-                    return `https://via.placeholder.com/800x600/667eea/ffffff?text=Image`;
+                    return `https://via.placeholder.com/800x600/10b981/ffffff?text=Image`;
                 }
             },
 
@@ -7669,7 +8196,7 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                         testImg.onload = () => resolve(picsumUrl);
                         testImg.onerror = () => {
                             // Fallback to placeholder
-                            const colors = ['667eea', '10b981', '3b82f6', 'f59e0b'];
+                            const colors = ['10b981', '14b8a6', '38bdf8', '0ea5e9'];
                             const colorIndex = seed % colors.length;
                             resolve(`https://via.placeholder.com/800x600/${colors[colorIndex]}/ffffff?text=${encodeURIComponent(searchTerm.substring(0, 15))}`);
                         };
@@ -7678,7 +8205,7 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                 } catch (error) {
                     console.error('Error getting alternative image:', error);
                     // Final fallback
-                    return `https://via.placeholder.com/800x600/667eea/ffffff?text=${encodeURIComponent(searchTerm)}`;
+                    return `https://via.placeholder.com/800x600/10b981/ffffff?text=${encodeURIComponent(searchTerm)}`;
                 }
             },
 
@@ -7691,26 +8218,110 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                 // Ensure we have a valid src
                 if (!options.src || options.src.trim() === '') {
                     console.warn('No image src provided, using placeholder');
-                    options.src = `https://via.placeholder.com/${options.width || 300}x${options.height || 200}/667eea/ffffff?text=Image`;
+                    options.src = `https://via.placeholder.com/${options.width || 300}x${options.height || 200}/10b981/ffffff?text=Image`;
                 }
                 
                 console.log('Adding image element to slide', slideIndex, 'with src:', options.src);
+                
+                const imageX = options.x || 150;
+                const imageY = options.y || 100;
+                const imageWidth = options.width || 300;
+                const imageHeight = options.height || 200;
+                const imageRight = imageX + imageWidth;
+                const imageBottom = imageY + imageHeight;
+                
+                // Adjust existing text elements to avoid overlap with image
+                const slideElements = this.data[slideIndex].els || [];
+                let needsSave = false;
+                
+                slideElements.forEach(existingEl => {
+                    if (existingEl.type === 'text' && !existingEl.weight) {
+                        // Check if text overlaps with image
+                        const textRight = existingEl.x + existingEl.width;
+                        const textBottom = existingEl.y + existingEl.height;
+                        
+                        // Check for both horizontal and vertical overlap
+                        const horizontalOverlap = (existingEl.x < imageRight && textRight > imageX);
+                        const verticalOverlap = (existingEl.y < imageBottom && textBottom > imageY);
+                        
+                        // If there's overlap
+                        if (horizontalOverlap && verticalOverlap) {
+                            needsSave = true;
+                            
+                            // If image is on right side (x >= 500)
+                            if (imageX >= 500) {
+                                // Reduce text width to leave space for image
+                                const newWidth = Math.max(200, imageX - existingEl.x - 20);
+                                if (newWidth < existingEl.width) {
+                                    existingEl.width = newWidth;
+                                    console.log('Adjusted text width to avoid image overlap:', newWidth);
+                                }
+                            }
+                            // If image is on left side (x <= 200)
+                            else if (imageX <= 200) {
+                                // Move text to right side
+                                const newX = imageRight + 20;
+                                if (newX !== existingEl.x) {
+                                    existingEl.x = newX;
+                                    existingEl.width = Math.min(existingEl.width, 960 - existingEl.x - 20);
+                                    console.log('Moved text to right to avoid image overlap');
+                                }
+                            }
+                            // If image is in the middle
+                            else {
+                                // Move text to the side with more space
+                                if (existingEl.x < 480) {
+                                    // Text is on left, move to right if there's more space
+                                    const newX = imageRight + 20;
+                                    if (newX < 960 - existingEl.width) {
+                                        existingEl.x = newX;
+                                        existingEl.width = Math.min(existingEl.width, 960 - existingEl.x - 20);
+                                        console.log('Moved text to right to avoid middle image');
+                                    } else {
+                                        // Not enough space on right, reduce width on left
+                                        existingEl.width = Math.max(200, imageX - existingEl.x - 20);
+                                        console.log('Reduced text width to avoid middle image');
+                                    }
+                                } else {
+                                    // Text is on right, move to left
+                                    const newX = 120;
+                                    const maxWidth = imageX - newX - 20;
+                                    if (maxWidth >= 200) {
+                                        existingEl.x = newX;
+                                        existingEl.width = Math.min(existingEl.width, maxWidth);
+                                        console.log('Moved text to left to avoid middle image');
+                                    } else {
+                                        // Not enough space, reduce width
+                                        existingEl.width = Math.max(200, imageX - existingEl.x - 20);
+                                        console.log('Reduced text width to avoid middle image');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
                 
                 const id = Date.now() + Math.random();
                 const el = {
                     id: id,
                     type: 'image',
                     src: options.src,
-                    x: options.x || 150,
-                    y: options.y || 100,
-                    width: options.width || 300,
-                    height: options.height || 200,
+                    x: imageX,
+                    y: imageY,
+                    width: imageWidth,
+                    height: imageHeight,
                     animation: 'none'
                 };
                 
                 this.data[slideIndex].els.push(el);
                 console.log('Image element added, total elements:', this.data[slideIndex].els.length);
-                this.saveState();
+                
+                // Fix overlaps after adding image
+                this.fixOverlaps(slideIndex);
+                
+                if (needsSave) {
+                    this.saveState();
+                }
                 this.loadCanvas();
                 this.renderSlides();
             }
@@ -7736,6 +8347,10 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                         app.curr = 0;
                         // Store presentationId for future saves
                         app.currentPresentationId = presentationId;
+                        
+                        // Ensure title slide is initialized after loading
+                        app.initializeTitleSlide();
+                        
                         app.saveState();
                         app.loadCanvas();
                         app.renderSlides();
@@ -7756,6 +8371,10 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                     const d = JSON.parse(atob(shared));
                     app.data = d.slides;
                     document.getElementById('title').value = d.title || '';
+                    
+                    // Ensure title slide is initialized after loading
+                    app.initializeTitleSlide();
+                    
                     app.renderSlides();
                     app.loadCanvas();
                     app.saveState();
@@ -7763,6 +8382,11 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                     console.error('Failed to load shared presentation');
                 }
             }
+            
+            // Final check: ensure title slide exists even if nothing was loaded
+            app.initializeTitleSlide();
+            app.loadCanvas();
+            app.renderSlides();
 
             // Close export menu when clicking outside
             document.addEventListener('click', (e) => {
