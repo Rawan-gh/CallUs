@@ -605,12 +605,12 @@
             Saved presentations will appear here once you create your first deck.
           </div>
           <div class="mt-6 flex justify-center">
-            <a
-              href="#"
+            <button
+              id="viewAllDecksBtn"
               class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
             >
               View all decks
-            </a>
+            </button>
           </div>
         </section>
 
@@ -1024,6 +1024,7 @@
 
       let unsubscribe = null;
       let subscriptionUserId = null;
+      let showAllDecks = false;
 
       const toDate = (value) => {
         if (!value) return null;
@@ -1351,7 +1352,11 @@
 
       const ensureSubscription = (userId) => {
         if (!userId || subscriptionUserId === userId) {
-          return;
+          // If same user, just update the query if needed
+          if (unsubscribe) {
+            unsubscribe();
+            unsubscribe = null;
+          }
         }
         if (!window.firebaseDb) {
           return;
@@ -1368,7 +1373,9 @@
         emptyStateEl?.classList.add('hidden');
 
         const presentationsRef = collection(window.firebaseDb, 'users', userId, 'presentations');
-        const q = query(presentationsRef, orderBy('updatedAt', 'desc'), limit(12));
+        const q = showAllDecks 
+          ? query(presentationsRef, orderBy('updatedAt', 'desc'))
+          : query(presentationsRef, orderBy('updatedAt', 'desc'), limit(3));
 
         unsubscribe = onSnapshot(
           q,
@@ -1402,6 +1409,16 @@
         if (unsubscribe) {
           unsubscribe();
         }
+      });
+
+      // View All Decks button
+      const viewAllDecksBtn = document.getElementById('viewAllDecksBtn');
+      viewAllDecksBtn?.addEventListener('click', () => {
+        showAllDecks = !showAllDecks;
+        if (subscriptionUserId) {
+          ensureSubscription(subscriptionUserId);
+        }
+        viewAllDecksBtn.textContent = showAllDecks ? 'Show less' : 'View all decks';
       });
 
       // Delete all presentations button

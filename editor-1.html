@@ -3195,6 +3195,17 @@ input[type="color"]{
                             </select>
                         </div>
                         <div class="properties-group">
+                            <label class="properties-label" style="display: flex; align-items: center; justify-content: space-between;">
+                                <span>Show Values</span>
+                                <label style="position: relative; display: inline-block; width: 44px; height: 24px; margin: 0;">
+                                    <input type="checkbox" ${data.showValues !== false ? 'checked' : ''} onchange="app.updateChartProperty('${data.id}', 'showValues', this.checked)" style="opacity: 0; width: 0; height: 0;">
+                                    <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: ${data.showValues !== false ? '#10b981' : '#ccc'}; border-radius: 24px; transition: 0.3s;">
+                                        <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; border-radius: 50%; transition: 0.3s; transform: ${data.showValues !== false ? 'translateX(20px)' : 'translateX(0)'};"></span>
+                                    </span>
+                                </label>
+                            </label>
+                        </div>
+                        <div class="properties-group">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <label class="properties-label" style="margin: 0;">Chart Data</label>
                                 <button onclick="app.addChartItem('${data.id}')" style="padding: 4px 12px; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600;">+ Add</button>
@@ -5660,7 +5671,8 @@ input[type="color"]{
                     height: 350,
                     labels: defaultData.labels || [],
                     values: defaultData.values || [],
-                    colors: defaultData.colors || []
+                    colors: defaultData.colors || [],
+                    showValues: true
                 };
                 
                 this.data[this.curr].els.push(chartData);
@@ -5883,6 +5895,24 @@ input[type="color"]{
                 }, 50);
             },
 
+            updateChartProperty(id, property, value) {
+                const elementId = typeof id === 'string' ? parseInt(id) : id;
+                const data = this.data[this.curr].els.find(e => e.id == elementId);
+                if (!data || data.type !== 'chart') return;
+                
+                data[property] = value;
+                
+                this.saveState();
+                this.loadCanvas();
+                this.renderSlides();
+                
+                // Re-select to update properties panel
+                setTimeout(() => {
+                    const el = document.querySelector(`[data-id="${elementId}"]`);
+                    if (el) this.selectElement(el);
+                }, 50);
+            },
+
             addChartItem(id) {
                 const elementId = typeof id === 'string' ? parseInt(id) : id;
                 const data = this.data[this.curr].els.find(e => e.id == elementId);
@@ -6047,15 +6077,20 @@ input[type="color"]{
                     const chartWidth = Math.max(100, width - (padding * 2));
                     const chartHeight = Math.max(100, height - (padding * 2));
                     
+                    // Set default showValues if not set
+                    if (chartData.showValues === undefined) {
+                        chartData.showValues = true;
+                    }
+                    
                     switch(type) {
                         case 'bar':
-                            this.drawBarChart(ctx, labels, values, colors, padding, chartWidth, chartHeight, width, height);
+                            this.drawBarChart(ctx, labels, values, colors, padding, chartWidth, chartHeight, width, height, chartData);
                             break;
                         case 'line':
-                            this.drawLineChart(ctx, labels, values, colors, padding, chartWidth, chartHeight, width, height);
+                            this.drawLineChart(ctx, labels, values, colors, padding, chartWidth, chartHeight, width, height, chartData);
                             break;
                         case 'pie':
-                            this.drawPieChart(ctx, labels, values, colors, padding, chartWidth, chartHeight, width, height);
+                            this.drawPieChart(ctx, labels, values, colors, padding, chartWidth, chartHeight, width, height, chartData);
                             break;
                         default:
                             console.warn('Unknown chart type:', type);
@@ -6069,10 +6104,12 @@ input[type="color"]{
                 }
             },
 
-            drawBarChart(ctx, labels, values, colors, padding, width, height, canvasWidth, canvasHeight) {
+            drawBarChart(ctx, labels, values, colors, padding, width, height, canvasWidth, canvasHeight, data = {}) {
                 const maxValue = Math.max(...values, 1);
                 const barWidth = Math.max(20, width / labels.length * 0.7);
                 const spacing = width / labels.length;
+                const showValues = data.showValues !== false; // Default to true if undefined
+                const leftPadding = 50; // Extra padding for Y-axis labels
                 
                 // Draw background grid
                 ctx.strokeStyle = '#e5e7eb';
@@ -6080,9 +6117,22 @@ input[type="color"]{
                 for (let i = 0; i <= 4; i++) {
                     const y = padding + (height / 4) * i;
                     ctx.beginPath();
-                    ctx.moveTo(padding, y);
+                    ctx.moveTo(padding + leftPadding, y);
                     ctx.lineTo(padding + width, y);
                     ctx.stroke();
+                }
+                
+                // Draw Y-axis labels on the left
+                if (showValues) {
+                    ctx.fillStyle = '#6b7280';
+                    ctx.font = '11px Inter, sans-serif';
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'middle';
+                    for (let i = 0; i <= 4; i++) {
+                        const y = padding + (height / 4) * i;
+                        const yValue = Math.round(maxValue - (maxValue / 4) * i);
+                        ctx.fillText(yValue.toString(), padding + leftPadding - 10, y);
+                    }
                 }
                 
                 // Draw bars
@@ -6091,7 +6141,7 @@ input[type="color"]{
                     
                     const value = values[i] || 0;
                     const barHeight = Math.max(2, (value / maxValue) * height);
-                    const x = padding + (i * spacing) + (spacing - barWidth) / 2;
+                    const x = padding + leftPadding + (i * spacing) + (spacing - barWidth) / 2;
                     const y = padding + height - barHeight;
                     
                     // Draw bar
@@ -6099,13 +6149,16 @@ input[type="color"]{
                     ctx.fillStyle = colors[i] || defaultColors[i % defaultColors.length];
                     ctx.fillRect(x, y, barWidth, barHeight);
                     
-                    // Draw value on top
-                    if (barHeight > 20) {
-                        ctx.fillStyle = '#ffffff';
+                    // Draw value in the center of the bar (only if showValues is true)
+                    if (barHeight > 15 && showValues) {
+                        const centerY = y + barHeight / 2;
+                        // Use white text if bar is dark, black if bar is light
+                        const isDark = ['#10b981', '#3b82f6', '#8b5cf6'].includes(colors[i] || defaultColors[i % defaultColors.length]);
+                        ctx.fillStyle = isDark ? '#ffffff' : '#374151';
                         ctx.font = 'bold 12px Inter, sans-serif';
                         ctx.textAlign = 'center';
-                        ctx.textBaseline = 'bottom';
-                        ctx.fillText(value.toString(), x + barWidth / 2, y - 3);
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(value.toString(), x + barWidth / 2, centerY);
                     }
                     
                     // Draw label
@@ -6113,15 +6166,16 @@ input[type="color"]{
                     ctx.font = '11px Inter, sans-serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'top';
-                    ctx.fillText(label, padding + (i * spacing) + spacing / 2, padding + height + 10);
+                    ctx.fillText(label, padding + leftPadding + (i * spacing) + spacing / 2, padding + height + 10);
                 });
             },
 
-            drawLineChart(ctx, labels, values, colors, padding, width, height, canvasWidth, canvasHeight) {
+            drawLineChart(ctx, labels, values, colors, padding, width, height, canvasWidth, canvasHeight, data = {}) {
                 const maxValue = Math.max(...values, 1);
                 const spacing = labels.length > 1 ? width / (labels.length - 1) : (width / 2);
                 const color = colors[0] || '#10b981';
                 const bgColor = color + '20';
+                const showValues = data.showValues !== false; // Default to true if undefined
                 
                 // Draw background grid
                 ctx.strokeStyle = '#e5e7eb';
@@ -6182,6 +6236,15 @@ input[type="color"]{
                     ctx.beginPath();
                     ctx.arc(x, y, 6, 0, Math.PI * 2);
                     ctx.stroke();
+                    
+                    // Draw value above point (only if showValues is true)
+                    if (showValues) {
+                        ctx.fillStyle = '#374151';
+                        ctx.font = 'bold 11px Inter, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'bottom';
+                        ctx.fillText(value.toString(), x, y - 10);
+                    }
                 });
                 
                 // Draw labels
@@ -6195,11 +6258,12 @@ input[type="color"]{
                 });
             },
 
-            drawPieChart(ctx, labels, values, colors, padding, width, height, canvasWidth, canvasHeight) {
+            drawPieChart(ctx, labels, values, colors, padding, width, height, canvasWidth, canvasHeight, data = {}) {
                 const centerX = padding + width / 2;
                 const centerY = padding + height / 2;
                 const radius = Math.min(width, height) / 2 - 20;
                 const total = values.reduce((a, b) => a + b, 0);
+                const showValues = data.showValues !== false; // Default to true if undefined
                 
                 if (total === 0) {
                     ctx.fillStyle = '#9ca3af';
@@ -6245,13 +6309,28 @@ input[type="color"]{
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
                         
-                        const textWidth = ctx.measureText(labelText).width;
-                        const textHeight = 16;
-                        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                        ctx.fillRect(labelX - textWidth / 2 - 5, labelY - textHeight / 2, textWidth + 10, textHeight);
-                        
-                        ctx.fillStyle = '#ffffff';
-                        ctx.fillText(labelText, labelX, labelY);
+                        if (showValues) {
+                            // Show value and percentage
+                            const valueText = value.toString();
+                            const percentText = `(${percentage}%)`;
+                            const textWidth = Math.max(ctx.measureText(valueText).width, ctx.measureText(percentText).width);
+                            const textHeight = 32;
+                            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                            ctx.fillRect(labelX - textWidth / 2 - 5, labelY - textHeight / 2, textWidth + 10, textHeight);
+                            
+                            ctx.fillStyle = '#ffffff';
+                            ctx.fillText(valueText, labelX, labelY - 6);
+                            ctx.fillText(percentText, labelX, labelY + 6);
+                        } else {
+                            // Show only label
+                            const textWidth = ctx.measureText(labelText).width;
+                            const textHeight = 16;
+                            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                            ctx.fillRect(labelX - textWidth / 2 - 5, labelY - textHeight / 2, textWidth + 10, textHeight);
+                            
+                            ctx.fillStyle = '#ffffff';
+                            ctx.fillText(labelText, labelX, labelY);
+                        }
                     }
                     
                     currentAngle += sliceAngle;
