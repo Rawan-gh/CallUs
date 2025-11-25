@@ -1975,6 +1975,184 @@ input[type="color"]{
 /* Keep tooltips over everything */
 [data-tooltip]::before, [data-tooltip]::after{ z-index: 5000 !important; }
 
+/* =================== AI Panel Styles =================== */
+.ai-message {
+    display: flex;
+    margin-bottom: 12px;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.ai-message.user {
+    justify-content: flex-end;
+}
+
+.ai-message.ai-assistant {
+    justify-content: flex-start;
+}
+
+.ai-message-content {
+    max-width: 75%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.ai-message.user .ai-message-content {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.ai-message.ai-assistant .ai-message-content {
+    background: white;
+    color: #0f172a;
+    border: 1px solid #e5e7eb;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.ai-message-content ul {
+    margin: 8px 0;
+    padding-right: 20px;
+}
+
+.ai-message-content li {
+    margin: 4px 0;
+}
+
+.ai-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #e0e7ff;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#aiChatInput:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.ai-lang-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(3, 105, 161, 0.2);
+}
+
+#aiPreviewContainer {
+    margin-top: 12px;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* AI Sidebar Styles */
+.ai-sidebar {
+    position: fixed;
+    right: 0;
+    top: 160px;
+    width: 400px;
+    height: calc(100vh - 160px);
+    background: white;
+    border-left: 1px solid #e5e7eb;
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+    z-index: 1500;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-out;
+    overflow: hidden;
+}
+
+.ai-sidebar.visible {
+    transform: translateX(0);
+}
+
+.ai-sidebar-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ai-sidebar-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ai-sidebar-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.ai-sidebar-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.ai-sidebar-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.ai-sidebar-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ai-sidebar-input-area {
+    padding: 16px;
+    border-top: 1px solid #e5e7eb;
+    background: white;
+}
+
+/* Adjust container when AI sidebar is open */
+.container.ai-sidebar-open {
+    margin-right: 400px;
+}
+
 /* =================== END =================== */
 
 </style>
@@ -2002,6 +2180,9 @@ input[type="color"]{
 <input class="title-input" id="title" placeholder="Untitled Presentation" type="text"/>
 </div>
 <div class="header-right">
+<button class="header-btn" onclick="app.toggleAIPanel()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+🤖 مساعد AI
+</button>
 <button class="header-btn grey-style" onclick="app.newPresentation()">New</button>
 <button class="header-btn grey-style" onclick="app.saveJSON()">Save</button>
 <button class="header-btn grey-style" onclick="app.loadJSON()">Load</button>
@@ -2269,6 +2450,54 @@ input[type="color"]{
 <div class="animation-option" onclick="app.applyAnimation('slideInDown')">Slide In Down</div>
 <div class="animation-option" onclick="app.applyAnimation('zoomIn')">Zoom In</div>
 <div class="animation-option" onclick="app.applyAnimation('bounce')">Bounce</div>
+</div>
+</div>
+</div>
+<!-- AI Assistant Sidebar -->
+<div class="ai-sidebar" id="aiSidebar">
+<div class="ai-sidebar-header">
+<h3>
+<span>🤖</span>
+<span>AI Smart Assistant</span>
+</h3>
+<button class="ai-sidebar-close" onclick="app.toggleAIPanel()">×</button>
+</div>
+<div class="ai-sidebar-content">
+<div class="ai-sidebar-messages" id="aiChatMessages">
+<div class="ai-message ai-assistant">
+<div class="ai-message-content">
+<div style="font-weight: 600; margin-bottom: 4px; color: #667eea;">AI Assistant</div>
+<div>Hello! I'm your creative AI assistant. I can automatically:</div>
+<ul style="margin: 8px 0; padding-left: 20px; color: #64748b;">
+<li>Create complete slides with titles, content, and visuals</li>
+<li>Add images from the internet related to your topic</li>
+<li>Create charts and graphs with data</li>
+<li>Add bullet points and organize content beautifully</li>
+<li>Design professional layouts automatically</li>
+</ul>
+<div style="margin-top: 16px; padding: 12px; background: #f0f9ff; border-radius: 8px; border: 1px solid #bae6fd;">
+<div style="font-weight: 600; margin-bottom: 8px; color: #0369a1;">Choose Language:</div>
+<div style="display: flex; gap: 8px;">
+<button onclick="app.setAILanguage('ar')" class="ai-lang-btn" style="flex: 1; padding: 10px; background: white; border: 2px solid #bae6fd; border-radius: 8px; cursor: pointer; font-weight: 600; color: #0369a1; transition: all 0.2s;">🇸🇦 العربية</button>
+<button onclick="app.setAILanguage('en')" class="ai-lang-btn" style="flex: 1; padding: 10px; background: #0369a1; color: white; border: 2px solid #0369a1; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s;">🇬🇧 English</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="aiPreviewContainer" style="display: none; padding: 0 20px 20px 20px;"></div>
+</div>
+<div class="ai-sidebar-input-area">
+<div style="display: flex; gap: 8px;">
+<input type="text" id="aiChatInput" placeholder="Type your request... (e.g., Create 5 slides about AI)" style="flex: 1; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.2s;" onkeypress="if(event.key === 'Enter') app.sendAIMessage()">
+<button onclick="app.sendAIMessage()" style="padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Send</button>
+</div>
+<div id="aiLoading" style="display: none; margin-top: 12px; padding: 12px; background: #f0f9ff; border-radius: 8px; color: #0369a1; font-size: 13px;">
+<div style="display: flex; align-items: center; gap: 8px;">
+<div class="ai-spinner"></div>
+<span id="aiLoadingText">Processing...</span>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -4013,10 +4242,47 @@ input[type="color"]{
 
                 if (data.type === 'image') {
                     const img = document.createElement('img');
-                    img.src = data.src;
                     img.style.width = '100%';
                     img.style.height = '100%';
                     img.style.objectFit = 'cover';
+                    img.style.display = 'block';
+                    img.style.backgroundColor = '#f3f4f6';
+                    img.style.minHeight = '50px';
+                    img.style.border = '1px solid #e5e7eb';
+                    img.style.borderRadius = '4px';
+                    
+                    // Log for debugging
+                    console.log('Creating image element with src:', data.src, 'width:', data.width, 'height:', data.height);
+                    
+                    // Handle image loading
+                    img.onload = function() {
+                        console.log('Image loaded successfully:', this.src);
+                    };
+                    
+                    img.onerror = function() {
+                        console.error('Image failed to load:', this.src);
+                        // Use a simple fallback that definitely works
+                        const fallbackUrl = `https://via.placeholder.com/${data.width || 300}x${data.height || 200}/667eea/ffffff?text=Image`;
+                        console.log('Trying fallback:', fallbackUrl);
+                        this.src = fallbackUrl;
+                    };
+                    
+                    // Set src - ensure we have a valid URL
+                    if (data.src && data.src.trim() !== '') {
+                        // Ensure URL is complete
+                        let imageUrl = data.src;
+                        if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
+                            // If not a full URL, create placeholder
+                            imageUrl = `https://via.placeholder.com/${data.width || 300}x${data.height || 200}/667eea/ffffff?text=Image`;
+                        }
+                        img.src = imageUrl;
+                        console.log('Setting image src to:', imageUrl);
+                    } else {
+                        // If no src, use placeholder immediately
+                        const placeholderUrl = `https://via.placeholder.com/${data.width || 300}x${data.height || 200}/667eea/ffffff?text=Image`;
+                        img.src = placeholderUrl;
+                        console.log('No src provided, using placeholder:', placeholderUrl);
+                    }
                     
                     // Apply transparency
                     if (data.transparency !== undefined) {
@@ -6370,6 +6636,1004 @@ input[type="color"]{
             resetZoom() {
                 document.getElementById('zoomSlider').value = 100;
                 this.setZoom(100);
+            },
+
+            // AI Assistant Functions
+            getOpenAIKey() {
+                // Get API key from localStorage (user should set it via browser console or settings)
+                let apiKey = localStorage.getItem('openai_api_key');
+                if (!apiKey) {
+                    // Prompt user to set API key
+                    apiKey = prompt('Please enter your OpenAI API key:');
+                    if (apiKey) {
+                        localStorage.setItem('openai_api_key', apiKey);
+                    } else {
+                        alert('OpenAI API key is required for AI features to work. Please set it in browser console: localStorage.setItem("openai_api_key", "your-key-here")');
+                        return null;
+                    }
+                }
+                return apiKey;
+            },
+            aiLanguage: 'en', // Default to English
+            aiPendingActions: null,
+            aiPendingSlidesCount: null,
+            aiConversationHistory: [], // Store conversation history for context
+
+            toggleAIPanel() {
+                const sidebar = document.getElementById('aiSidebar');
+                const container = document.querySelector('.container');
+                if (sidebar) {
+                    sidebar.classList.toggle('visible');
+                    if (container) {
+                        container.classList.toggle('ai-sidebar-open');
+                    }
+                    if (sidebar.classList.contains('visible')) {
+                        // Set default language to English
+                        if (!this.aiLanguage) {
+                            this.aiLanguage = 'en';
+                            // Auto-select English button
+                            const enBtn = document.querySelector('.ai-lang-btn[onclick*="en"]');
+                            if (enBtn) {
+                                enBtn.style.background = '#0369a1';
+                                enBtn.style.color = 'white';
+                                enBtn.style.borderColor = '#0369a1';
+                            }
+                        }
+                        // Don't reset conversation history - keep it for context
+                        // Only reset pending actions
+                        this.aiPendingActions = null;
+                        this.aiPendingSlidesCount = null;
+                        setTimeout(() => {
+                            document.getElementById('aiChatInput').focus();
+                        }, 100);
+                    }
+                }
+            },
+
+            setAILanguage(lang) {
+                this.aiLanguage = lang;
+                const langButtons = document.querySelectorAll('.ai-lang-btn');
+                langButtons.forEach(btn => {
+                    btn.style.background = 'white';
+                    btn.style.borderColor = '#bae6fd';
+                    btn.style.color = '#0369a1';
+                });
+                event.target.style.background = '#0369a1';
+                event.target.style.color = 'white';
+                event.target.style.borderColor = '#0369a1';
+                
+                if (lang === 'ar') {
+                    this.addChatMessage('تم اختيار العربية. كيف يمكنني مساعدتك اليوم؟', 'assistant');
+                    document.getElementById('aiChatInput').placeholder = 'اكتب طلبك هنا... (مثال: أضف 3 سلايدات عن موضوع التكنولوجيا)';
+                } else {
+                    this.addChatMessage('English selected. How can I help you today?', 'assistant');
+                    document.getElementById('aiChatInput').placeholder = 'Type your request here... (e.g., Add 3 slides about technology)';
+                }
+            },
+
+            async sendAIMessage() {
+                const input = document.getElementById('aiChatInput');
+                const message = input.value.trim();
+                if (!message) return;
+
+                // Default to English if not set
+                if (!this.aiLanguage) {
+                    this.aiLanguage = 'en';
+                }
+
+                // Add user message to chat and conversation history
+                this.addChatMessage(message, 'user');
+                this.aiConversationHistory.push({ role: 'user', content: message });
+                input.value = '';
+
+                // Show loading
+                const loadingEl = document.getElementById('aiLoading');
+                const loadingText = document.getElementById('aiLoadingText');
+                loadingEl.style.display = 'block';
+                loadingText.textContent = this.aiLanguage === 'ar' ? 'جاري المعالجة...' : 'Processing...';
+
+                try {
+                    // Get first slide style as reference
+                    const firstSlide = this.data[0] || { els: [], bg: 'white', transition: 'fade' };
+                    const firstSlideStyle = {
+                        bg: firstSlide.bg || 'white',
+                        elements: firstSlide.els || []
+                    };
+                    
+                    // Extract style patterns from first slide
+                    let titleStyle = { size: 42, color: '#0f172a', weight: 'bold', align: 'center', font: 'Arial' };
+                    let contentStyle = { size: 24, color: '#374151', align: 'left', font: 'Arial' };
+                    
+                    // Find title and content elements in first slide
+                    firstSlideStyle.elements.forEach(el => {
+                        if (el.type === 'text') {
+                            if (el.weight === 'bold' && el.size >= 36) {
+                                titleStyle = { size: el.size, color: el.color, weight: el.weight, align: el.align, font: el.font || 'Arial' };
+                            } else {
+                                contentStyle = { size: el.size, color: el.color, align: el.align, font: el.font || 'Arial' };
+                            }
+                        }
+                    });
+                    
+                    // Get current presentation state
+                    const currentState = {
+                        slides: this.data,
+                        currentSlide: this.curr,
+                        title: document.getElementById('title').value || 'Untitled Presentation',
+                        totalSlides: this.data.length,
+                        firstSlideStyle: firstSlideStyle,
+                        titleStyle: titleStyle,
+                        contentStyle: contentStyle
+                    };
+
+                    // Check if asking about number of slides
+                    const slidesCountMatch = message.match(/(\d+)\s*(?:سلايد|slide|slides)/i);
+                    if (slidesCountMatch && !this.aiPendingSlidesCount) {
+                        this.aiPendingSlidesCount = parseInt(slidesCountMatch[1]);
+                    }
+
+                    // Prepare system message based on language
+                    const systemMessage = this.aiLanguage === 'ar' ? 
+                        `أنت مساعد ذكي لتحرير العروض التقديمية. يمكنك:
+1. إضافة سلايدات جديدة (يمكن إضافة عدة سلايدات في مرة واحدة)
+2. إضافة نصوص وصور ورسوم بيانية
+3. تعديل وتنظيم السلايدات
+4. تغيير الألوان والخطوط
+
+قبل تنفيذ أي شيء، يجب أن:
+1. تسأل المستخدم عن عدد السلايدات إذا لم يحدد
+2. تعرض preview للمحتوى قبل التنفيذ
+3. تنتظر موافقة المستخدم
+
+مهم جداً: تذكر دائماً سياق المحادثة. إذا قال المستخدم "أضف المزيد" أو "غير هذا" أو "نفس الموضوع"، يجب أن تفهم ما كان يتحدث عنه في الرسائل السابقة.
+
+يجب أن ترد بـ JSON يحتوي على:
+{
+  "actions": [
+    {"type": "add_slide", "title": "عنوان السلايد", "bg": "white", "elements": [{"type": "text", "content": "النص", "x": 100, "y": 100, "width": 300, "height": 50, "size": 24, "color": "#000000"}]},
+    {"type": "add_chart", "slide": 0, "chartType": "bar", "labels": ["A", "B", "C"], "values": [10, 20, 30], "x": 200, "y": 200, "width": 400, "height": 300}
+  ],
+  "preview": "ملخص ما سيتم إضافته",
+  "slidesCount": 3,
+  "message": "سأضيف 3 سلايدات عن الموضوع. هل تريد المتابعة؟"
+}
+
+استخدم الأرقام العربية في الردود.` :
+                        `You are a PROFESSIONAL presentation design assistant. Create DETAILED, COMPREHENSIVE, and RICH content slides with VARIED content formats.
+
+CRITICAL: Respond with VALID JSON only. Follow the exact format below.
+
+SLIDE CANVAS: 960px × 540px
+
+IMPORTANT RULES:
+1. USE VARIED CONTENT FORMATS - Mix different text styles:
+   - Regular paragraphs (descriptive text, explanations)
+   - Bullet points (• for lists of items)
+   - Numbered lists (1. 2. 3. for steps or sequences)
+   - Don't use only bullet points - vary the format!
+2. CREATE DETAILED CONTENT - Add comprehensive information (5-8 items or substantial paragraphs)
+3. You can MODIFY the FIRST slide (slide 0) - use type "modify_slide" with slide: 0 to add content to the existing first slide
+4. DO NOT duplicate the title - use EITHER action.title OR a title element in elements array, NOT both
+5. ALWAYS use the SAME background color as the first slide (check firstSlideStyle.bg in currentState)
+6. ALWAYS use the SAME text styles as the first slide:
+   - Title: Use titleStyle from currentState (size, color, weight, align, font)
+   - Content: Use contentStyle from currentState (size, color, align, font)
+7. Use proper coordinates within canvas bounds (0-960 width, 0-540 height)
+8. Don't overlap elements
+9. Match the visual style and formatting of the existing first slide
+10. ADD MORE CONTENT - Each slide should have substantial information, not minimal content
+
+ELEMENT SPECIFICATIONS:
+
+TITLE (choose ONE method):
+- Option A: Use action.title field (recommended)
+- Option B: Include in elements array with: type:"text", size:36-42, weight:"bold", align:"center", x:130, y:60, width:700, height:80
+
+CONTENT TEXT - USE VARIED FORMATS (IMPORTANT!):
+You MUST use different text formats, not only bullet points:
+
+1. Regular paragraphs (no bullets, no numbers):
+   - content: "This is a paragraph explaining the topic in detail. It provides comprehensive information and context. Use this for introductions, explanations, and descriptions."
+   - Example: "Artificial intelligence is transforming how we work and live. It enables machines to learn from data and make intelligent decisions."
+
+2. Bullet points (use •):
+   - content: "• First key point\\n• Second key point\\n• Third key point"
+   - Use for lists of features, benefits, items
+
+3. Numbered lists (use 1. 2. 3.):
+   - content: "1. First step or item\\n2. Second step or item\\n3. Third step or item"
+   - Use for steps, processes, sequences, rankings
+
+4. Mixed content (RECOMMENDED):
+   - content: "Introduction paragraph explaining the topic in detail.\\n\\n• Key feature one\\n• Key feature two\\n• Key feature three\\n\\nConclusion or summary paragraph."
+   - Combine paragraphs with bullets for rich, varied content
+
+CRITICAL: Vary content format across slides - don't use only bullet points! Mix paragraphs, bullets, and numbered lists.
+- x: 120-150
+- y: 180-200
+- width: 450-550
+- height: 300-400 (adjust based on content amount)
+- size: 22-26
+- color: "#374151"
+- align: "left"
+
+IMAGES:
+- type: "image"
+- imageUrl: Search term (e.g., "technology", "business", "team", "alexa")
+- x: 550-600 (right side)
+- y: 180-200
+- width: 280-320
+- height: 200-240
+
+CHARTS:
+- type: "chart"
+- chartType: "bar", "line", or "pie"
+- labels: ["Label1", "Label2", "Label3"]
+- values: [value1, value2, value3]
+- colors: ["#10b981", "#3b82f6", "#f59e0b"]
+- x: 250-300
+- y: 250-280
+- width: 400-450
+- height: 220-250
+
+LAYOUT PATTERNS:
+- Pattern 1 (with image): Title (action.title) + Bullets left (x:120, y:180) + Image right (x:550, y:180)
+- Pattern 2 (simple): Title (action.title) + Bullets (x:120, y:180)
+- Pattern 3 (with chart): Title (action.title) + Chart (x:250, y:250)
+
+RESPONSE FORMAT (JSON ONLY):
+{
+  "actions": [
+    {
+      "type": "modify_slide",
+      "slide": 0,
+      "elements": [
+        {"type": "text", "content": "Main Presentation Title", "x": 130, "y": 60, "width": 700, "height": 80, "size": 42, "color": "#0f172a", "weight": "bold", "align": "center"}
+      ]
+    },
+    {
+      "type": "add_slide",
+      "title": "Introduction to Topic",
+      "bg": "white",
+      "elements": [
+        {"type": "text", "content": "This is an introduction paragraph that explains the topic in detail. It provides comprehensive background information and context for the presentation.\\n\\n• Key feature one with explanation\\n• Key feature two with explanation\\n• Key feature three with explanation\\n\\nIn conclusion, this topic is important because...", "x": 120, "y": 180, "width": 500, "height": 350, "size": 24, "color": "#374151", "align": "left"},
+        {"type": "image", "imageUrl": "topic", "x": 550, "y": 180, "width": 300, "height": 220}
+      ]
+    },
+    {
+      "type": "add_slide",
+      "title": "Process Steps",
+      "bg": "white",
+      "elements": [
+        {"type": "text", "content": "The following steps outline the process:\\n\\n1. First step with detailed explanation\\n2. Second step with detailed explanation\\n3. Third step with detailed explanation\\n4. Fourth step with detailed explanation", "x": 120, "y": 180, "width": 500, "height": 350, "size": 24, "color": "#374151", "align": "left"}
+      ]
+    }
+  ],
+  "preview": "Creating slides",
+  "slidesCount": 3,
+  "message": "Creating slides..."
+}
+
+ACTION TYPES:
+- "add_slide": Add a new slide
+- "modify_slide": Modify existing slide (use slide: 0 for first slide)
+- "add_text": Add text to specific slide
+- "add_image": Add image to specific slide
+- "add_chart": Add chart to specific slide
+
+CONTENT VARIETY EXAMPLES:
+- Slide 1: Paragraph + bullets
+- Slide 2: Numbered list (1. 2. 3.)
+- Slide 3: Paragraph only
+- Slide 4: Bullets + paragraph
+- Mix formats throughout the presentation!
+
+REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`;
+
+                    // Build messages array with conversation history
+                    const messages = [
+                        {
+                            role: 'system',
+                            content: systemMessage
+                        }
+                    ];
+
+                    // Add conversation history (last 5 messages only to avoid token limit)
+                    // Only include essential context, not full conversation
+                    const recentHistory = this.aiConversationHistory.slice(-5);
+                    recentHistory.forEach(msg => {
+                        // Only add user messages and important assistant responses
+                        if (msg.role === 'user' || (msg.role === 'assistant' && msg.content.length < 500)) {
+                            messages.push(msg);
+                        }
+                    });
+
+                    // Add current state and user request (simplified to save tokens)
+                    const simplifiedState = {
+                        totalSlides: currentState.totalSlides,
+                        currentSlide: currentState.curr,
+                        title: currentState.title,
+                        firstSlideStyle: {
+                            bg: currentState.firstSlideStyle?.bg || 'white',
+                            titleStyle: currentState.titleStyle,
+                            contentStyle: currentState.contentStyle
+                        }
+                    };
+                    
+                    const currentRequest = {
+                        role: 'user',
+                        content: `Presentation: ${simplifiedState.totalSlides} slides. Style: ${JSON.stringify(simplifiedState.firstSlideStyle)}. Request: ${message}${this.aiPendingSlidesCount ? ` (${this.aiPendingSlidesCount} slides)` : ''}`
+                    };
+                    messages.push(currentRequest);
+
+                    // Call OpenAI API
+                    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${this.getOpenAIKey()}`
+                        },
+                        body: JSON.stringify({
+                            model: 'gpt-4',
+                            messages: messages,
+                            temperature: 0.7,
+                            max_tokens: 2000
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        throw new Error(data.error.message || (this.aiLanguage === 'ar' ? 'خطأ في API' : 'API Error'));
+                    }
+
+                    const aiResponse = data.choices[0].message.content;
+                    
+                    // Try to parse JSON from response
+                    let actions = null;
+                    let preview = null;
+                    let slidesCount = null;
+                    let responseMessage = aiResponse;
+                    
+                    try {
+                        // Try multiple methods to extract JSON
+                        // Method 1: Look for JSON code block
+                        const codeBlockMatch = aiResponse.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+                        if (codeBlockMatch) {
+                            const parsed = JSON.parse(codeBlockMatch[1]);
+                            if (parsed.actions) {
+                                actions = parsed.actions;
+                                preview = parsed.preview;
+                                slidesCount = parsed.slidesCount;
+                                responseMessage = parsed.message || aiResponse;
+                            }
+                        } else {
+                            // Method 2: Look for JSON object directly
+                            const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+                            if (jsonMatch) {
+                                try {
+                                    const parsed = JSON.parse(jsonMatch[0]);
+                                    if (parsed.actions && Array.isArray(parsed.actions)) {
+                                        actions = parsed.actions;
+                                        preview = parsed.preview;
+                                        slidesCount = parsed.slidesCount;
+                                        responseMessage = parsed.message || aiResponse;
+                                    }
+                                } catch (parseError) {
+                                    console.log('JSON parse error:', parseError);
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.log('Could not parse JSON, treating as plain text:', e);
+                    }
+
+                    // Add AI response to conversation history
+                    this.aiConversationHistory.push({ role: 'assistant', content: aiResponse });
+
+                    // If we have actions, execute them automatically
+                    if (actions && Array.isArray(actions) && actions.length > 0) {
+                        // Show message first
+                        this.addChatMessage(responseMessage || 'Creating slides...', 'assistant');
+                        
+                        // Execute actions automatically
+                        await this.executeAIActions(actions);
+                        
+                        // Show success message
+                        const successMsg = this.aiLanguage === 'ar' ? 
+                            `✅ تم إنشاء ${actions.filter(a => a.type === 'add_slide').length} سلايد بنجاح!` : 
+                            `✅ Successfully created ${actions.filter(a => a.type === 'add_slide').length} slide(s)!`;
+                        this.addChatMessage(successMsg, 'assistant');
+                    } else {
+                        // Add AI response to chat
+                        this.addChatMessage(responseMessage, 'assistant');
+                        
+                        // If asking about slides count, wait for user response
+                        if (responseMessage.includes('كم') || responseMessage.includes('how many') || responseMessage.includes('How many')) {
+                            // User will respond with number
+                        }
+                    }
+
+                } catch (error) {
+                    console.error('AI Error:', error);
+                    const errorMsg = this.aiLanguage === 'ar' ? 
+                        `عذراً، حدث خطأ: ${error.message}` : 
+                        `Sorry, an error occurred: ${error.message}`;
+                    this.addChatMessage(errorMsg, 'assistant');
+                } finally {
+                    loadingEl.style.display = 'none';
+                }
+            },
+
+            showAIPreview(actions, previewText) {
+                const previewContainer = document.getElementById('aiPreviewContainer');
+                previewContainer.style.display = 'block';
+                
+                // Count slides to be added
+                const slidesToAdd = actions.filter(a => a.type === 'add_slide').length;
+                const totalSlides = this.data.length + slidesToAdd;
+                
+                // Count elements
+                let elementsCount = 0;
+                actions.forEach(action => {
+                    if (action.elements) {
+                        elementsCount += action.elements.length;
+                    } else if (action.type !== 'add_slide' && action.type !== 'set_slide_bg' && action.type !== 'switch_slide' && action.type !== 'delete_slide') {
+                        elementsCount++;
+                    }
+                });
+                
+                const previewHTML = `
+                    <div class="ai-message ai-assistant">
+                        <div class="ai-message-content" style="background: #fef3c7; border: 2px solid #f59e0b;">
+                            <div style="font-weight: 600; margin-bottom: 8px; color: #92400e;">📋 ${this.aiLanguage === 'ar' ? 'معاينة المحتوى' : 'Content Preview'}</div>
+                            <div style="color: #78350f; margin-bottom: 12px; line-height: 1.6;">${previewText}</div>
+                            <div style="padding: 12px; background: white; border-radius: 8px; margin-top: 12px; border: 1px solid #fbbf24;">
+                                <div style="font-weight: 600; margin-bottom: 8px; color: #78350f;">${this.aiLanguage === 'ar' ? 'التفاصيل:' : 'Details:'}</div>
+                                <div style="color: #92400e; font-size: 13px; line-height: 1.8;">
+                                    ${this.aiLanguage === 'ar' ? 
+                                        `• سيتم إضافة ${slidesToAdd} سلايد${slidesToAdd > 1 ? 'ات' : ''}<br>
+                                        • إجمالي السلايدات بعد الإضافة: ${totalSlides}<br>
+                                        • عدد العناصر التي سيتم إضافتها: ${elementsCount + slidesToAdd}` :
+                                        `• Will add ${slidesToAdd} slide${slidesToAdd > 1 ? 's' : ''}<br>
+                                        • Total slides after addition: ${totalSlides}<br>
+                                        • Number of elements to be added: ${elementsCount + slidesToAdd}`}
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                                <button onclick="app.confirmAIActions()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                                    ${this.aiLanguage === 'ar' ? '✅ موافق، نفّذ' : '✅ Confirm & Execute'}
+                                </button>
+                                <button onclick="app.cancelAIPreview()" style="flex: 1; padding: 12px; background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; border-radius: 8px; font-weight: 600; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                                    ${this.aiLanguage === 'ar' ? '❌ إلغاء' : '❌ Cancel'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                previewContainer.innerHTML = previewHTML;
+                
+                // Scroll to preview
+                setTimeout(() => {
+                    previewContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            },
+
+            confirmAIActions() {
+                if (this.aiPendingActions) {
+                    this.executeAIActions(this.aiPendingActions);
+                    this.cancelAIPreview();
+                    
+                    const confirmMsg = this.aiLanguage === 'ar' ? 
+                        '✅ تم تنفيذ الأوامر بنجاح!' : 
+                        '✅ Commands executed successfully!';
+                    this.addChatMessage(confirmMsg, 'assistant');
+                    // Add confirmation to conversation history
+                    this.aiConversationHistory.push({ role: 'assistant', content: confirmMsg });
+                }
+            },
+
+            cancelAIPreview() {
+                const previewContainer = document.getElementById('aiPreviewContainer');
+                previewContainer.style.display = 'none';
+                previewContainer.innerHTML = '';
+                this.aiPendingActions = null;
+                this.aiPendingSlidesCount = null;
+            },
+
+            addChatMessage(message, type) {
+                const messagesContainer = document.getElementById('aiChatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `ai-message ${type === 'user' ? 'user' : 'ai-assistant'}`;
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'ai-message-content';
+                
+                if (type === 'assistant') {
+                    const header = document.createElement('div');
+                    header.style.cssText = 'font-weight: 600; margin-bottom: 4px; color: #667eea;';
+                    header.textContent = 'AI Assistant';
+                    contentDiv.appendChild(header);
+                }
+                
+                const textDiv = document.createElement('div');
+                textDiv.textContent = message;
+                contentDiv.appendChild(textDiv);
+                
+                messageDiv.appendChild(contentDiv);
+                messagesContainer.appendChild(messageDiv);
+                
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            },
+
+            async executeAIActions(actions) {
+                for (const action of actions) {
+                    try {
+                        switch (action.type) {
+                            case 'add_slide':
+                                this.addSlide();
+                                const newSlideIndex = this.data.length - 1;
+                                
+                                // Use the same background as first slide
+                                const firstSlideBg = this.data[0]?.bg || 'white';
+                                this.data[newSlideIndex].bg = action.bg || firstSlideBg;
+                                
+                                // Check if title is already in elements
+                                let hasTitleInElements = false;
+                                if (action.elements && Array.isArray(action.elements)) {
+                                    hasTitleInElements = action.elements.some(el => 
+                                        el.type === 'text' && 
+                                        (el.weight === 'bold' || el.size >= 36) &&
+                                        el.align === 'center'
+                                    );
+                                }
+                                
+                                // Add title only if not already in elements
+                                if (action.title && !hasTitleInElements) {
+                                    // Get style from first slide
+                                    const firstSlide = this.data[0] || { els: [] };
+                                    let titleStyle = { size: 42, color: '#0f172a', weight: 'bold', align: 'center', font: 'Arial' };
+                                    
+                                    // Find title style from first slide
+                                    firstSlide.els.forEach(el => {
+                                        if (el.type === 'text' && (el.weight === 'bold' || el.size >= 36)) {
+                                            titleStyle = {
+                                                size: el.size || 42,
+                                                color: el.color || '#0f172a',
+                                                weight: el.weight || 'bold',
+                                                align: el.align || 'center',
+                                                font: el.font || 'Arial'
+                                            };
+                                        }
+                                    });
+                                    
+                                    this.addTextElement(newSlideIndex, {
+                                        content: action.title,
+                                        x: 130,
+                                        y: 60,
+                                        width: 700,
+                                        height: 80,
+                                        size: titleStyle.size,
+                                        color: titleStyle.color,
+                                        weight: titleStyle.weight,
+                                        align: titleStyle.align,
+                                        font: titleStyle.font
+                                    });
+                                }
+                                
+                                // Add elements if provided
+                                if (action.elements && Array.isArray(action.elements)) {
+                                    for (let idx = 0; idx < action.elements.length; idx++) {
+                                        const element = action.elements[idx];
+                                        await new Promise(resolve => setTimeout(resolve, 100 * (idx + 1)));
+                                        
+                                        if (element.type === 'text') {
+                                            // Skip if this is a duplicate title
+                                            if (action.title && element.content === action.title && element.weight === 'bold') {
+                                                continue;
+                                            }
+                                            
+                                            // Get content style from first slide if not specified
+                                            const firstSlide = this.data[0] || { els: [] };
+                                            let defaultContentStyle = { size: 24, color: '#374151', align: 'left', font: 'Arial' };
+                                            
+                                            // Find content style from first slide
+                                            firstSlide.els.forEach(el => {
+                                                if (el.type === 'text' && el.weight !== 'bold' && el.size < 36) {
+                                                    defaultContentStyle = {
+                                                        size: el.size || 24,
+                                                        color: el.color || '#374151',
+                                                        align: el.align || 'left',
+                                                        font: el.font || 'Arial'
+                                                    };
+                                                }
+                                            });
+                                            
+                                            this.addTextElement(newSlideIndex, {
+                                                content: element.content || 'New text',
+                                                x: element.x || 120,
+                                                y: element.y || (150 + idx * 60),
+                                                width: element.width || 500,
+                                                height: element.height || 200,
+                                                size: element.size || defaultContentStyle.size,
+                                                color: element.color || defaultContentStyle.color,
+                                                weight: element.weight || 'normal',
+                                                align: element.align || defaultContentStyle.align,
+                                                font: element.font || defaultContentStyle.font
+                                            });
+                                        } else if (element.type === 'chart') {
+                                            this.addChartElement(newSlideIndex, {
+                                                chartType: element.chartType || 'bar',
+                                                labels: element.labels || [],
+                                                values: element.values || [],
+                                                colors: element.colors || ['#10b981', '#3b82f6', '#f59e0b'],
+                                                x: element.x || 250,
+                                                y: element.y || 250,
+                                                width: element.width || 450,
+                                                height: element.height || 250
+                                            });
+                                        } else if (element.type === 'image') {
+                                            // Get image from Unsplash or use placeholder
+                                            let imageUrl = element.imageUrl || element.src;
+                                            console.log('Processing image element, imageUrl:', imageUrl);
+                                            
+                                            if (typeof imageUrl === 'string' && !imageUrl.startsWith('http')) {
+                                                // It's a search term, get image from Unsplash
+                                                console.log('Getting image for search term:', imageUrl);
+                                                imageUrl = await this.getImageFromUnsplash(imageUrl);
+                                                console.log('Got image URL:', imageUrl);
+                                            }
+                                            
+                                            if (imageUrl) {
+                                                console.log('Adding image element with URL:', imageUrl);
+                                                this.addImageElement(newSlideIndex, {
+                                                    src: imageUrl,
+                                                    x: element.x || 550,
+                                                    y: element.y || 180,
+                                                    width: element.width || 300,
+                                                    height: element.height || 220
+                                                });
+                                            } else {
+                                                console.warn('No image URL available, using fallback');
+                                                // Use fallback
+                                                this.addImageElement(newSlideIndex, {
+                                                    src: `https://via.placeholder.com/${element.width || 300}x${element.height || 220}/667eea/ffffff?text=Image`,
+                                                    x: element.x || 550,
+                                                    y: element.y || 180,
+                                                    width: element.width || 300,
+                                                    height: element.height || 220
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+                                break;
+
+                            case 'modify_slide':
+                                const modifySlideIndex = action.slide !== undefined ? action.slide : 0;
+                                if (this.data[modifySlideIndex]) {
+                                    // Add elements to existing slide
+                                    if (action.elements && Array.isArray(action.elements)) {
+                                        for (let idx = 0; idx < action.elements.length; idx++) {
+                                            const element = action.elements[idx];
+                                            await new Promise(resolve => setTimeout(resolve, 100 * (idx + 1)));
+                                            
+                                            if (element.type === 'text') {
+                                                // Get style from first slide
+                                                const firstSlide = this.data[0] || { els: [] };
+                                                let defaultStyle = { size: 24, color: '#374151', align: 'left', font: 'Arial' };
+                                                
+                                                // Check if it's a title
+                                                if (element.weight === 'bold' || element.size >= 36) {
+                                                    firstSlide.els.forEach(el => {
+                                                        if (el.type === 'text' && (el.weight === 'bold' || el.size >= 36)) {
+                                                            defaultStyle = {
+                                                                size: el.size || 42,
+                                                                color: el.color || '#0f172a',
+                                                                weight: el.weight || 'bold',
+                                                                align: el.align || 'center',
+                                                                font: el.font || 'Arial'
+                                                            };
+                                                        }
+                                                    });
+                                                } else {
+                                                    firstSlide.els.forEach(el => {
+                                                        if (el.type === 'text' && el.weight !== 'bold' && el.size < 36) {
+                                                            defaultStyle = {
+                                                                size: el.size || 24,
+                                                                color: el.color || '#374151',
+                                                                align: el.align || 'left',
+                                                                font: el.font || 'Arial'
+                                                            };
+                                                        }
+                                                    });
+                                                }
+                                                
+                                                this.addTextElement(modifySlideIndex, {
+                                                    content: element.content || 'New text',
+                                                    x: element.x || 130,
+                                                    y: element.y || 60,
+                                                    width: element.width || 700,
+                                                    height: element.height || 80,
+                                                    size: element.size || defaultStyle.size,
+                                                    color: element.color || defaultStyle.color,
+                                                    weight: element.weight || defaultStyle.weight || 'normal',
+                                                    align: element.align || defaultStyle.align,
+                                                    font: element.font || defaultStyle.font
+                                                });
+                                            } else if (element.type === 'image') {
+                                                let imageUrl = element.imageUrl || element.src;
+                                                if (typeof imageUrl === 'string' && !imageUrl.startsWith('http')) {
+                                                    imageUrl = await this.getImageFromUnsplash(imageUrl);
+                                                }
+                                                if (imageUrl) {
+                                                    this.addImageElement(modifySlideIndex, {
+                                                        src: imageUrl,
+                                                        x: element.x || 550,
+                                                        y: element.y || 180,
+                                                        width: element.width || 300,
+                                                        height: element.height || 220
+                                                    });
+                                                }
+                                            } else if (element.type === 'chart') {
+                                                this.addChartElement(modifySlideIndex, {
+                                                    chartType: element.chartType || 'bar',
+                                                    labels: element.labels || [],
+                                                    values: element.values || [],
+                                                    colors: element.colors || ['#10b981', '#3b82f6', '#f59e0b'],
+                                                    x: element.x || 250,
+                                                    y: element.y || 250,
+                                                    width: element.width || 450,
+                                                    height: element.height || 250
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+                                break;
+
+                            case 'add_text':
+                                const slideIndex = action.slide !== undefined ? action.slide : this.curr;
+                                this.addTextElement(slideIndex, {
+                                    content: action.content || 'New text',
+                                    x: action.x || 100,
+                                    y: action.y || 100,
+                                    width: action.width || 300,
+                                    height: action.height || 50,
+                                    size: action.size || 24,
+                                    color: action.color || '#000000',
+                                    weight: action.weight || 'normal',
+                                    align: action.align || 'left',
+                                    font: action.font || 'Arial'
+                                });
+                                break;
+
+                            case 'add_chart':
+                                const chartSlideIndex = action.slide !== undefined ? action.slide : this.curr;
+                                this.addChartElement(chartSlideIndex, {
+                                    chartType: action.chartType || 'bar',
+                                    labels: action.labels || ['A', 'B', 'C'],
+                                    values: action.values || [10, 20, 30],
+                                    colors: action.colors || ['#10b981', '#3b82f6', '#f59e0b'],
+                                    x: action.x || 200,
+                                    y: action.y || 200,
+                                    width: action.width || 400,
+                                    height: action.height || 300
+                                });
+                                break;
+
+                            case 'set_slide_bg':
+                                const bgSlideIndex = action.slide !== undefined ? action.slide : this.curr;
+                                if (this.data[bgSlideIndex]) {
+                                    this.data[bgSlideIndex].bg = action.bg || 'white';
+                                    this.saveState();
+                                    this.loadCanvas();
+                                }
+                                break;
+
+                            case 'switch_slide':
+                                if (action.slide !== undefined && this.data[action.slide]) {
+                                    this.switchSlide(action.slide);
+                                }
+                                break;
+
+                            case 'delete_slide':
+                                if (action.slide !== undefined && this.data[action.slide]) {
+                                    this.deleteSlide(action.slide);
+                                }
+                                break;
+                        }
+                    } catch (error) {
+                        console.error('Error executing action:', action, error);
+                    }
+                }
+                
+                this.saveState();
+                this.loadCanvas();
+                this.renderSlides();
+            },
+
+            addTextElement(slideIndex, options) {
+                if (!this.data[slideIndex]) return;
+                
+                const id = Date.now() + Math.random();
+                const el = {
+                    id: id,
+                    type: 'text',
+                    content: options.content || 'نص جديد',
+                    x: options.x || 100,
+                    y: options.y || 100,
+                    width: options.width || 300,
+                    height: options.height || 50,
+                    font: options.font || 'Arial',
+                    size: options.size || 24,
+                    color: options.color || '#000000',
+                    bg: options.bg || 'transparent',
+                    weight: options.weight || 'normal',
+                    align: options.align || 'left',
+                    animation: 'none'
+                };
+                
+                this.data[slideIndex].els.push(el);
+                this.saveState();
+                this.loadCanvas();
+                this.renderSlides();
+            },
+
+            addChartElement(slideIndex, options) {
+                if (!this.data[slideIndex]) return;
+                
+                const id = Date.now() + Math.random();
+                const el = {
+                    id: id,
+                    type: 'chart',
+                    chartType: options.chartType || 'bar',
+                    labels: options.labels || [],
+                    values: options.values || [],
+                    colors: options.colors || ['#10b981', '#3b82f6', '#f59e0b'],
+                    x: options.x || 200,
+                    y: options.y || 200,
+                    width: options.width || 400,
+                    height: options.height || 300,
+                    animation: 'none'
+                };
+                
+                this.data[slideIndex].els.push(el);
+                this.saveState();
+                this.loadCanvas();
+                this.renderSlides();
+            },
+
+            async getImageFromUnsplash(searchTerm) {
+                try {
+                    // Try to generate image using DALL-E API
+                    console.log('Generating image for:', searchTerm);
+                    
+                    try {
+                        const imageUrl = await this.generateImageWithDALLE(searchTerm);
+                        if (imageUrl) {
+                            console.log('Image generated successfully:', imageUrl);
+                            return imageUrl;
+                        }
+                    } catch (dalleError) {
+                        console.warn('DALL-E generation failed, using placeholder:', dalleError);
+                    }
+                    
+                    // Fallback: Use placeholder.com with nice colors
+                    const colors = ['667eea', '10b981', '3b82f6', 'f59e0b', 'ef4444', '8b5cf6', 'ec4899', '14b8a6'];
+                    const seed = searchTerm.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                    const colorIndex = seed % colors.length;
+                    const color = colors[colorIndex];
+                    
+                    const placeholderUrl = `https://via.placeholder.com/800x600/${color}/ffffff?text=${encodeURIComponent(searchTerm.substring(0, 20))}`;
+                    return placeholderUrl;
+                } catch (error) {
+                    console.error('Error fetching image:', error);
+                    return `https://via.placeholder.com/800x600/667eea/ffffff?text=Image`;
+                }
+            },
+
+            async generateImageWithDALLE(prompt) {
+                try {
+                    // Generate image using DALL-E 3
+                    const imagePrompt = `Professional, clean, modern presentation image about: ${prompt}. Suitable for business presentation, high quality, no text.`;
+                    
+                    const response = await fetch('https://api.openai.com/v1/images/generations', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${this.getOpenAIKey()}`
+                        },
+                        body: JSON.stringify({
+                            model: 'dall-e-3',
+                            prompt: imagePrompt,
+                            n: 1,
+                            size: '1024x1024',
+                            quality: 'standard'
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error('DALL-E API error:', errorData);
+                        // If DALL-E fails, try alternative method
+                        return await this.getImageFromAlternativeSource(prompt);
+                    }
+
+                    const data = await response.json();
+                    if (data.data && data.data[0] && data.data[0].url) {
+                        return data.data[0].url;
+                    }
+                    
+                    return null;
+                } catch (error) {
+                    console.error('Error generating image with DALL-E:', error);
+                    // Fallback to alternative source
+                    return await this.getImageFromAlternativeSource(prompt);
+                }
+            },
+
+            async getImageFromAlternativeSource(searchTerm) {
+                try {
+                    // Try using a proxy service or alternative image source
+                    // Using a service that provides images based on search terms
+                    
+                    // Method 1: Try using Lorem Picsum with seed based on search term
+                    const seed = searchTerm.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                    const picsumUrl = `https://picsum.photos/seed/${seed}/800/600`;
+                    
+                    // Test if it loads
+                    return new Promise((resolve) => {
+                        const testImg = new Image();
+                        testImg.onload = () => resolve(picsumUrl);
+                        testImg.onerror = () => {
+                            // Fallback to placeholder
+                            const colors = ['667eea', '10b981', '3b82f6', 'f59e0b'];
+                            const colorIndex = seed % colors.length;
+                            resolve(`https://via.placeholder.com/800x600/${colors[colorIndex]}/ffffff?text=${encodeURIComponent(searchTerm.substring(0, 15))}`);
+                        };
+                        testImg.src = picsumUrl;
+                    });
+                } catch (error) {
+                    console.error('Error getting alternative image:', error);
+                    // Final fallback
+                    return `https://via.placeholder.com/800x600/667eea/ffffff?text=${encodeURIComponent(searchTerm)}`;
+                }
+            },
+
+            addImageElement(slideIndex, options) {
+                if (!this.data[slideIndex]) {
+                    console.error('Slide index does not exist:', slideIndex);
+                    return;
+                }
+                
+                // Ensure we have a valid src
+                if (!options.src || options.src.trim() === '') {
+                    console.warn('No image src provided, using placeholder');
+                    options.src = `https://via.placeholder.com/${options.width || 300}x${options.height || 200}/667eea/ffffff?text=Image`;
+                }
+                
+                console.log('Adding image element to slide', slideIndex, 'with src:', options.src);
+                
+                const id = Date.now() + Math.random();
+                const el = {
+                    id: id,
+                    type: 'image',
+                    src: options.src,
+                    x: options.x || 150,
+                    y: options.y || 100,
+                    width: options.width || 300,
+                    height: options.height || 200,
+                    animation: 'none'
+                };
+                
+                this.data[slideIndex].els.push(el);
+                console.log('Image element added, total elements:', this.data[slideIndex].els.length);
+                this.saveState();
+                this.loadCanvas();
+                this.renderSlides();
             }
         };
 
