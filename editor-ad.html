@@ -2845,6 +2845,20 @@ input[type="color"]{
                             <button class="tool-btn tool-btn-icon" onclick="app.alignText('center')" title="Align Center">▬</button>
                             <button class="tool-btn tool-btn-icon" onclick="app.alignText('right')" title="Align Right">▶</button>
                         </div>
+                        <div class="category-panel-group">
+                            <span class="category-panel-label">Lists</span>
+                            <div class="dropdown-wrapper">
+                                <button class="tool-btn dropdown-btn" onclick="app.toggleDropdown('listsDropdown')">List Types</button>
+                                <div class="category-dropdown" id="listsDropdown">
+                                    <div class="category-dropdown-item" onclick="app.addList('bullet'); app.closeDropdown('listsDropdown')">• Bullet List</div>
+                                    <div class="category-dropdown-item" onclick="app.addList('numbered'); app.closeDropdown('listsDropdown')">1. Numbered List</div>
+                                    <div class="category-dropdown-item" onclick="app.addList('square'); app.closeDropdown('listsDropdown')">■ Square List</div>
+                                    <div class="category-dropdown-item" onclick="app.addList('circle'); app.closeDropdown('listsDropdown')">○ Circle List</div>
+                                    <div class="category-dropdown-item" onclick="app.addList('dash'); app.closeDropdown('listsDropdown')">- Dash List</div>
+                                    <div class="category-dropdown-item" onclick="app.addList('arrow'); app.closeDropdown('listsDropdown')">→ Arrow List</div>
+                                </div>
+                            </div>
+                        </div>
                     `,
                     image: `
                         <div class="category-panel-group">
@@ -2875,6 +2889,7 @@ input[type="color"]{
                                     <div class="category-dropdown-item" onclick="app.addChart('bar'); app.closeDropdown('chartsDropdown')">Bar Chart</div>
                                     <div class="category-dropdown-item" onclick="app.addChart('line'); app.closeDropdown('chartsDropdown')">Line Chart</div>
                                     <div class="category-dropdown-item" onclick="app.addChart('pie'); app.closeDropdown('chartsDropdown')">Pie Chart</div>
+                                    <div class="category-dropdown-item" onclick="app.addChart('flow'); app.closeDropdown('chartsDropdown')">Flow Chart</div>
                                 </div>
                             </div>
                             <div class="dropdown-wrapper">
@@ -3517,6 +3532,7 @@ input[type="color"]{
                                 <option value="bar" ${data.chartType === 'bar' ? 'selected' : ''}>Bar Chart</option>
                                 <option value="line" ${data.chartType === 'line' ? 'selected' : ''}>Line Chart</option>
                                 <option value="pie" ${data.chartType === 'pie' ? 'selected' : ''}>Pie Chart</option>
+                                <option value="flow" ${data.chartType === 'flow' ? 'selected' : ''}>Flow Chart</option>
                             </select>
                         </div>
                         <div class="properties-group">
@@ -3558,6 +3574,93 @@ input[type="color"]{
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                                 <input type="number" class="properties-input" min="1" max="10" value="${data.rows || 3}" onchange="app.updateTableSize('${data.id}', 'rows', parseInt(this.value))" placeholder="Rows">
                                 <input type="number" class="properties-input" min="1" max="10" value="${data.cols || 3}" onchange="app.updateTableSize('${data.id}', 'cols', parseInt(this.value))" placeholder="Cols">
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Border Style</label>
+                            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
+                                <button class="properties-arrange-btn" onclick="app.updateTableProperty('${data.id}', 'borderStyle', 'solid')" title="Solid" style="${(data.borderStyle || 'solid') === 'solid' ? 'background: #3b82f6; color: white;' : ''}">━</button>
+                                <button class="properties-arrange-btn" onclick="app.updateTableProperty('${data.id}', 'borderStyle', 'dashed')" title="Dashed" style="${(data.borderStyle || 'solid') === 'dashed' ? 'background: #3b82f6; color: white;' : ''}">┅</button>
+                                <button class="properties-arrange-btn" onclick="app.updateTableProperty('${data.id}', 'borderStyle', 'dotted')" title="Dotted" style="${(data.borderStyle || 'solid') === 'dotted' ? 'background: #3b82f6; color: white;' : ''}">┄</button>
+                                <button class="properties-arrange-btn" onclick="app.updateTableProperty('${data.id}', 'borderStyle', 'double')" title="Double" style="${(data.borderStyle || 'solid') === 'double' ? 'background: #3b82f6; color: white;' : ''}">═</button>
+                                <button class="properties-arrange-btn" onclick="app.updateTableProperty('${data.id}', 'borderStyle', 'none')" title="None" style="${(data.borderStyle || 'solid') === 'none' ? 'background: #3b82f6; color: white;' : ''}">✕</button>
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Show Borders</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" ${(data.showBorders !== false) ? 'checked' : ''} onchange="app.updateTableProperty('${data.id}', 'showBorders', this.checked)" style="width: 18px; height: 18px; cursor: pointer;">
+                                <span style="font-size: 13px; color: #374151;">${(data.showBorders !== false) ? 'Visible' : 'Hidden'}</span>
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Border Width</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" min="0" max="5" value="${data.borderWidth || 1}" oninput="app.updateTableProperty('${data.id}', 'borderWidth', parseInt(this.value))" style="flex: 1;">
+                                <input type="number" min="0" max="5" value="${data.borderWidth || 1}" onchange="app.updateTableProperty('${data.id}', 'borderWidth', parseInt(this.value))" style="width: 60px; padding: 4px; border: 1px solid #d1d5db; border-radius: 4px;">
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Border Color</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="color" value="${data.borderColor || '#e5e7eb'}" onchange="app.updateTableProperty('${data.id}', 'borderColor', this.value)" style="width: 50px; height: 36px; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">
+                                <input type="text" value="${data.borderColor || '#e5e7eb'}" onchange="app.updateTableProperty('${data.id}', 'borderColor', this.value)" placeholder="#e5e7eb" style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Table Background</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="color" value="${data.tableBgColor || '#ffffff'}" onchange="app.updateTableProperty('${data.id}', 'tableBgColor', this.value)" style="width: 50px; height: 36px; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">
+                                <input type="text" value="${data.tableBgColor || '#ffffff'}" onchange="app.updateTableProperty('${data.id}', 'tableBgColor', this.value)" placeholder="#ffffff" style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Header Background</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="color" value="${data.headerBgColor || '#f3f4f6'}" onchange="app.updateTableProperty('${data.id}', 'headerBgColor', this.value)" style="width: 50px; height: 36px; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">
+                                <input type="text" value="${data.headerBgColor || '#f3f4f6'}" onchange="app.updateTableProperty('${data.id}', 'headerBgColor', this.value)" placeholder="#f3f4f6" style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Header Text Color</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="color" value="${data.headerTextColor || '#000000'}" onchange="app.updateTableProperty('${data.id}', 'headerTextColor', this.value)" style="width: 50px; height: 36px; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">
+                                <input type="text" value="${data.headerTextColor || '#000000'}" onchange="app.updateTableProperty('${data.id}', 'headerTextColor', this.value)" placeholder="#000000" style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Cell Background</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="color" value="${data.cellBgColor || 'transparent'}" onchange="app.updateTableProperty('${data.id}', 'cellBgColor', this.value)" style="width: 50px; height: 36px; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">
+                                <input type="text" value="${data.cellBgColor || 'transparent'}" onchange="app.updateTableProperty('${data.id}', 'cellBgColor', this.value)" placeholder="transparent" style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Cell Text Color</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="color" value="${data.cellTextColor || '#000000'}" onchange="app.updateTableProperty('${data.id}', 'cellTextColor', this.value)" style="width: 50px; height: 36px; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">
+                                <input type="text" value="${data.cellTextColor || '#000000'}" onchange="app.updateTableProperty('${data.id}', 'cellTextColor', this.value)" placeholder="#000000" style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Text Size</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" min="8" max="48" value="${data.textSize || 12}" oninput="app.updateTableProperty('${data.id}', 'textSize', parseInt(this.value))" style="flex: 1;">
+                                <input type="number" min="8" max="48" value="${data.textSize || 12}" onchange="app.updateTableProperty('${data.id}', 'textSize', parseInt(this.value))" style="width: 60px; padding: 4px; border: 1px solid #d1d5db; border-radius: 4px;">
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Header Text Bold</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" ${(data.headerBold !== false) ? 'checked' : ''} onchange="app.updateTableProperty('${data.id}', 'headerBold', this.checked)" style="width: 18px; height: 18px; cursor: pointer;">
+                                <span style="font-size: 13px; color: #374151;">${(data.headerBold !== false) ? 'Bold' : 'Normal'}</span>
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Cell Text Bold</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" ${data.cellBold ? 'checked' : ''} onchange="app.updateTableProperty('${data.id}', 'cellBold', this.checked)" style="width: 18px; height: 18px; cursor: pointer;">
+                                <span style="font-size: 13px; color: #374151;">${data.cellBold ? 'Bold' : 'Normal'}</span>
                             </div>
                         </div>
                         <div class="properties-group">
@@ -4215,6 +4318,38 @@ input[type="color"]{
                 }, 100);
             },
 
+            addList(listType) {
+                const id = Date.now();
+                const listItems = ['Item 1', 'Item 2', 'Item 3'];
+                const el = {
+                    id: id,
+                    type: 'text',
+                    content: listItems.join('\n'),
+                    listType: listType,
+                    x: 100,
+                    y: 100,
+                    width: 300,
+                    height: 120,
+                    font: 'Arial',
+                    size: 24,
+                    color: '#000000',
+                    bg: 'transparent',
+                    weight: 'normal',
+                    align: 'left',
+                    animation: 'none'
+                };
+                this.data[this.curr].els.push(el);
+                this.saveState();
+                this.loadCanvas();
+                this.renderSlides();
+                
+                // Auto-select the new element
+                setTimeout(() => {
+                    const elementEl = document.querySelector(`[data-id="${id}"]`);
+                    if (elementEl) this.selectElement(elementEl);
+                }, 100);
+            },
+
             addShape(shape) {
                 const id = Date.now();
                 const el = {
@@ -4306,7 +4441,50 @@ input[type="color"]{
 
                 if (data.type === 'text') {
                     div.contentEditable = true;
-                    div.innerText = data.content || '';
+                    
+                    // Handle lists
+                    if (data.listType) {
+                        const items = data.content ? data.content.split('\n').filter(item => item.trim()) : ['Item 1', 'Item 2', 'Item 3'];
+                        let listHTML = '';
+                        
+                        switch(data.listType) {
+                            case 'bullet':
+                                listHTML = '<ul style="margin: 0; padding-left: 20px; list-style-type: disc;">' + 
+                                    items.map(item => `<li>${item}</li>`).join('') + '</ul>';
+                                break;
+                            case 'numbered':
+                                listHTML = '<ol style="margin: 0; padding-left: 20px;">' + 
+                                    items.map(item => `<li>${item}</li>`).join('') + '</ol>';
+                                break;
+                            case 'square':
+                                listHTML = '<ul style="margin: 0; padding-left: 20px; list-style-type: square;">' + 
+                                    items.map(item => `<li>${item}</li>`).join('') + '</ul>';
+                                break;
+                            case 'circle':
+                                listHTML = '<ul style="margin: 0; padding-left: 20px; list-style-type: circle;">' + 
+                                    items.map(item => `<li>${item}</li>`).join('') + '</ul>';
+                                break;
+                            case 'dash':
+                                listHTML = '<ul style="margin: 0; padding-left: 20px; list-style-type: none;">' + 
+                                    items.map(item => `<li style="position: relative; padding-left: 15px;">— ${item}</li>`).join('') + '</ul>';
+                                break;
+                            case 'arrow':
+                                listHTML = '<ul style="margin: 0; padding-left: 20px; list-style-type: none;">' + 
+                                    items.map(item => `<li style="position: relative; padding-left: 15px;">→ ${item}</li>`).join('') + '</ul>';
+                                break;
+                            default:
+                                div.innerText = data.content || '';
+                        }
+                        
+                        if (listHTML) {
+                            div.innerHTML = listHTML;
+                        } else {
+                            div.innerText = data.content || '';
+                        }
+                    } else {
+                        div.innerText = data.content || '';
+                    }
+                    
                     let fontFamily = data.font || 'Arial';
                     if (fontFamily === 'Kraft Mono') {
                         fontFamily = "'Kraft Mono', 'JetBrains Mono', monospace";
@@ -4334,7 +4512,15 @@ input[type="color"]{
                     div.addEventListener('blur', () => {
                         const el = this.data[slideIndex].els.find(e => e.id == data.id);
                         if (el) {
-                            el.content = div.innerText;
+                            if (el.listType) {
+                                // Extract list items from HTML
+                                const listItems = Array.from(div.querySelectorAll('li')).map(li => {
+                                    return li.textContent.replace(/^[—→]\s*/, '').trim();
+                                });
+                                el.content = listItems.join('\n');
+                            } else {
+                                el.content = div.innerText;
+                            }
                             this.saveState();
                             this.renderSlides();
                             
@@ -4555,6 +4741,17 @@ input[type="color"]{
                                 data.labels = defaultData.labels || [];
                                 data.values = defaultData.values || [];
                                 data.colors = defaultData.colors || [];
+                                // Add connections for flow chart
+                                if (data.chartType === 'flow' && defaultData.connections) {
+                                    data.connections = defaultData.connections;
+                                }
+                            } else if (data.chartType === 'flow' && !data.connections) {
+                                // Ensure connections exist for flow chart even if labels exist
+                                const nodeCount = data.labels.length;
+                                data.connections = [];
+                                for (let i = 0; i < nodeCount - 1; i++) {
+                                    data.connections.push([i, i + 1]);
+                                }
                             }
                             this.drawChart(ctx, data.chartType || 'bar', data, canvasWidth, canvasHeight);
                         }
@@ -4564,29 +4761,147 @@ input[type="color"]{
                 }
 
                 if (data.type === 'table') {
-                    div.style.backgroundColor = 'white';
-                    div.style.border = '1px solid #e5e7eb';
+                    const borderStyle = data.borderStyle || 'solid';
+                    const borderColor = data.borderColor || '#e5e7eb';
+                    const borderWidth = data.borderWidth || 1;
+                    const showBorders = data.showBorders !== false;
+                    const tableBgColor = data.tableBgColor || 'white';
+                    const headerBgColor = data.headerBgColor || '#f3f4f6';
+                    const cellBgColor = data.cellBgColor || 'transparent';
+                    const headerTextColor = data.headerTextColor || '#000000';
+                    const cellTextColor = data.cellTextColor || '#000000';
+                    const rowHeights = data.rowHeights || [];
+                    const colWidths = data.colWidths || [];
+                    
+                    div.style.backgroundColor = tableBgColor;
+                    if (showBorders) {
+                        div.style.border = `${borderWidth}px ${borderStyle} ${borderColor}`;
+                    } else {
+                        div.style.border = 'none';
+                    }
                     div.style.borderRadius = '4px';
-                    div.style.overflow = 'hidden';
+                    div.style.overflow = 'visible';
+                    div.style.position = 'relative';
                     
                     const table = document.createElement('table');
                     table.style.width = '100%';
                     table.style.height = '100%';
                     table.style.borderCollapse = 'collapse';
-                    table.style.fontSize = '12px';
+                    const textSize = data.textSize || 12;
+                    table.style.fontSize = textSize + 'px';
+                    table.style.tableLayout = 'fixed';
+                    
+                    // Calculate total height and width for percentage calculations
+                    const totalHeight = div.offsetHeight || 200;
+                    const totalWidth = div.offsetWidth || 400;
                     
                     for (let r = 0; r < data.rows; r++) {
                         const tr = document.createElement('tr');
+                        const rowHeight = rowHeights[r] ? `${rowHeights[r]}px` : '';
+                        if (rowHeight) {
+                            tr.style.height = rowHeight;
+                        }
                         for (let c = 0; c < data.cols; c++) {
                             const td = document.createElement(r === 0 ? 'th' : 'td');
-                            td.textContent = data.data[r] ? data.data[r][c] : '';
-                            td.style.border = '1px solid #e5e7eb';
+                            // Set initial content - convert \n to <br> for display
+                            const cellContent = data.data[r] ? data.data[r][c] : '';
+                            if (cellContent) {
+                                td.innerHTML = cellContent.replace(/\n/g, '<br>');
+                            }
+                            const colWidth = colWidths[c] ? `${colWidths[c]}px` : '';
+                            if (colWidth) {
+                                td.style.width = colWidth;
+                            }
+                            if (showBorders) {
+                                td.style.border = `${borderWidth}px ${borderStyle} ${borderColor}`;
+                            } else {
+                                td.style.border = 'none';
+                            }
                             td.style.padding = '8px';
                             td.style.textAlign = 'left';
                             if (r === 0) {
-                                td.style.backgroundColor = '#f3f4f6';
-                                td.style.fontWeight = '600';
+                                td.style.backgroundColor = headerBgColor;
+                                td.style.color = headerTextColor;
+                                td.style.fontWeight = (data.headerBold !== false) ? 'bold' : 'normal';
+                            } else {
+                                td.style.backgroundColor = cellBgColor;
+                                td.style.color = cellTextColor;
+                                td.style.fontWeight = data.cellBold ? 'bold' : 'normal';
                             }
+                            
+                            // Make cell editable
+                            td.contentEditable = true;
+                            td.style.outline = 'none';
+                            td.style.cursor = 'text';
+                            td.style.whiteSpace = 'pre-wrap'; // Preserve line breaks
+                            
+                            // Prevent drag when clicking inside cell
+                            td.addEventListener('mousedown', (e) => {
+                                e.stopPropagation();
+                            });
+                            
+                            // Helper function to get text content with line breaks
+                            const getTextWithBreaks = (element) => {
+                                let text = '';
+                                for (let node of element.childNodes) {
+                                    if (node.nodeType === Node.TEXT_NODE) {
+                                        text += node.textContent;
+                                    } else if (node.nodeName === 'BR') {
+                                        text += '\n';
+                                    } else if (node.nodeName === 'DIV') {
+                                        text += getTextWithBreaks(node) + '\n';
+                                    } else {
+                                        text += node.textContent;
+                                    }
+                                }
+                                return text;
+                            };
+                            
+                            // Save content when edited
+                            td.addEventListener('blur', () => {
+                                if (!data.data[r]) data.data[r] = [];
+                                // Get text with line breaks preserved
+                                const textContent = getTextWithBreaks(td);
+                                data.data[r][c] = textContent;
+                                this.saveState();
+                            });
+                            
+                            // Handle Enter key: Shift+Enter = new line, Enter = next cell
+                            td.addEventListener('keydown', (e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    // Move to next row or next cell
+                                    const nextRow = r + 1;
+                                    if (nextRow < data.rows) {
+                                        const nextCell = table.querySelector(`tr:nth-child(${nextRow + 1}) td:nth-child(${c + 1}), tr:nth-child(${nextRow + 1}) th:nth-child(${c + 1})`);
+                                        if (nextCell) {
+                                            nextCell.focus();
+                                        }
+                                    }
+                                } else if (e.key === 'Enter' && e.shiftKey) {
+                                    // Allow default behavior (new line) - don't prevent
+                                    // The browser will insert a <br> tag automatically
+                                } else if (e.key === 'Tab') {
+                                    e.preventDefault();
+                                    // Move to next/previous cell
+                                    let nextC = c + (e.shiftKey ? -1 : 1);
+                                    let nextR = r;
+                                    if (nextC >= data.cols) {
+                                        nextC = 0;
+                                        nextR = r + 1;
+                                    } else if (nextC < 0) {
+                                        nextC = data.cols - 1;
+                                        nextR = r - 1;
+                                    }
+                                    if (nextR >= 0 && nextR < data.rows) {
+                                        const nextCell = table.querySelector(`tr:nth-child(${nextR + 1}) td:nth-child(${nextC + 1}), tr:nth-child(${nextR + 1}) th:nth-child(${nextC + 1})`);
+                                        if (nextCell) {
+                                            nextCell.focus();
+                                        }
+                                    }
+                                }
+                            });
+                            
                             tr.appendChild(td);
                         }
                         table.appendChild(tr);
@@ -4894,9 +5209,54 @@ input[type="color"]{
                     div.style.textAlign = data.align || 'left';
                     div.style.padding = (8 * scale) + 'px';
                     div.style.overflow = 'hidden';
-                    div.style.textOverflow = 'ellipsis';
-                    div.style.whiteSpace = 'nowrap';
-                    div.textContent = data.content || '';
+                    
+                    // Handle lists in thumbnails
+                    if (data.listType) {
+                        const items = data.content ? data.content.split('\n').filter(item => item.trim()) : ['Item 1', 'Item 2', 'Item 3'];
+                        let listHTML = '';
+                        
+                        switch(data.listType) {
+                            case 'bullet':
+                                listHTML = '<ul style="margin: 0; padding-left: ' + (15 * scale) + 'px; list-style-type: disc; font-size: ' + ((data.size || 24) * scale) + 'px;">' + 
+                                    items.slice(0, 3).map(item => `<li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item}</li>`).join('') + '</ul>';
+                                break;
+                            case 'numbered':
+                                listHTML = '<ol style="margin: 0; padding-left: ' + (15 * scale) + 'px; font-size: ' + ((data.size || 24) * scale) + 'px;">' + 
+                                    items.slice(0, 3).map(item => `<li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item}</li>`).join('') + '</ol>';
+                                break;
+                            case 'square':
+                                listHTML = '<ul style="margin: 0; padding-left: ' + (15 * scale) + 'px; list-style-type: square; font-size: ' + ((data.size || 24) * scale) + 'px;">' + 
+                                    items.slice(0, 3).map(item => `<li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item}</li>`).join('') + '</ul>';
+                                break;
+                            case 'circle':
+                                listHTML = '<ul style="margin: 0; padding-left: ' + (15 * scale) + 'px; list-style-type: circle; font-size: ' + ((data.size || 24) * scale) + 'px;">' + 
+                                    items.slice(0, 3).map(item => `<li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item}</li>`).join('') + '</ul>';
+                                break;
+                            case 'dash':
+                                listHTML = '<ul style="margin: 0; padding-left: ' + (15 * scale) + 'px; list-style-type: none; font-size: ' + ((data.size || 24) * scale) + 'px;">' + 
+                                    items.slice(0, 3).map(item => `<li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">— ${item}</li>`).join('') + '</ul>';
+                                break;
+                            case 'arrow':
+                                listHTML = '<ul style="margin: 0; padding-left: ' + (15 * scale) + 'px; list-style-type: none; font-size: ' + ((data.size || 24) * scale) + 'px;">' + 
+                                    items.slice(0, 3).map(item => `<li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">→ ${item}</li>`).join('') + '</ul>';
+                                break;
+                            default:
+                                div.textContent = data.content || '';
+                        }
+                        
+                        if (listHTML) {
+                            div.innerHTML = listHTML;
+                            div.style.whiteSpace = 'normal';
+                        } else {
+                            div.textContent = data.content || '';
+                            div.style.textOverflow = 'ellipsis';
+                            div.style.whiteSpace = 'nowrap';
+                        }
+                    } else {
+                        div.style.textOverflow = 'ellipsis';
+                        div.style.whiteSpace = 'nowrap';
+                        div.textContent = data.content || '';
+                    }
                     
                     // Apply border if exists
                     if (data.borderWidth && data.borderWidth > 0) {
@@ -5068,8 +5428,24 @@ input[type="color"]{
                     
                     div.appendChild(chartCanvas);
                 } else if (data.type === 'table') {
-                    div.style.backgroundColor = 'white';
-                    div.style.border = `${(1 * scale)}px solid #e5e7eb`;
+                    const borderStyle = data.borderStyle || 'solid';
+                    const borderColor = data.borderColor || '#e5e7eb';
+                    const borderWidth = data.borderWidth || 1;
+                    const showBorders = data.showBorders !== false;
+                    const tableBgColor = data.tableBgColor || 'white';
+                    const headerBgColor = data.headerBgColor || '#f3f4f6';
+                    const cellBgColor = data.cellBgColor || 'transparent';
+                    const headerTextColor = data.headerTextColor || '#000000';
+                    const cellTextColor = data.cellTextColor || '#000000';
+                    const rowHeights = data.rowHeights || [];
+                    const colWidths = data.colWidths || [];
+                    
+                    div.style.backgroundColor = tableBgColor;
+                    if (showBorders) {
+                        div.style.border = `${(borderWidth * scale)}px ${borderStyle} ${borderColor}`;
+                    } else {
+                        div.style.border = 'none';
+                    }
                     div.style.borderRadius = (4 * scale) + 'px';
                     div.style.overflow = 'hidden';
                     
@@ -5077,19 +5453,46 @@ input[type="color"]{
                     table.style.width = '100%';
                     table.style.height = '100%';
                     table.style.borderCollapse = 'collapse';
-                    table.style.fontSize = (12 * scale) + 'px';
+                    const textSize = data.textSize || 12;
+                    table.style.fontSize = (textSize * scale) + 'px';
+                    table.style.tableLayout = 'fixed';
+                    
+                    const totalHeight = div.offsetHeight || 200;
+                    const totalWidth = div.offsetWidth || 400;
                     
                     for (let r = 0; r < data.rows; r++) {
                         const tr = document.createElement('tr');
+                        const rowHeight = rowHeights[r] ? `${rowHeights[r] * scale}px` : '';
+                        if (rowHeight) {
+                            tr.style.height = rowHeight;
+                        }
                         for (let c = 0; c < data.cols; c++) {
                             const td = document.createElement(r === 0 ? 'th' : 'td');
-                            td.textContent = data.data[r] ? data.data[r][c] : '';
-                            td.style.border = `${(1 * scale)}px solid #e5e7eb`;
+                            // Convert \n to <br> for display
+                            const cellContent = data.data[r] ? data.data[r][c] : '';
+                            if (cellContent) {
+                                td.innerHTML = cellContent.replace(/\n/g, '<br>');
+                            }
+                            td.style.whiteSpace = 'pre-wrap'; // Preserve line breaks
+                            const colWidth = colWidths[c] ? `${colWidths[c] * scale}px` : '';
+                            if (colWidth) {
+                                td.style.width = colWidth;
+                            }
+                            if (showBorders) {
+                                td.style.border = `${(borderWidth * scale)}px ${borderStyle} ${borderColor}`;
+                            } else {
+                                td.style.border = 'none';
+                            }
                             td.style.padding = (8 * scale) + 'px';
                             td.style.textAlign = 'left';
                             if (r === 0) {
-                                td.style.backgroundColor = '#f3f4f6';
-                                td.style.fontWeight = '600';
+                                td.style.backgroundColor = headerBgColor;
+                                td.style.color = headerTextColor;
+                                td.style.fontWeight = (data.headerBold !== false) ? 'bold' : 'normal';
+                            } else {
+                                td.style.backgroundColor = cellBgColor;
+                                td.style.color = cellTextColor;
+                                td.style.fontWeight = data.cellBold ? 'bold' : 'normal';
                             }
                             tr.appendChild(td);
                         }
@@ -6228,6 +6631,11 @@ input[type="color"]{
                     showValues: true
                 };
                 
+                // Add connections for flow chart
+                if (type === 'flow' && defaultData.connections) {
+                    chartData.connections = defaultData.connections;
+                }
+                
                 this.data[this.curr].els.push(chartData);
                 this.saveState();
                 this.loadCanvas();
@@ -6269,6 +6677,13 @@ input[type="color"]{
                             values: [30, 25, 20, 25],
                             colors: ['#ef4444', '#3b82f6', '#f59e0b', '#10b981']
                         };
+                    case 'flow':
+                        return {
+                            labels: ['Start', 'Process 1', 'Decision', 'Process 2', 'End'],
+                            values: [1, 2, 3, 4, 5], // Used for ordering/flow
+                            colors: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444'],
+                            connections: [[0, 1], [1, 2], [2, 3], [3, 4]] // Flow connections
+                        };
                     default:
                         return { labels: [], values: [], colors: [] };
                 }
@@ -6285,7 +6700,22 @@ input[type="color"]{
                     y: 150,
                     width: 400,
                     height: 200,
-                    data: this.createTableData(rows || 3, cols || 3)
+                    data: this.createTableData(rows || 3, cols || 3),
+                    borderStyle: 'solid',
+                    borderColor: '#e5e7eb',
+                    borderWidth: 1,
+                    showBorders: true,
+                    tableBgColor: 'white',
+                    headerBgColor: '#f3f4f6',
+                    cellBgColor: 'transparent',
+                    headerTextColor: '#000000',
+                    cellTextColor: '#000000',
+                    borderStyleOptions: ['solid', 'dashed', 'dotted', 'double', 'none'],
+                    rowHeights: [],
+                    colWidths: [],
+                    textSize: 12,
+                    headerBold: true,
+                    cellBold: false
                 };
                 
                 this.data[this.curr].els.push(tableData);
@@ -6408,6 +6838,20 @@ input[type="color"]{
                     data.labels = defaultData.labels;
                     data.values = defaultData.values;
                     data.colors = defaultData.colors;
+                    // Add connections for flow chart
+                    if (type === 'flow' && defaultData.connections) {
+                        data.connections = defaultData.connections;
+                    } else if (type !== 'flow') {
+                        delete data.connections;
+                    }
+                } else if (type === 'flow') {
+                    // Ensure connections exist for flow chart
+                    const defaultData = this.getDefaultChartData(type);
+                    if (defaultData.connections && !data.connections) {
+                        data.connections = defaultData.connections;
+                    }
+                } else if (type !== 'flow') {
+                    delete data.connections;
                 }
                 
                 this.saveState();
@@ -6537,8 +6981,14 @@ input[type="color"]{
                     while (data.data.length > data.rows) {
                         data.data.pop();
                     }
+                    
+                    // Reset row heights if table is resized
+                    if (data.rowHeights && data.rowHeights.length !== data.rows) {
+                        data.rowHeights = [];
+                    }
                 } else if (dimension === 'cols') {
                     data.cols = Math.max(1, Math.min(10, value));
+                    
                     // Adjust data array
                     data.data.forEach((row, r) => {
                         while (row.length < data.cols) {
@@ -6548,7 +6998,30 @@ input[type="color"]{
                             row.pop();
                         }
                     });
+                    
+                    // Reset column widths if table is resized
+                    if (data.colWidths && data.colWidths.length !== data.cols) {
+                        data.colWidths = [];
+                    }
                 }
+                
+                this.saveState();
+                this.loadCanvas();
+                this.renderSlides();
+                
+                // Re-select to update properties panel
+                setTimeout(() => {
+                    const el = document.querySelector(`[data-id="${elementId}"]`);
+                    if (el) this.selectElement(el);
+                }, 50);
+            },
+
+            updateTableProperty(id, property, value) {
+                const elementId = typeof id === 'string' ? parseInt(id) : id;
+                const data = this.data[this.curr].els.find(e => e.id == elementId);
+                if (!data || data.type !== 'table') return;
+                
+                data[property] = value;
                 
                 this.saveState();
                 this.loadCanvas();
@@ -6618,12 +7091,24 @@ input[type="color"]{
                     const values = chartData.values || [];
                     const colors = chartData.colors || [];
                     
-                    if (!labels || labels.length === 0 || !values || values.length === 0) {
-                        ctx.fillStyle = '#9ca3af';
-                        ctx.font = '14px Inter, sans-serif';
-                        ctx.textAlign = 'center';
-                        ctx.fillText('No data', width / 2, height / 2);
-                        return;
+                    // For flow chart, we only need labels
+                    if (type === 'flow') {
+                        if (!labels || labels.length === 0) {
+                            ctx.fillStyle = '#9ca3af';
+                            ctx.font = '14px Inter, sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.fillText('No data', width / 2, height / 2);
+                            return;
+                        }
+                    } else {
+                        // For other charts, need both labels and values
+                        if (!labels || labels.length === 0 || !values || values.length === 0) {
+                            ctx.fillStyle = '#9ca3af';
+                            ctx.font = '14px Inter, sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.fillText('No data', width / 2, height / 2);
+                            return;
+                        }
                     }
                     
                     const padding = 50;
@@ -6645,6 +7130,9 @@ input[type="color"]{
                         case 'pie':
                             this.drawPieChart(ctx, labels, values, colors, padding, chartWidth, chartHeight, width, height, chartData);
                             break;
+                        case 'flow':
+                            this.drawFlowChart(ctx, labels, values, colors, padding, chartWidth, chartHeight, width, height, chartData);
+                            break;
                         default:
                             console.warn('Unknown chart type:', type);
                     }
@@ -6655,6 +7143,17 @@ input[type="color"]{
                     ctx.textAlign = 'center';
                     ctx.fillText('Chart Error', width / 2, height / 2);
                 }
+            },
+
+            formatNumber(num) {
+                if (num >= 1000000000) {
+                    return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
+                } else if (num >= 1000000) {
+                    return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+                } else if (num >= 1000) {
+                    return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+                }
+                return num.toString();
             },
 
             drawBarChart(ctx, labels, values, colors, padding, width, height, canvasWidth, canvasHeight, data = {}) {
@@ -6684,7 +7183,7 @@ input[type="color"]{
                     for (let i = 0; i <= 4; i++) {
                         const y = padding + (height / 4) * i;
                         const yValue = Math.round(maxValue - (maxValue / 4) * i);
-                        ctx.fillText(yValue.toString(), padding + leftPadding - 10, y);
+                        ctx.fillText(this.formatNumber(yValue), padding + leftPadding - 10, y);
                     }
                 }
                 
@@ -6711,7 +7210,7 @@ input[type="color"]{
                         ctx.font = 'bold 12px Inter, sans-serif';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
-                        ctx.fillText(value.toString(), x + barWidth / 2, centerY);
+                        ctx.fillText(this.formatNumber(value), x + barWidth / 2, centerY);
                     }
                     
                     // Draw label
@@ -6888,6 +7387,205 @@ input[type="color"]{
                     
                     currentAngle += sliceAngle;
                 });
+            },
+
+            drawFlowChart(ctx, labels, values, colors, padding, width, height, canvasWidth, canvasHeight, data = {}) {
+                // Ensure we have valid labels array
+                const validLabels = Array.isArray(labels) ? labels.filter(l => l !== null && l !== undefined && l !== '') : [];
+                const nodeCount = validLabels.length;
+                
+                if (nodeCount === 0) {
+                    ctx.fillStyle = '#9ca3af';
+                    ctx.font = '14px Inter, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('No data', canvasWidth / 2, canvasHeight / 2);
+                    return;
+                }
+
+                const defaultColors = ['#3b82f6', '#3b82f6', '#3b82f6', '#3b82f6', '#3b82f6', '#3b82f6']; // Default blue for all nodes
+                const centerY = padding + height / 2;
+                
+                // Calculate available space
+                const availableWidth = width - (padding * 2);
+                const availableHeight = height - (padding * 2);
+                
+                // Adaptive sizing based on available space and number of nodes
+                // Calculate optimal node size to fit all nodes
+                let nodeWidth, nodeHeight, minGap, borderRadius, fontSize;
+                
+                if (nodeCount === 1) {
+                    // Single node - use available space
+                    nodeWidth = Math.min(200, availableWidth - 20);
+                    nodeHeight = Math.min(100, availableHeight - 20);
+                    minGap = 0;
+                } else {
+                    // Multiple nodes - calculate to fit all
+                    // Minimum required: each node needs space + gap for arrow
+                    const minNodeWidth = 80;
+                    const minGapSize = 15;
+                    const totalMinWidth = nodeCount * minNodeWidth + (nodeCount - 1) * minGapSize;
+                    
+                    if (availableWidth >= totalMinWidth) {
+                        // Enough space - use comfortable sizes
+                        const optimalNodeWidth = Math.min(130, (availableWidth - (nodeCount - 1) * 25) / nodeCount);
+                        nodeWidth = Math.max(minNodeWidth, optimalNodeWidth);
+                        minGap = Math.max(minGapSize, (availableWidth - nodeCount * nodeWidth) / (nodeCount - 1));
+                    } else {
+                        // Not enough space - scale down to fit all nodes
+                        nodeWidth = minNodeWidth;
+                        minGap = minGapSize;
+                    }
+                    
+                    nodeHeight = Math.min(70, availableHeight - 20);
+                }
+                
+                borderRadius = Math.min(8, nodeHeight / 10);
+                fontSize = nodeWidth > 100 ? 13 : (nodeWidth > 80 ? 11 : 10);
+                
+                // Calculate spacing
+                let spacing;
+                if (nodeCount === 1) {
+                    spacing = 0;
+                } else {
+                    spacing = nodeWidth + minGap;
+                }
+                
+                // Calculate total width and start position
+                const totalWidth = nodeCount === 1 ? nodeWidth : (nodeCount - 1) * spacing + nodeWidth;
+                const startX = padding + (width - totalWidth) / 2 + nodeWidth / 2;
+                
+                // Draw connections first (so they appear behind nodes)
+                ctx.strokeStyle = '#9ca3af'; // Gray arrows
+                ctx.lineWidth = 2.5;
+                ctx.fillStyle = '#9ca3af';
+                
+                for (let i = 0; i < nodeCount - 1; i++) {
+                    const fromX = startX + i * spacing;
+                    const toX = startX + (i + 1) * spacing;
+                    
+                    // Calculate arrow start and end points
+                    const arrowStartX = fromX + nodeWidth / 2;
+                    const arrowEndX = toX - nodeWidth / 2;
+                    
+                    // Only draw arrow if there's space between nodes
+                    if (arrowEndX > arrowStartX) {
+                        // Draw arrow line from right edge of from node to left edge of to node
+                        ctx.beginPath();
+                        ctx.moveTo(arrowStartX, centerY);
+                        ctx.lineTo(arrowEndX, centerY);
+                        ctx.stroke();
+                        
+                        // Draw arrowhead (triangle)
+                        const arrowSize = 12;
+                        ctx.beginPath();
+                        ctx.moveTo(arrowEndX, centerY);
+                        ctx.lineTo(arrowEndX - arrowSize, centerY - arrowSize / 2);
+                        ctx.lineTo(arrowEndX - arrowSize, centerY + arrowSize / 2);
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+                }
+                
+                // Draw alternative connections if provided
+                if (data.connections && Array.isArray(data.connections)) {
+                    data.connections.forEach(conn => {
+                        if (conn.length === 2 && conn[0] >= 0 && conn[0] < nodeCount && conn[1] >= 0 && conn[1] < nodeCount && conn[1] !== conn[0] + 1) {
+                            const fromX = startX + conn[0] * spacing;
+                            const toX = startX + conn[1] * spacing;
+                            const midX = (fromX + toX) / 2;
+                            const midY = centerY + 50;
+                            
+                            ctx.beginPath();
+                            ctx.moveTo(fromX, centerY + nodeHeight / 2);
+                            ctx.quadraticCurveTo(midX, midY, toX, centerY + nodeHeight / 2);
+                            ctx.stroke();
+                            
+                            // Arrowhead
+                            const angle = Math.atan2(centerY + nodeHeight / 2 - midY, toX - midX);
+                            ctx.beginPath();
+                            ctx.moveTo(toX, centerY + nodeHeight / 2);
+                            ctx.lineTo(toX - 10 * Math.cos(angle) + 8 * Math.sin(angle), centerY + nodeHeight / 2 - 10 * Math.sin(angle) - 8 * Math.cos(angle));
+                            ctx.lineTo(toX - 10 * Math.cos(angle) - 8 * Math.sin(angle), centerY + nodeHeight / 2 - 10 * Math.sin(angle) + 8 * Math.cos(angle));
+                            ctx.closePath();
+                            ctx.fill();
+                        }
+                    });
+                }
+
+                // Draw nodes (all rectangles with rounded corners) - draw ALL nodes
+                validLabels.forEach((label, i) => {
+                    const x = startX + i * spacing; // x is the center of the node
+                    const color = colors[i] || defaultColors[i % defaultColors.length];
+                    const nodeX = x - nodeWidth / 2;
+                    const nodeY = centerY - nodeHeight / 2;
+                    
+                    // Draw rounded rectangle
+                    ctx.fillStyle = color;
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(nodeX + borderRadius, nodeY);
+                    ctx.lineTo(nodeX + nodeWidth - borderRadius, nodeY);
+                    ctx.quadraticCurveTo(nodeX + nodeWidth, nodeY, nodeX + nodeWidth, nodeY + borderRadius);
+                    ctx.lineTo(nodeX + nodeWidth, nodeY + nodeHeight - borderRadius);
+                    ctx.quadraticCurveTo(nodeX + nodeWidth, nodeY + nodeHeight, nodeX + nodeWidth - borderRadius, nodeY + nodeHeight);
+                    ctx.lineTo(nodeX + borderRadius, nodeY + nodeHeight);
+                    ctx.quadraticCurveTo(nodeX, nodeY + nodeHeight, nodeX, nodeY + nodeHeight - borderRadius);
+                    ctx.lineTo(nodeX, nodeY + borderRadius);
+                    ctx.quadraticCurveTo(nodeX, nodeY, nodeX + borderRadius, nodeY);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    
+                    // Draw text
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    
+                    // Simple text display (center it) - wrap if too long
+                    const text = label || `Item ${i + 1}`;
+                    const maxTextWidth = nodeWidth - 16;
+                    
+                    // Measure and adjust font size if needed
+                    let displayText = text;
+                    let currentFontSize = fontSize;
+                    let metrics = ctx.measureText(displayText);
+                    
+                    // If text is too long, try to fit it by reducing font size
+                    if (metrics.width > maxTextWidth && currentFontSize > 8) {
+                        currentFontSize = Math.max(8, Math.floor(currentFontSize * (maxTextWidth / metrics.width)));
+                        ctx.font = `bold ${currentFontSize}px Inter, sans-serif`;
+                    }
+                    
+                    // If still too long, truncate with ellipsis
+                    metrics = ctx.measureText(displayText);
+                    if (metrics.width > maxTextWidth) {
+                        while (metrics.width > maxTextWidth && displayText.length > 0) {
+                            displayText = displayText.slice(0, -1);
+                            metrics = ctx.measureText(displayText + '...');
+                        }
+                        displayText = displayText + '...';
+                    }
+                    
+                    ctx.fillText(displayText, x, centerY);
+                });
+            },
+
+            drawRoundedRect(ctx, x, y, width, height, radius) {
+                ctx.beginPath();
+                ctx.moveTo(x + radius, y);
+                ctx.lineTo(x + width - radius, y);
+                ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+                ctx.lineTo(x + width, y + height - radius);
+                ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                ctx.lineTo(x + radius, y + height);
+                ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+                ctx.lineTo(x, y + radius);
+                ctx.quadraticCurveTo(x, y, x + radius, y);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
             },
 
             // Arrange Functions
@@ -7154,7 +7852,20 @@ input[type="color"]{
 2. تعرض preview للمحتوى قبل التنفيذ
 3. تنتظر موافقة المستخدم
 
-مهم جداً: تذكر دائماً سياق المحادثة. إذا قال المستخدم "أضف المزيد" أو "غير هذا" أو "نفس الموضوع" أو "عدل"، يجب أن تفهم ما كان يتحدث عنه في الرسائل السابقة وتعدل على السلايدات الموجودة بدلاً من إنشاء سلايدات جديدة.
+مهم جداً: تذكر دائماً سياق المحادثة. إذا قال المستخدم "أضف المزيد" أو "غير هذا" أو "نفس الموضوع" أو "عدل" أو "تعديل" أو "تغيير" أو "المزيد" أو "غير اللون" أو "غير الحجم" أو "غير الخط" أو أي طلب لتعديل خاصية (مثل لون الكتابة، حجم الخط، إلخ)، يجب أن تفهم ما كان يتحدث عنه في الرسائل السابقة وتعدل على العناصر الموجودة باستخدام "modify_slide" مع slide: [رقم السلايد] بدلاً من إنشاء عناصر جديدة.
+
+عند تعديل العناصر (مثل تغيير اللون، الحجم، الخط):
+- مهم جداً: لتحديث خاصية عنصر موجود، يجب أن تضيف العنصر بنفس المحتوى الموجود بالضبط
+- ابحث عن العنصر الموجود بمطابقة المحتوى أولاً، ثم الموضع (ضمن 50 بكسل)
+- قم بتحديث خصائص العنصر الموجود (اللون، الحجم، الوزن، المحاذاة، الخط، bg، borderColor، borderWidth)
+- أضف العنصر بنفس المحتوى/الموضع الموجود وحدد فقط الخاصية المراد تغييرها
+- مثال لتغيير اللون: {"type": "text", "content": "Future of Gold Mining in KSA", "color": "#ff0000", "x": 130, "y": 60} سيحدث لون النص المطابق
+- مثال لتغيير الحجم: {"type": "text", "content": "Future of Gold Mining in KSA", "size": 48, "x": 130, "y": 60} سيحدث حجم النص المطابق
+- لا تستخدم محتوى وهمي مثل "New text" - استخدم المحتوى الموجود الفعلي
+- لا تضيف عنصر جديد إذا وجدت عنصر مطابق - قم بتحديثه بدلاً من ذلك
+- إذا لم تعرف المحتوى بالضبط، تحقق من currentState.slides لرؤية العناصر الموجودة ومحتواها
+
+إذا طلب المستخدم إضافة محتوى بعد إنشاء سلايدات، عدل على آخر سلايدات تم إنشاؤها.
 
 يجب أن ترد بـ JSON يحتوي على:
 {
@@ -7182,7 +7893,7 @@ IMPORTANT RULES:
    - Don't use only bullet points - vary the format!
 2. KEEP CONTENT FITTING - Content must fit within slide boundaries (height max 300px, NOT 350px)
 3. CONCISE CONTENT - CRITICAL: Maximum 400 characters per text element. Each sentence max 20 words. Each bullet max 12 words. Keep it VERY short and readable
-4. MODIFY EXISTING SLIDES - You can modify ANY existing slide using "modify_slide" with slide: [index]. When user asks to modify/edit, check existing slides and modify them instead of creating new ones.
+4. MODIFY EXISTING SLIDES - CRITICAL: When user asks to "modify", "edit", "change", "update", "عدل", "غير", "أضف المزيد", "نفس الموضوع", or refers to existing content, you MUST use "modify_slide" with slide: [index] to edit existing slides. NEVER create new slides when user wants to modify existing ones. Check currentState.slides to see existing slides and their indices. If user says "add more" or "المزيد" after creating slides, modify the LAST created slides, not create new ones.
 5. DO NOT duplicate the title - use EITHER action.title OR a title element in elements array, NOT both
 6. ALWAYS use the SAME background color as the first slide (check firstSlideStyle.bg in currentState)
 7. ALWAYS use the SAME text styles as the first slide:
@@ -7264,14 +7975,24 @@ IMAGES:
 
 CHARTS:
 - type: "chart"
-- chartType: "bar", "line", or "pie"
+- chartType: "bar", "line", "pie", or "flow"
 - labels: ["Label1", "Label2", "Label3"]
-- values: [value1, value2, value3]
+- values: [value1, value2, value3] (not needed for flow chart, can use [1, 2, 3] or empty)
 - colors: ["#10b981", "#3b82f6", "#f59e0b"]
 - x: 250-300
 - y: 250-280
 - width: 400-450
 - height: 220-250
+
+FLOW CHART:
+- When user asks for "flow chart", "flowchart", "مخطط انسيابي", "فلو تشارت", or describes a process with steps connected by arrows (text → arrow → text → arrow → text)
+- chartType: "flow"
+- labels: Array of step names/texts that will appear in boxes connected by arrows (e.g., ["Start", "Process 1", "Decision", "Process 2", "End"])
+- values: Can be empty [] or sequential numbers [1, 2, 3, 4, 5] (not critical for flow chart)
+- colors: Array of colors for each box (e.g., ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#ef4444"])
+- width: Should be wider (500-700) to fit multiple boxes horizontally
+- height: Can be smaller (100-200) since flow charts are horizontal
+- Example: {"type": "chart", "chartType": "flow", "labels": ["Start", "Analyze", "Decide", "Execute", "End"], "values": [1, 2, 3, 4, 5], "colors": ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#ef4444"], "x": 150, "y": 250, "width": 650, "height": 150}
 
 LAYOUT PATTERNS:
 - Pattern 1 (with image): Title (action.title) + Bullets left (x:120, y:180) + Image right (x:550, y:180)
@@ -7304,10 +8025,18 @@ RESPONSE FORMAT (JSON ONLY):
       "elements": [
         {"type": "text", "content": "The process includes:\\n\\n1. First step\\n2. Second step\\n3. Third step\\n4. Fourth step", "x": 120, "y": 180, "width": 500, "height": 300, "size": 24, "color": "#374151", "align": "left"}
       ]
+    },
+    {
+      "type": "add_slide",
+      "title": "Process Flow",
+      "bg": "white",
+      "elements": [
+        {"type": "chart", "chartType": "flow", "labels": ["Start", "Analyze", "Decide", "Execute", "End"], "values": [1, 2, 3, 4, 5], "colors": ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#ef4444"], "x": 200, "y": 200, "width": 600, "height": 150}
+      ]
     }
   ],
   "preview": "Creating slides",
-  "slidesCount": 3,
+  "slidesCount": 4,
   "message": "Creating slides..."
 }
 
@@ -7318,7 +8047,22 @@ ACTION TYPES:
 - "add_image": Add image to specific slide
 - "add_chart": Add chart to specific slide
 
-IMPORTANT: When user asks to "modify", "edit", "change", or "update", use "modify_slide" to edit existing slides instead of creating new ones. Check currentState.slides to see existing slides and their indices.
+CRITICAL - MODIFY vs CREATE:
+- If user says "modify", "edit", "change", "update", "عدل", "غير", "تعديل", "تغيير", "المزيد", "add more", "نفس", "same", "change color", "غير اللون", "change size", "غير الحجم", or refers to existing content → USE "modify_slide" with slide: [index]
+- If user says "add more" or "المزيد" after creating slides → Modify the LAST created slides (highest indices), NOT create new ones
+- Only use "add_slide" when user explicitly asks to CREATE NEW slides or ADD NEW content to a NEW slide
+- Check existingSlides in currentState to see which slides exist and their indices
+- When modifying elements (like changing color, size, font):
+  * CRITICAL: To update an existing element's property, you MUST include the element with the EXACT SAME content as the existing element
+  * Find existing element by matching EXACT content first, then by position (within 50px tolerance)
+  * UPDATE the existing element's properties (color, size, weight, align, font, bg, borderColor, borderWidth)
+  * Include the element with SAME content/position and specify ONLY the property to change
+  * Example to change color: {"type": "text", "content": "Future of Gold Mining in KSA", "color": "#ff0000", "x": 130, "y": 60} will UPDATE color of the matching text
+  * Example to change size: {"type": "text", "content": "Future of Gold Mining in KSA", "size": 48, "x": 130, "y": 60} will UPDATE size of the matching text
+  * DO NOT use placeholder content like "New text" - use the ACTUAL existing content
+  * DO NOT add new element if matching element exists - UPDATE it instead
+  * If you don't know the exact content, check currentState.slides to see existing elements and their content
+- When modifying, preserve existing elements and ADD or UPDATE them, don't replace everything
 
 CONTENT VARIETY EXAMPLES:
 - Slide 1: Paragraph + bullets
@@ -7348,10 +8092,19 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                     });
 
                     // Add current state and user request (simplified to save tokens)
+                    // Include information about existing slides to help AI decide whether to modify or create
+                    const existingSlidesInfo = currentState.slides.map((slide, idx) => ({
+                        index: idx,
+                        hasElements: slide.els && slide.els.length > 0,
+                        elementCount: slide.els ? slide.els.length : 0,
+                        hasTitle: slide.els ? slide.els.some(el => el.type === 'text' && (el.weight === 'bold' || el.size >= 36)) : false
+                    }));
+                    
                     const simplifiedState = {
                         totalSlides: currentState.totalSlides,
                         currentSlide: currentState.curr,
                         title: currentState.title,
+                        existingSlides: existingSlidesInfo,
                         firstSlideStyle: {
                             bg: currentState.firstSlideStyle?.bg || 'white',
                             titleStyle: currentState.titleStyle,
@@ -7359,9 +8112,13 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                         }
                     };
                     
+                    // Detect if user wants to modify existing slides
+                    const modifyKeywords = ['modify', 'edit', 'change', 'update', 'عدل', 'غير', 'تعديل', 'تغيير', 'المزيد', 'more', 'نفس', 'same'];
+                    const wantsToModify = modifyKeywords.some(keyword => message.toLowerCase().includes(keyword.toLowerCase()));
+                    
                     const currentRequest = {
                         role: 'user',
-                        content: `Presentation: ${simplifiedState.totalSlides} slides. Style: ${JSON.stringify(simplifiedState.firstSlideStyle)}. Request: ${message}${this.aiPendingSlidesCount ? ` (${this.aiPendingSlidesCount} slides)` : ''}`
+                        content: `Presentation: ${simplifiedState.totalSlides} slides. Existing slides: ${JSON.stringify(existingSlidesInfo)}. Style: ${JSON.stringify(simplifiedState.firstSlideStyle)}. ${wantsToModify ? 'IMPORTANT: User wants to MODIFY existing slides. Use modify_slide action, NOT add_slide.' : ''} Request: ${message}${this.aiPendingSlidesCount ? ` (${this.aiPendingSlidesCount} slides)` : ''}`
                     };
                     messages.push(currentRequest);
 
@@ -7764,13 +8521,112 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                             case 'modify_slide':
                                 const modifySlideIndex = action.slide !== undefined ? action.slide : 0;
                                 if (this.data[modifySlideIndex]) {
-                                    // Add elements to existing slide
                                     if (action.elements && Array.isArray(action.elements)) {
                                         for (let idx = 0; idx < action.elements.length; idx++) {
                                             const element = action.elements[idx];
                                             await new Promise(resolve => setTimeout(resolve, 100 * (idx + 1)));
                                             
                                             if (element.type === 'text') {
+                                                // Try to find existing element to update
+                                                const existingElements = this.data[modifySlideIndex].els || [];
+                                                let existingEl = null;
+                                                
+                                                // Ignore placeholder content like "New text"
+                                                const hasValidContent = element.content && 
+                                                    element.content.trim() !== '' && 
+                                                    element.content.trim() !== 'New text' &&
+                                                    element.content.trim() !== 'new text';
+                                                
+                                                // Strategy 1: Match by exact content (most reliable)
+                                                if (hasValidContent) {
+                                                    existingEl = existingElements.find(existing => 
+                                                        existing.type === 'text' && 
+                                                        existing.content && 
+                                                        existing.content.trim() === element.content.trim()
+                                                    );
+                                                }
+                                                
+                                                // Strategy 2: If this is a property update (has color/size/etc but no valid content)
+                                                // Find element by position - this handles cases like "change color" without specifying content
+                                                if (!existingEl && !hasValidContent && 
+                                                    (element.color !== undefined || element.size !== undefined || 
+                                                     element.weight !== undefined || element.align !== undefined ||
+                                                     element.font !== undefined || element.bg !== undefined)) {
+                                                    // Find closest text element to the specified position
+                                                    const textElements = existingElements.filter(existing => existing.type === 'text');
+                                                    if (textElements.length > 0) {
+                                                        if (element.x !== undefined && element.y !== undefined) {
+                                                            // Find the closest one to the specified position
+                                                            existingEl = textElements.reduce((closest, current) => {
+                                                                const closestDist = Math.sqrt(
+                                                                    Math.pow((closest.x || 0) - (element.x || 0), 2) + 
+                                                                    Math.pow((closest.y || 0) - (element.y || 0), 2)
+                                                                );
+                                                                const currentDist = Math.sqrt(
+                                                                    Math.pow((current.x || 0) - (element.x || 0), 2) + 
+                                                                    Math.pow((current.y || 0) - (element.y || 0), 2)
+                                                                );
+                                                                return currentDist < closestDist ? current : closest;
+                                                            });
+                                                        } else {
+                                                            // No position specified - use first text element or title if exists
+                                                            existingEl = textElements.find(el => el.weight === 'bold' || el.size >= 36) || textElements[0];
+                                                        }
+                                                    }
+                                                }
+                                                
+                                                // Strategy 3: If no exact content match, try to match by position and similar content
+                                                if (!existingEl && element.x !== undefined && element.y !== undefined) {
+                                                    existingEl = existingElements.find(existing => 
+                                                        existing.type === 'text' && 
+                                                        Math.abs((existing.x || 0) - (element.x || 0)) < 50 &&
+                                                        Math.abs((existing.y || 0) - (element.y || 0)) < 50 &&
+                                                        // Also check if content is similar (for partial matches)
+                                                        (!hasValidContent || !existing.content || 
+                                                         existing.content.includes(element.content) || 
+                                                         element.content.includes(existing.content))
+                                                    );
+                                                }
+                                                
+                                                // Strategy 4: If modifying and only one text element exists, use it
+                                                if (!existingEl) {
+                                                    const textElements = existingElements.filter(el => el.type === 'text');
+                                                    if (textElements.length === 1) {
+                                                        existingEl = textElements[0];
+                                                    } else if (textElements.length > 1 && !hasValidContent) {
+                                                        // If multiple text elements and no content specified, prefer title (bold/large)
+                                                        existingEl = textElements.find(el => el.weight === 'bold' || el.size >= 36) || textElements[0];
+                                                    }
+                                                }
+                                                
+                                                // If found existing element, update it instead of adding new one
+                                                if (existingEl) {
+                                                    // Update properties of existing element
+                                                    if (element.color !== undefined) existingEl.color = element.color;
+                                                    if (element.size !== undefined) existingEl.size = element.size;
+                                                    if (element.weight !== undefined) existingEl.weight = element.weight;
+                                                    if (element.align !== undefined) existingEl.align = element.align;
+                                                    if (element.font !== undefined) existingEl.font = element.font;
+                                                    if (element.bg !== undefined) existingEl.bg = element.bg;
+                                                    if (element.borderColor !== undefined) existingEl.borderColor = element.borderColor;
+                                                    if (element.borderWidth !== undefined) existingEl.borderWidth = element.borderWidth;
+                                                    // Only update content if provided and different
+                                                    if (element.content && element.content.trim() !== '' && element.content !== existingEl.content) {
+                                                        existingEl.content = element.content;
+                                                    }
+                                                    // Only update position if provided
+                                                    if (element.x !== undefined) existingEl.x = element.x;
+                                                    if (element.y !== undefined) existingEl.y = element.y;
+                                                    if (element.width !== undefined) existingEl.width = element.width;
+                                                    if (element.height !== undefined) existingEl.height = element.height;
+                                                    
+                                                    this.saveState();
+                                                    this.loadCanvas();
+                                                    this.renderSlides();
+                                                    continue; // Skip adding new element
+                                                }
+                                                
+                                                // If no existing element found, add new one
                                                 // Get style from first slide
                                                 const firstSlide = this.data[0] || { els: [] };
                                                 let defaultStyle = { size: 24, color: '#374151', align: 'left', font: 'Arial' };
@@ -7801,18 +8657,22 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                                                     });
                                                 }
                                                 
-                                                this.addTextElement(modifySlideIndex, {
-                                                    content: element.content || 'New text',
-                                                    x: element.x || 130,
-                                                    y: element.y || 60,
-                                                    width: element.width || 700,
-                                                    height: element.height || 80,
-                                                    size: element.size || defaultStyle.size,
-                                                    color: element.color || defaultStyle.color,
-                                                    weight: element.weight || defaultStyle.weight || 'normal',
-                                                    align: element.align || defaultStyle.align,
-                                                    font: element.font || defaultStyle.font
-                                                });
+                                                // Only add new element if we have valid content (not placeholder)
+                                                if (hasValidContent) {
+                                                    this.addTextElement(modifySlideIndex, {
+                                                        content: element.content,
+                                                        x: element.x || 130,
+                                                        y: element.y || 60,
+                                                        width: element.width || 700,
+                                                        height: element.height || 80,
+                                                        size: element.size || defaultStyle.size,
+                                                        color: element.color || defaultStyle.color,
+                                                        weight: element.weight || defaultStyle.weight || 'normal',
+                                                        align: element.align || defaultStyle.align,
+                                                        font: element.font || defaultStyle.font
+                                                    });
+                                                }
+                                                // If no valid content and no existing element found, skip (likely a property update that failed to match)
                                             } else if (element.type === 'image') {
                                                 let imageUrl = element.imageUrl || element.src;
                                                 if (typeof imageUrl === 'string' && !imageUrl.startsWith('http')) {

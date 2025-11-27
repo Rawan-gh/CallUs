@@ -1642,234 +1642,6 @@
 }
 /* =================== END FIXES OVERRIDES =================== */
 
-/* =================== AI Panel Styles =================== */
-.ai-message {
-    display: flex;
-    margin-bottom: 12px;
-    animation: fadeIn 0.3s ease-in;
-}
-
-.ai-message.user {
-    justify-content: flex-end;
-}
-
-.ai-message.ai-assistant {
-    justify-content: flex-start;
-}
-
-.ai-message-content {
-    max-width: 75%;
-    padding: 12px 16px;
-    border-radius: 12px;
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-.ai-message.user .ai-message-content {
-    background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #38bdf8 100%);
-    color: white;
-    border-bottom-right-radius: 4px;
-}
-
-.ai-message.ai-assistant .ai-message-content {
-    background: white;
-    color: #0f172a;
-    border: 1px solid #10b981;
-    border-bottom-left-radius: 4px;
-    box-shadow: 0 1px 3px rgba(16, 185, 129, 0.1);
-}
-
-.ai-message-content ul {
-    margin: 8px 0;
-    padding-right: 20px;
-}
-
-.ai-message-content li {
-    margin: 4px 0;
-}
-
-.ai-spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid #bae6fd;
-    border-top-color: #10b981;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes shimmer {
-    0% {
-        background-position: -200% 0;
-    }
-    100% {
-        background-position: 200% 0;
-    }
-}
-
-@keyframes glow {
-    0%, 100% {
-        box-shadow: 0 0 8px rgba(255, 255, 255, 0.6), 0 0 15px rgba(255, 255, 255, 0.4), 0 0 20px rgba(255, 255, 255, 0.2);
-    }
-    50% {
-        box-shadow: 0 0 12px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.3);
-    }
-}
-
-#aiChatInput:focus {
-    border-color: #10b981;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-}
-
-.ai-lang-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 2px 8px rgba(3, 105, 161, 0.2);
-}
-
-#aiPreviewContainer {
-    margin-top: 12px;
-    animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* AI Sidebar Styles */
-.ai-sidebar {
-    position: fixed;
-    right: 0;
-    top: 120px;
-    width: 400px;
-    height: calc(100vh - 120px);
-    background: white;
-    border-left: 1px solid #e5e7eb;
-    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
-    z-index: 1500;
-    display: flex;
-    flex-direction: column;
-    transform: translateX(100%);
-    transition: transform 0.3s ease-out;
-    overflow: hidden;
-}
-
-.ai-sidebar.visible {
-    transform: translateX(0);
-}
-
-.ai-sidebar-header {
-    padding: 20px 20px 16px 20px;
-    border-bottom: 1px solid #e5e7eb;
-    background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #38bdf8 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 0;
-}
-
-.ai-sidebar-header h3 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.ai-sidebar-close {
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    color: white;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-}
-
-.ai-sidebar-close:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.ai-sidebar-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.ai-sidebar-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    background: #f8fafc;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.ai-sidebar-input-area {
-    padding: 16px;
-    border-top: 1px solid #e5e7eb;
-    background: white;
-}
-
-/* Adjust container when AI sidebar is open */
-.container.ai-sidebar-open {
-    margin-right: 400px;
-}
-
-/* AI Button Glow Effect */
-.ai-button-glow {
-    position: relative;
-    overflow: hidden;
-    z-index: 1;
-    animation: glow 2s ease-in-out infinite;
-}
-
-.ai-button-glow::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    animation: shimmer 3s infinite;
-}
-
-.ai-button-glow:hover {
-    transform: scale(1.05);
-    animation: glow 1.5s ease-in-out infinite;
-}
-
-.ai-button-glow:active {
-    transform: scale(0.98);
-}
-
-/* =================== END AI Panel Styles =================== */
-
-
 
 
 /* ===================== TOOLTIP CLIP FIXES ===================== */
@@ -2125,9 +1897,101 @@ input[type="color"]{
 
 /* =================== END =================== */
 
+        /* Context Menu for Arrange */
+        .context-menu {
+            position: fixed;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            padding: 8px;
+            z-index: 10000;
+            display: none;
+            min-width: 200px;
+            border: 1px solid rgba(203, 213, 225, 0.5);
+        }
+
+        .context-menu.show {
+            display: block;
+        }
+
+        .context-menu-label {
+            padding: 6px 14px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #94a3b8;
+        }
+
+        .context-menu-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #475569;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .context-menu-item:hover {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+        }
+
+        .context-menu-separator {
+            height: 1px;
+            background: rgba(203, 213, 225, 0.5);
+            margin: 4px 0;
+        }
+
+        .context-menu-arrange-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            padding: 4px;
+        }
+
+        .context-menu-arrange-btn {
+            width: 100%;
+            height: 32px;
+            border: 1.5px solid rgba(203, 213, 225, 0.9);
+            background: rgba(255, 255, 255, 1);
+            border-radius: 6px;
+            font-size: 14px;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+        }
+
+        .context-menu-arrange-btn:hover {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.5);
+            color: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+        }
+
 </style>
 </head>
 <body>
+<div id="contextMenu" class="context-menu">
+    <div class="context-menu-item" onclick="app.groupElements(); app.hideContextMenu();">Group</div>
+    <div class="context-menu-item" onclick="app.ungroupElements(); app.hideContextMenu();">Ungroup</div>
+    <div class="context-menu-item" onclick="app.duplicateElement(); app.hideContextMenu();">Duplicate</div>
+    <div class="context-menu-item" onclick="app.deleteElement(); app.hideContextMenu();">Delete</div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" onclick="app.moveLayer('forward'); app.hideContextMenu();">Bring Forward</div>
+    <div class="context-menu-item" onclick="app.moveLayer('backward'); app.hideContextMenu();">Send Backward</div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" onclick="app.copyStyle(); app.hideContextMenu();">Copy Style</div>
+    <div class="context-menu-item" onclick="app.pasteStyle(); app.hideContextMenu();">Paste Style</div>
+</div>
 <div class="header">
 <div class="header-left">
 <a href="templates.html" class="templates-btn">← Templates</a>
@@ -2139,7 +2003,6 @@ input[type="color"]{
 </div>
 <div class="header-right">
 <button class="header-btn grey-style" onclick="app.newPresentation()">New</button>
-<button class="header-btn grey-style" onclick="app.saveJSON()">Save</button>
 <button class="header-btn grey-style" onclick="app.loadJSON()">Load</button>
 <button class="header-btn" data-tooltip="Undo (Ctrl+Z)" disabled="" id="undoBtn" onclick="app.undo()">Undo</button>
 <button class="header-btn" data-tooltip="Redo (Ctrl+Y)" disabled="" id="redoBtn" onclick="app.redo()">Redo</button>
@@ -2167,9 +2030,6 @@ input[type="color"]{
 </button>
 <button class="category-tab" data-category="shape-data" onclick="app.showCategory('shape-data')">
 <span class="dot"></span> Shape & Data
-</button>
-<button class="category-tab" data-category="arrange" onclick="app.showCategory('arrange')">
-<span class="dot"></span> Arrange
 </button>
 <button class="category-tab" data-category="effects" onclick="app.showCategory('effects')">
 <span class="dot"></span> Effects
@@ -2445,6 +2305,44 @@ input[type="color"]{
                 this.setupDragDrop();
                 this.setupKeyboardShortcuts();
                 this.saveState();
+                
+                // Hide context menu on click anywhere
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('#contextMenu')) {
+                        this.hideContextMenu();
+                    }
+                });
+            },
+            
+            showContextMenu(x, y) {
+                const contextMenu = document.getElementById('contextMenu');
+                if (!contextMenu) return;
+                
+                contextMenu.style.left = x + 'px';
+                contextMenu.style.top = y + 'px';
+                contextMenu.classList.add('show');
+                
+                // Hide menu when clicking elsewhere
+                const hideMenu = (e) => {
+                    if (!contextMenu.contains(e.target)) {
+                        contextMenu.classList.remove('show');
+                        document.removeEventListener('click', hideMenu);
+                        document.removeEventListener('contextmenu', hideMenu);
+                    }
+                };
+                
+                // Use setTimeout to avoid immediate hide
+                setTimeout(() => {
+                    document.addEventListener('click', hideMenu);
+                    document.addEventListener('contextmenu', hideMenu);
+                }, 10);
+            },
+
+            hideContextMenu() {
+                const contextMenu = document.getElementById('contextMenu');
+                if (contextMenu) {
+                    contextMenu.classList.remove('show');
+                }
             },
 
             showCategory(category) {
@@ -2586,6 +2484,20 @@ input[type="color"]{
                             <button class="tool-btn tool-btn-icon" onclick="app.alignText('left')" title="Align Left">◀</button>
                             <button class="tool-btn tool-btn-icon" onclick="app.alignText('center')" title="Align Center">▬</button>
                             <button class="tool-btn tool-btn-icon" onclick="app.alignText('right')" title="Align Right">▶</button>
+                        </div>
+                        <div class="category-panel-group">
+                            <span class="category-panel-label">Lists</span>
+                            <div class="dropdown-wrapper">
+                                <button class="tool-btn dropdown-btn" onclick="app.toggleDropdown('listsDropdown')">List Types</button>
+                                <div class="category-dropdown" id="listsDropdown">
+                                    <div class="category-dropdown-item" onclick="app.addList('bullet'); app.closeDropdown('listsDropdown')">• Bullet List</div>
+                                    <div class="category-dropdown-item" onclick="app.addList('numbered'); app.closeDropdown('listsDropdown')">1. Numbered List</div>
+                                    <div class="category-dropdown-item" onclick="app.addList('square'); app.closeDropdown('listsDropdown')">■ Square List</div>
+                                    <div class="category-dropdown-item" onclick="app.addList('circle'); app.closeDropdown('listsDropdown')">○ Circle List</div>
+                                    <div class="category-dropdown-item" onclick="app.addList('dash'); app.closeDropdown('listsDropdown')">- Dash List</div>
+                                    <div class="category-dropdown-item" onclick="app.addList('arrow'); app.closeDropdown('listsDropdown')">→ Arrow List</div>
+                                </div>
+                            </div>
                         </div>
                     `,
                     image: `
@@ -2753,7 +2665,7 @@ input[type="color"]{
                     // Save: Ctrl+S
                     if (e.ctrlKey && e.key === 's') {
                         e.preventDefault();
-                        this.saveJSON();
+                        // Save functionality removed
                     }
 
                     // Arrow keys to move selected element
@@ -2765,16 +2677,16 @@ input[type="color"]{
 
                         switch(e.key) {
                             case 'ArrowLeft':
-                                this.sel.style.left = Math.max(0, currentLeft - step) + 'px';
+                                this.sel.style.left = (currentLeft - step) + 'px';
                                 break;
                             case 'ArrowRight':
-                                this.sel.style.left = Math.min(960 - this.sel.offsetWidth, currentLeft + step) + 'px';
+                                this.sel.style.left = (currentLeft + step) + 'px';
                                 break;
                             case 'ArrowUp':
-                                this.sel.style.top = Math.max(0, currentTop - step) + 'px';
+                                this.sel.style.top = (currentTop - step) + 'px';
                                 break;
                             case 'ArrowDown':
-                                this.sel.style.top = Math.min(540 - this.sel.offsetHeight, currentTop + step) + 'px';
+                                this.sel.style.top = (currentTop + step) + 'px';
                                 break;
                         }
                         this.saveElementPosition();
@@ -2922,10 +2834,7 @@ input[type="color"]{
                             newTop = this.snapToGridPosition(newTop);
                         }
 
-                        // Keep element within canvas bounds
-                        newLeft = Math.max(0, Math.min(960 - this.drag.el.offsetWidth, newLeft));
-                        newTop = Math.max(0, Math.min(540 - this.drag.el.offsetHeight, newTop));
-
+                        // No bounds restrictions - elements can move freely
                         this.drag.el.style.left = newLeft + 'px';
                         this.drag.el.style.top = newTop + 'px';
 
@@ -3073,25 +2982,40 @@ input[type="color"]{
                     }
 
                 if (data.type === 'shape') {
+                    const isLine = data.shape === 'line';
                     html = `
+                        ${!isLine ? `
                         <div class="properties-group">
                             <label class="properties-label">Fill Color</label>
                             <input type="color" class="properties-color-input" id="propFillColor" value="${data.bg || '#10b981'}" onchange="app.updateShapeProperty('bg', this.value)">
                         </div>
+                        ` : ''}
                         <div class="properties-group">
-                            <label class="properties-label">Border Color</label>
+                            <label class="properties-label">${isLine ? 'Line' : 'Border'} Color</label>
                             <input type="color" class="properties-color-input" id="propBorderColor" value="${data.border || '#047857'}" onchange="app.updateShapeProperty('border', this.value)">
                         </div>
                         <div class="properties-group">
-                            <label class="properties-label">Border Width</label>
+                            <label class="properties-label">${isLine ? 'Line Thickness' : 'Border Width'}</label>
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <input type="number" class="properties-input" id="propBorderWidth" min="0" max="20" value="${data.thick || 2}" onchange="app.updateShapeProperty('thick', parseInt(this.value))" style="flex: 1;">
+                                <input type="number" class="properties-input" id="propBorderWidth" min="1" max="20" value="${data.thick || 2}" onchange="app.updateShapeProperty('thick', parseInt(this.value))" style="flex: 1;">
                                 <div style="display: flex; flex-direction: column; gap: 2px;">
                                     <button type="button" onclick="app.adjustProperty('propBorderWidth', 1)" style="width: 20px; height: 14px; border: 1px solid #d1d5db; border-radius: 4px 4px 0 0; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 8px; color: #374151;">▲</button>
                                     <button type="button" onclick="app.adjustProperty('propBorderWidth', -1)" style="width: 20px; height: 14px; border: 1px solid #d1d5db; border-top: none; border-radius: 0 0 4px 4px; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 8px; color: #374151;">▼</button>
                                 </div>
                             </div>
                         </div>
+                        ${isLine ? `
+                        <div class="properties-group">
+                            <label class="properties-label">Line Length (Width)</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="number" class="properties-input" id="propLineWidth" min="10" max="1000" value="${data.width || 200}" onchange="app.updateShapeProperty('width', parseInt(this.value))" style="flex: 1;">
+                                <div style="display: flex; flex-direction: column; gap: 2px;">
+                                    <button type="button" onclick="app.adjustProperty('propLineWidth', 10)" style="width: 20px; height: 14px; border: 1px solid #d1d5db; border-radius: 4px 4px 0 0; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 8px; color: #374151;">▲</button>
+                                    <button type="button" onclick="app.adjustProperty('propLineWidth', -10)" style="width: 20px; height: 14px; border: 1px solid #d1d5db; border-top: none; border-radius: 0 0 4px 4px; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 8px; color: #374151;">▼</button>
+                                </div>
+                            </div>
+                        </div>
+                        ` : ''}
                         <div class="properties-group">
                             <label class="properties-label">Arrange</label>
                             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
@@ -3136,6 +3060,14 @@ input[type="color"]{
                                     <button type="button" onclick="app.adjustProperty('propFontSize', 1)" style="width: 20px; height: 14px; border: 1px solid #d1d5db; border-radius: 4px 4px 0 0; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 8px; color: #374151;">▲</button>
                                     <button type="button" onclick="app.adjustProperty('propFontSize', -1)" style="width: 20px; height: 14px; border: 1px solid #d1d5db; border-top: none; border-radius: 0 0 4px 4px; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 8px; color: #374151;">▼</button>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Rotation</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" min="0" max="360" value="${data.rotation || 0}" oninput="app.updateTextProperty('rotation', parseInt(this.value))" style="flex: 1;">
+                                <input type="number" min="0" max="360" value="${data.rotation || 0}" onchange="app.updateTextProperty('rotation', parseInt(this.value))" style="width: 60px; padding: 4px; border: 1px solid #d1d5db; border-radius: 4px;">
+                                <span style="font-size: 12px; color: #6b7280;">°</span>
                             </div>
                         </div>
                         <div class="properties-group">
@@ -3300,6 +3232,93 @@ input[type="color"]{
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                                 <input type="number" class="properties-input" min="1" max="10" value="${data.rows || 3}" onchange="app.updateTableSize('${data.id}', 'rows', parseInt(this.value))" placeholder="Rows">
                                 <input type="number" class="properties-input" min="1" max="10" value="${data.cols || 3}" onchange="app.updateTableSize('${data.id}', 'cols', parseInt(this.value))" placeholder="Cols">
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Border Style</label>
+                            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
+                                <button class="properties-arrange-btn" onclick="app.updateTableProperty('${data.id}', 'borderStyle', 'solid')" title="Solid" style="${(data.borderStyle || 'solid') === 'solid' ? 'background: #3b82f6; color: white;' : ''}">━</button>
+                                <button class="properties-arrange-btn" onclick="app.updateTableProperty('${data.id}', 'borderStyle', 'dashed')" title="Dashed" style="${(data.borderStyle || 'solid') === 'dashed' ? 'background: #3b82f6; color: white;' : ''}">┅</button>
+                                <button class="properties-arrange-btn" onclick="app.updateTableProperty('${data.id}', 'borderStyle', 'dotted')" title="Dotted" style="${(data.borderStyle || 'solid') === 'dotted' ? 'background: #3b82f6; color: white;' : ''}">┄</button>
+                                <button class="properties-arrange-btn" onclick="app.updateTableProperty('${data.id}', 'borderStyle', 'double')" title="Double" style="${(data.borderStyle || 'solid') === 'double' ? 'background: #3b82f6; color: white;' : ''}">═</button>
+                                <button class="properties-arrange-btn" onclick="app.updateTableProperty('${data.id}', 'borderStyle', 'none')" title="None" style="${(data.borderStyle || 'solid') === 'none' ? 'background: #3b82f6; color: white;' : ''}">✕</button>
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Show Borders</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" ${(data.showBorders !== false) ? 'checked' : ''} onchange="app.updateTableProperty('${data.id}', 'showBorders', this.checked)" style="width: 18px; height: 18px; cursor: pointer;">
+                                <span style="font-size: 13px; color: #374151;">${(data.showBorders !== false) ? 'Visible' : 'Hidden'}</span>
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Border Width</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" min="0" max="5" value="${data.borderWidth || 1}" oninput="app.updateTableProperty('${data.id}', 'borderWidth', parseInt(this.value))" style="flex: 1;">
+                                <input type="number" min="0" max="5" value="${data.borderWidth || 1}" onchange="app.updateTableProperty('${data.id}', 'borderWidth', parseInt(this.value))" style="width: 60px; padding: 4px; border: 1px solid #d1d5db; border-radius: 4px;">
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Border Color</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="color" value="${data.borderColor || '#e5e7eb'}" onchange="app.updateTableProperty('${data.id}', 'borderColor', this.value)" style="width: 50px; height: 36px; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">
+                                <input type="text" value="${data.borderColor || '#e5e7eb'}" onchange="app.updateTableProperty('${data.id}', 'borderColor', this.value)" placeholder="#e5e7eb" style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Table Background</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="color" value="${data.tableBgColor || '#ffffff'}" onchange="app.updateTableProperty('${data.id}', 'tableBgColor', this.value)" style="width: 50px; height: 36px; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">
+                                <input type="text" value="${data.tableBgColor || '#ffffff'}" onchange="app.updateTableProperty('${data.id}', 'tableBgColor', this.value)" placeholder="#ffffff" style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Header Background</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="color" value="${data.headerBgColor || '#f3f4f6'}" onchange="app.updateTableProperty('${data.id}', 'headerBgColor', this.value)" style="width: 50px; height: 36px; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">
+                                <input type="text" value="${data.headerBgColor || '#f3f4f6'}" onchange="app.updateTableProperty('${data.id}', 'headerBgColor', this.value)" placeholder="#f3f4f6" style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Header Text Color</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="color" value="${data.headerTextColor || '#000000'}" onchange="app.updateTableProperty('${data.id}', 'headerTextColor', this.value)" style="width: 50px; height: 36px; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">
+                                <input type="text" value="${data.headerTextColor || '#000000'}" onchange="app.updateTableProperty('${data.id}', 'headerTextColor', this.value)" placeholder="#000000" style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Cell Background</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="color" value="${data.cellBgColor || 'transparent'}" onchange="app.updateTableProperty('${data.id}', 'cellBgColor', this.value)" style="width: 50px; height: 36px; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">
+                                <input type="text" value="${data.cellBgColor || 'transparent'}" onchange="app.updateTableProperty('${data.id}', 'cellBgColor', this.value)" placeholder="transparent" style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Cell Text Color</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="color" value="${data.cellTextColor || '#000000'}" onchange="app.updateTableProperty('${data.id}', 'cellTextColor', this.value)" style="width: 50px; height: 36px; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">
+                                <input type="text" value="${data.cellTextColor || '#000000'}" onchange="app.updateTableProperty('${data.id}', 'cellTextColor', this.value)" placeholder="#000000" style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px;">
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Text Size</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" min="8" max="48" value="${data.textSize || 12}" oninput="app.updateTableProperty('${data.id}', 'textSize', parseInt(this.value))" style="flex: 1;">
+                                <input type="number" min="8" max="48" value="${data.textSize || 12}" onchange="app.updateTableProperty('${data.id}', 'textSize', parseInt(this.value))" style="width: 60px; padding: 4px; border: 1px solid #d1d5db; border-radius: 4px;">
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Header Text Bold</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" ${(data.headerBold !== false) ? 'checked' : ''} onchange="app.updateTableProperty('${data.id}', 'headerBold', this.checked)" style="width: 18px; height: 18px; cursor: pointer;">
+                                <span style="font-size: 13px; color: #374151;">${(data.headerBold !== false) ? 'Bold' : 'Normal'}</span>
+                            </div>
+                        </div>
+                        <div class="properties-group">
+                            <label class="properties-label">Cell Text Bold</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" ${data.cellBold ? 'checked' : ''} onchange="app.updateTableProperty('${data.id}', 'cellBold', this.checked)" style="width: 18px; height: 18px; cursor: pointer;">
+                                <span style="font-size: 13px; color: #374151;">${data.cellBold ? 'Bold' : 'Normal'}</span>
                             </div>
                         </div>
                         <div class="properties-group">
@@ -3912,6 +3931,38 @@ input[type="color"]{
                 }, 100);
             },
 
+            addList(listType) {
+                const id = Date.now();
+                const listItems = ['Item 1', 'Item 2', 'Item 3'];
+                const el = {
+                    id: id,
+                    type: 'text',
+                    content: listItems.join('\n'),
+                    listType: listType,
+                    x: 100,
+                    y: 100,
+                    width: 300,
+                    height: 120,
+                    font: 'Arial',
+                    size: 24,
+                    color: '#000000',
+                    bg: 'transparent',
+                    weight: 'normal',
+                    align: 'left',
+                    animation: 'none'
+                };
+                this.data[this.curr].els.push(el);
+                this.saveState();
+                this.loadCanvas();
+                this.renderSlides();
+                
+                // Auto-select the new element
+                setTimeout(() => {
+                    const elementEl = document.querySelector(`[data-id="${id}"]`);
+                    if (elementEl) this.selectElement(elementEl);
+                }, 100);
+            },
+
             addShape(shape) {
                 const id = Date.now();
                 const el = {
@@ -4003,7 +4054,50 @@ input[type="color"]{
 
                 if (data.type === 'text') {
                     div.contentEditable = true;
-                    div.innerText = data.content || '';
+                    
+                    // Handle lists
+                    if (data.listType) {
+                        const items = data.content ? data.content.split('\n').filter(item => item.trim()) : ['Item 1', 'Item 2', 'Item 3'];
+                        let listHTML = '';
+                        
+                        switch(data.listType) {
+                            case 'bullet':
+                                listHTML = '<ul style="margin: 0; padding-left: 20px; list-style-type: disc;">' + 
+                                    items.map(item => `<li>${item}</li>`).join('') + '</ul>';
+                                break;
+                            case 'numbered':
+                                listHTML = '<ol style="margin: 0; padding-left: 20px;">' + 
+                                    items.map(item => `<li>${item}</li>`).join('') + '</ol>';
+                                break;
+                            case 'square':
+                                listHTML = '<ul style="margin: 0; padding-left: 20px; list-style-type: square;">' + 
+                                    items.map(item => `<li>${item}</li>`).join('') + '</ul>';
+                                break;
+                            case 'circle':
+                                listHTML = '<ul style="margin: 0; padding-left: 20px; list-style-type: circle;">' + 
+                                    items.map(item => `<li>${item}</li>`).join('') + '</ul>';
+                                break;
+                            case 'dash':
+                                listHTML = '<ul style="margin: 0; padding-left: 20px; list-style-type: none;">' + 
+                                    items.map(item => `<li style="position: relative; padding-left: 15px;">— ${item}</li>`).join('') + '</ul>';
+                                break;
+                            case 'arrow':
+                                listHTML = '<ul style="margin: 0; padding-left: 20px; list-style-type: none;">' + 
+                                    items.map(item => `<li style="position: relative; padding-left: 15px;">→ ${item}</li>`).join('') + '</ul>';
+                                break;
+                            default:
+                                div.innerText = data.content || '';
+                        }
+                        
+                        if (listHTML) {
+                            div.innerHTML = listHTML;
+                        } else {
+                            div.innerText = data.content || '';
+                        }
+                    } else {
+                        div.innerText = data.content || '';
+                    }
+                    
                     let fontFamily = data.font || 'Arial';
                     if (fontFamily === 'Kraft Mono') {
                         fontFamily = "'Kraft Mono', 'JetBrains Mono', monospace";
@@ -4020,6 +4114,15 @@ input[type="color"]{
                     div.style.whiteSpace = 'pre-wrap';
                     div.style.wordWrap = 'break-word';
                     div.style.overflowWrap = 'break-word';
+                    div.style.overflow = 'visible';
+                    div.style.height = 'auto';
+                    div.style.minHeight = data.height + 'px';
+                    
+                    // Apply rotation if exists
+                    if (data.rotation) {
+                        div.style.transform = `rotate(${data.rotation}deg)`;
+                        div.style.transformOrigin = 'center center';
+                    }
                     
                     // Apply border if exists
                     if (data.borderWidth && data.borderWidth > 0) {
@@ -4031,7 +4134,15 @@ input[type="color"]{
                     div.addEventListener('blur', () => {
                         const el = this.data[slideIndex].els.find(e => e.id == data.id);
                         if (el) {
-                            el.content = div.innerText;
+                            if (el.listType) {
+                                // Extract list items from HTML
+                                const listItems = Array.from(div.querySelectorAll('li')).map(li => {
+                                    return li.textContent.replace(/^[—→]\s*/, '').trim();
+                                });
+                                el.content = listItems.join('\n');
+                            } else {
+                                el.content = div.innerText;
+                            }
                             this.saveState();
                             this.renderSlides();
                         }
@@ -4051,9 +4162,16 @@ input[type="color"]{
                     const borderWidth = data.thick || 2;
                     
                     // Use SVG for complex shapes that need proper borders
-                    const needsSVG = ['triangle', 'star', 'hexagon', 'diamond', 'arrow-right', 'arrow-left', 'pentagon'].includes(data.shape);
+                    const needsSVG = ['triangle', 'star', 'hexagon', 'diamond', 'arrow-right', 'arrow-left', 'pentagon', 'line'].includes(data.shape);
                     
-                    if (needsSVG) {
+                    if (data.shape === 'line') {
+                        // Line is rendered as a simple border-top
+                        div.style.backgroundColor = 'transparent';
+                        div.style.border = 'none';
+                        div.style.borderTop = `${data.thick || 2}px solid ${data.border || '#047857'}`;
+                        div.style.height = `${data.thick || 2}px`;
+                        div.style.borderRadius = '0';
+                    } else if (needsSVG) {
                             div.style.backgroundColor = 'transparent';
                             div.style.border = 'none';
                         div.style.overflow = 'visible';
@@ -4089,19 +4207,29 @@ input[type="color"]{
                         case 'arrow-left':
                                 pathData = 'M 95,25 L 40,25 L 40,5 L 5,50 L 40,95 L 40,75 L 95,75 Z';
                                 break;
+                            case 'line':
+                                pathData = 'M 5,50 L 95,50';
+                                break;
                             case 'pentagon':
                                 pathData = 'M 50,5 L 95,38 L 82,95 L 18,95 L 5,38 Z';
                                 break;
                         }
                         
                         shape.setAttribute('d', pathData);
-                        shape.setAttribute('fill', fillColor);
+                        if (data.shape === 'line') {
+                            shape.setAttribute('fill', 'none');
+                            // For line, use thick as stroke width directly
+                            const lineThickness = data.thick || 2;
+                            shape.setAttribute('stroke-width', lineThickness.toString());
+                        } else {
+                            shape.setAttribute('fill', fillColor);
+                            // Calculate stroke width relative to viewBox (100x100)
+                            // borderWidth is in pixels, convert to viewBox units
+                            const avgSize = (data.width + data.height) / 2;
+                            const strokeWidthInViewBox = (borderWidth / avgSize) * 100;
+                            shape.setAttribute('stroke-width', Math.max(0.5, strokeWidthInViewBox).toString());
+                        }
                         shape.setAttribute('stroke', borderColor);
-                        // Calculate stroke width relative to viewBox (100x100)
-                        // borderWidth is in pixels, convert to viewBox units
-                        const avgSize = (data.width + data.height) / 2;
-                        const strokeWidthInViewBox = (borderWidth / avgSize) * 100;
-                        shape.setAttribute('stroke-width', Math.max(0.5, strokeWidthInViewBox).toString());
                         shape.setAttribute('stroke-linejoin', 'round');
                         shape.setAttribute('stroke-linecap', 'round');
                         
@@ -4216,34 +4344,236 @@ input[type="color"]{
                 }
 
                 if (data.type === 'table') {
-                    div.style.backgroundColor = 'white';
-                    div.style.border = '1px solid #e5e7eb';
+                    const borderStyle = data.borderStyle || 'solid';
+                    const borderColor = data.borderColor || '#e5e7eb';
+                    const borderWidth = data.borderWidth || 1;
+                    const showBorders = data.showBorders !== false;
+                    const tableBgColor = data.tableBgColor || 'white';
+                    const headerBgColor = data.headerBgColor || '#f3f4f6';
+                    const cellBgColor = data.cellBgColor || 'transparent';
+                    const headerTextColor = data.headerTextColor || '#000000';
+                    const cellTextColor = data.cellTextColor || '#000000';
+                    const rowHeights = data.rowHeights || [];
+                    const colWidths = data.colWidths || [];
+                    
+                    div.style.backgroundColor = tableBgColor;
+                    if (showBorders) {
+                        div.style.border = `${borderWidth}px ${borderStyle} ${borderColor}`;
+                    } else {
+                        div.style.border = 'none';
+                    }
                     div.style.borderRadius = '4px';
-                    div.style.overflow = 'hidden';
+                    div.style.overflow = 'visible';
+                    div.style.position = 'relative';
                     
                     const table = document.createElement('table');
                     table.style.width = '100%';
                     table.style.height = '100%';
                     table.style.borderCollapse = 'collapse';
-                    table.style.fontSize = '12px';
+                    const textSize = data.textSize || 12;
+                    table.style.fontSize = textSize + 'px';
+                    table.style.tableLayout = 'fixed';
+                    
+                    // Calculate total height and width for percentage calculations
+                    const totalHeight = div.offsetHeight || 200;
+                    const totalWidth = div.offsetWidth || 400;
                     
                     for (let r = 0; r < data.rows; r++) {
                         const tr = document.createElement('tr');
+                        const rowHeight = rowHeights[r] ? `${rowHeights[r]}px` : '';
+                        if (rowHeight) {
+                            tr.style.height = rowHeight;
+                        }
                         for (let c = 0; c < data.cols; c++) {
                             const td = document.createElement(r === 0 ? 'th' : 'td');
-                            td.textContent = data.data[r] ? data.data[r][c] : '';
-                            td.style.border = '1px solid #e5e7eb';
+                            // Set initial content - convert \n to <br> for display
+                            const cellContent = data.data[r] ? data.data[r][c] : '';
+                            if (cellContent) {
+                                td.innerHTML = cellContent.replace(/\n/g, '<br>');
+                            }
+                            const colWidth = colWidths[c] ? `${colWidths[c]}px` : '';
+                            if (colWidth) {
+                                td.style.width = colWidth;
+                            }
+                            if (showBorders) {
+                                td.style.border = `${borderWidth}px ${borderStyle} ${borderColor}`;
+                            } else {
+                                td.style.border = 'none';
+                            }
                             td.style.padding = '8px';
                             td.style.textAlign = 'left';
                             if (r === 0) {
-                                td.style.backgroundColor = '#f3f4f6';
-                                td.style.fontWeight = '600';
+                                td.style.backgroundColor = headerBgColor;
+                                td.style.color = headerTextColor;
+                                td.style.fontWeight = (data.headerBold !== false) ? 'bold' : 'normal';
+                            } else {
+                                td.style.backgroundColor = cellBgColor;
+                                td.style.color = cellTextColor;
+                                td.style.fontWeight = data.cellBold ? 'bold' : 'normal';
                             }
+                            
+                            // Make cell editable
+                            td.contentEditable = true;
+                            td.style.outline = 'none';
+                            td.style.cursor = 'text';
+                            td.style.whiteSpace = 'pre-wrap'; // Preserve line breaks
+                            
+                            // Prevent drag when clicking inside cell
+                            td.addEventListener('mousedown', (e) => {
+                                e.stopPropagation();
+                            });
+                            
+                            // Helper function to get text content with line breaks
+                            const getTextWithBreaks = (element) => {
+                                let text = '';
+                                for (let node of element.childNodes) {
+                                    if (node.nodeType === Node.TEXT_NODE) {
+                                        text += node.textContent;
+                                    } else if (node.nodeName === 'BR') {
+                                        text += '\n';
+                                    } else if (node.nodeName === 'DIV') {
+                                        text += getTextWithBreaks(node) + '\n';
+                                    } else {
+                                        text += node.textContent;
+                                    }
+                                }
+                                return text;
+                            };
+                            
+                            // Save content when edited
+                            td.addEventListener('blur', () => {
+                                if (!data.data[r]) data.data[r] = [];
+                                // Get text with line breaks preserved
+                                const textContent = getTextWithBreaks(td);
+                                data.data[r][c] = textContent;
+                                this.saveState();
+                            });
+                            
+                            // Handle Enter key: Shift+Enter = new line, Enter = next cell
+                            td.addEventListener('keydown', (e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    // Move to next row or next cell
+                                    const nextRow = r + 1;
+                                    if (nextRow < data.rows) {
+                                        const nextCell = table.querySelector(`tr:nth-child(${nextRow + 1}) td:nth-child(${c + 1}), tr:nth-child(${nextRow + 1}) th:nth-child(${c + 1})`);
+                                        if (nextCell) {
+                                            nextCell.focus();
+                                        }
+                                    }
+                                } else if (e.key === 'Enter' && e.shiftKey) {
+                                    // Allow default behavior (new line) - don't prevent
+                                    // The browser will insert a <br> tag automatically
+                                } else if (e.key === 'Tab') {
+                                    e.preventDefault();
+                                    // Move to next/previous cell
+                                    let nextC = c + (e.shiftKey ? -1 : 1);
+                                    let nextR = r;
+                                    if (nextC >= data.cols) {
+                                        nextC = 0;
+                                        nextR = r + 1;
+                                    } else if (nextC < 0) {
+                                        nextC = data.cols - 1;
+                                        nextR = r - 1;
+                                    }
+                                    if (nextR >= 0 && nextR < data.rows) {
+                                        const nextCell = table.querySelector(`tr:nth-child(${nextR + 1}) td:nth-child(${nextC + 1}), tr:nth-child(${nextR + 1}) th:nth-child(${nextC + 1})`);
+                                        if (nextCell) {
+                                            nextCell.focus();
+                                        }
+                                    }
+                                }
+                            });
+                            
                             tr.appendChild(td);
                         }
                         table.appendChild(tr);
                     }
                     div.appendChild(table);
+                    
+                    // Add resize handles for rows (horizontal lines)
+                    if (slideIndex === this.curr) {
+                        // Use setTimeout to calculate positions after table is rendered
+                        setTimeout(() => {
+                            const actualHeight = div.offsetHeight || 200;
+                            const actualWidth = div.offsetWidth || 400;
+                            
+                            for (let r = 0; r < data.rows - 1; r++) {
+                                const handle = document.createElement('div');
+                                handle.className = 'table-row-resize-handle';
+                                handle.style.position = 'absolute';
+                                handle.style.left = '0';
+                                handle.style.right = '0';
+                                handle.style.height = '4px';
+                                handle.style.cursor = 'row-resize';
+                                handle.style.backgroundColor = '#3b82f6';
+                                handle.style.opacity = '0';
+                                handle.style.zIndex = '1000';
+                                handle.style.transition = 'opacity 0.2s';
+                                handle.dataset.tableId = data.id;
+                                handle.dataset.rowIndex = r;
+                                handle.dataset.type = 'row';
+                                
+                                // Calculate position
+                                let topPos = 0;
+                                for (let i = 0; i <= r; i++) {
+                                    const height = rowHeights[i] || (actualHeight / data.rows);
+                                    topPos += height;
+                                }
+                                handle.style.top = `${topPos - 2}px`;
+                                
+                                handle.addEventListener('mouseenter', () => {
+                                    handle.style.opacity = '1';
+                                });
+                                handle.addEventListener('mouseleave', () => {
+                                    if (!handle.dataset.dragging) {
+                                        handle.style.opacity = '0';
+                                    }
+                                });
+                                
+                                this.setupTableResize(handle, data, 'row', r);
+                                div.appendChild(handle);
+                            }
+                            
+                            // Add resize handles for columns (vertical lines)
+                            for (let c = 0; c < data.cols - 1; c++) {
+                                const handle = document.createElement('div');
+                                handle.className = 'table-col-resize-handle';
+                                handle.style.position = 'absolute';
+                                handle.style.top = '0';
+                                handle.style.bottom = '0';
+                                handle.style.width = '4px';
+                                handle.style.cursor = 'col-resize';
+                                handle.style.backgroundColor = '#3b82f6';
+                                handle.style.opacity = '0';
+                                handle.style.zIndex = '1000';
+                                handle.style.transition = 'opacity 0.2s';
+                                handle.dataset.tableId = data.id;
+                                handle.dataset.colIndex = c;
+                                handle.dataset.type = 'col';
+                                
+                                // Calculate position
+                                let leftPos = 0;
+                                for (let i = 0; i <= c; i++) {
+                                    const width = colWidths[i] || (actualWidth / data.cols);
+                                    leftPos += width;
+                                }
+                                handle.style.left = `${leftPos - 2}px`;
+                                
+                                handle.addEventListener('mouseenter', () => {
+                                    handle.style.opacity = '1';
+                                });
+                                handle.addEventListener('mouseleave', () => {
+                                    if (!handle.dataset.dragging) {
+                                        handle.style.opacity = '0';
+                                    }
+                                });
+                                
+                                this.setupTableResize(handle, data, 'col', c);
+                                div.appendChild(handle);
+                            }
+                        }, 10);
+                    }
                 }
 
                 if (data.type === 'symbol') {
@@ -4265,6 +4595,16 @@ input[type="color"]{
                         div.appendChild(handle);
                     });
                 }
+
+                // Add context menu on right click
+                div.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    // Select element if not already selected
+                    if (slideIndex === this.curr) {
+                        this.selectElement(div);
+                        this.showContextMenu(e.clientX, e.clientY);
+                    }
+                });
 
                 return div;
             },
@@ -4413,9 +4753,54 @@ input[type="color"]{
                     div.style.textAlign = data.align || 'left';
                     div.style.padding = (8 * scale) + 'px';
                     div.style.overflow = 'hidden';
-                    div.style.textOverflow = 'ellipsis';
-                    div.style.whiteSpace = 'nowrap';
-                    div.textContent = data.content || '';
+                    
+                    // Handle lists in thumbnails
+                    if (data.listType) {
+                        const items = data.content ? data.content.split('\n').filter(item => item.trim()) : ['Item 1', 'Item 2', 'Item 3'];
+                        let listHTML = '';
+                        
+                        switch(data.listType) {
+                            case 'bullet':
+                                listHTML = '<ul style="margin: 0; padding-left: ' + (15 * scale) + 'px; list-style-type: disc; font-size: ' + ((data.size || 24) * scale) + 'px;">' + 
+                                    items.slice(0, 3).map(item => `<li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item}</li>`).join('') + '</ul>';
+                                break;
+                            case 'numbered':
+                                listHTML = '<ol style="margin: 0; padding-left: ' + (15 * scale) + 'px; font-size: ' + ((data.size || 24) * scale) + 'px;">' + 
+                                    items.slice(0, 3).map(item => `<li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item}</li>`).join('') + '</ol>';
+                                break;
+                            case 'square':
+                                listHTML = '<ul style="margin: 0; padding-left: ' + (15 * scale) + 'px; list-style-type: square; font-size: ' + ((data.size || 24) * scale) + 'px;">' + 
+                                    items.slice(0, 3).map(item => `<li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item}</li>`).join('') + '</ul>';
+                                break;
+                            case 'circle':
+                                listHTML = '<ul style="margin: 0; padding-left: ' + (15 * scale) + 'px; list-style-type: circle; font-size: ' + ((data.size || 24) * scale) + 'px;">' + 
+                                    items.slice(0, 3).map(item => `<li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item}</li>`).join('') + '</ul>';
+                                break;
+                            case 'dash':
+                                listHTML = '<ul style="margin: 0; padding-left: ' + (15 * scale) + 'px; list-style-type: none; font-size: ' + ((data.size || 24) * scale) + 'px;">' + 
+                                    items.slice(0, 3).map(item => `<li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">— ${item}</li>`).join('') + '</ul>';
+                                break;
+                            case 'arrow':
+                                listHTML = '<ul style="margin: 0; padding-left: ' + (15 * scale) + 'px; list-style-type: none; font-size: ' + ((data.size || 24) * scale) + 'px;">' + 
+                                    items.slice(0, 3).map(item => `<li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">→ ${item}</li>`).join('') + '</ul>';
+                                break;
+                            default:
+                                div.textContent = data.content || '';
+                        }
+                        
+                        if (listHTML) {
+                            div.innerHTML = listHTML;
+                            div.style.whiteSpace = 'normal';
+                        } else {
+                            div.textContent = data.content || '';
+                            div.style.textOverflow = 'ellipsis';
+                            div.style.whiteSpace = 'nowrap';
+                        }
+                    } else {
+                        div.style.textOverflow = 'ellipsis';
+                        div.style.whiteSpace = 'nowrap';
+                        div.textContent = data.content || '';
+                    }
                     
                     // Apply border if exists
                     if (data.borderWidth && data.borderWidth > 0) {
@@ -4988,9 +5373,230 @@ input[type="color"]{
                 }
             },
 
-            saveJSON() {
-                // Save to Firebase
-                this.saveToFirebase();
+
+            updateTableProperty(id, property, value) {
+                const elementId = typeof id === 'string' ? parseInt(id) : id;
+                const data = this.data[this.curr].els.find(e => e.id == elementId);
+                if (!data || data.type !== 'table') return;
+                
+                data[property] = value;
+                
+                this.saveState();
+                this.loadCanvas();
+                this.renderSlides();
+                
+                // Re-select to update properties panel
+                setTimeout(() => {
+                    const el = document.querySelector(`[data-id="${elementId}"]`);
+                    if (el) this.selectElement(el);
+                }, 50);
+            },
+
+            setupTableResize(handle, tableData, type, index) {
+                let isDragging = false;
+                let startPos = 0;
+                let startSize = 0;
+                let nextSize = 0;
+                const MIN_CELL_SIZE = 20;
+                let tableElement = null;
+                let updateTimeout = null;
+                
+                handle.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    isDragging = true;
+                    handle.dataset.dragging = 'true';
+                    handle.style.opacity = '1';
+                    
+                    // Find the table element
+                    tableElement = handle.parentElement.querySelector('table');
+                    
+                    const rect = handle.parentElement.getBoundingClientRect();
+                    if (type === 'row') {
+                        startPos = e.clientY;
+                        const rowHeights = tableData.rowHeights || [];
+                        const totalHeight = rect.height;
+                        const defaultHeight = totalHeight / tableData.rows;
+                        startSize = rowHeights[index] || defaultHeight;
+                        nextSize = rowHeights[index + 1] || defaultHeight;
+                    } else {
+                        startPos = e.clientX;
+                        const colWidths = tableData.colWidths || [];
+                        const totalWidth = rect.width;
+                        const defaultWidth = totalWidth / tableData.cols;
+                        startSize = colWidths[index] || defaultWidth;
+                        nextSize = colWidths[index + 1] || defaultWidth;
+                    }
+                    
+                    document.addEventListener('mousemove', onMouseMove);
+                    document.addEventListener('mouseup', onMouseUp);
+                });
+                
+                const updateTableDirectly = () => {
+                    if (!tableElement) return;
+                    
+                    if (type === 'row') {
+                        const rows = tableElement.querySelectorAll('tr');
+                        const rowHeights = tableData.rowHeights || [];
+                        rows.forEach((row, i) => {
+                            if (rowHeights[i]) {
+                                row.style.height = `${rowHeights[i]}px`;
+                            } else {
+                                row.style.height = '';
+                            }
+                        });
+                        
+                        // Update table height
+                        let totalHeight = 0;
+                        for (let i = 0; i < tableData.rows; i++) {
+                            totalHeight += tableData.rowHeights[i] || (handle.parentElement.offsetHeight / tableData.rows);
+                        }
+                        handle.parentElement.style.height = `${totalHeight}px`;
+                        tableData.height = totalHeight;
+                    } else {
+                        const cols = tableElement.querySelectorAll('tr:first-child th, tr:first-child td');
+                        const colWidths = tableData.colWidths || [];
+                        const allRows = tableElement.querySelectorAll('tr');
+                        
+                        allRows.forEach((row) => {
+                            const cells = row.querySelectorAll('th, td');
+                            cells.forEach((cell, i) => {
+                                if (colWidths[i]) {
+                                    cell.style.width = `${colWidths[i]}px`;
+                                } else {
+                                    cell.style.width = '';
+                                }
+                            });
+                        });
+                        
+                        // Update table width
+                        let totalWidth = 0;
+                        for (let i = 0; i < tableData.cols; i++) {
+                            totalWidth += tableData.colWidths[i] || (handle.parentElement.offsetWidth / tableData.cols);
+                        }
+                        handle.parentElement.style.width = `${totalWidth}px`;
+                        tableData.width = totalWidth;
+                    }
+                };
+                
+                const onMouseMove = (e) => {
+                    if (!isDragging) return;
+                    
+                    if (type === 'row') {
+                        const delta = e.clientY - startPos;
+                        const newSize = Math.max(MIN_CELL_SIZE, startSize + delta);
+                        const newNextSize = Math.max(MIN_CELL_SIZE, nextSize - delta);
+                        
+                        if (!tableData.rowHeights) tableData.rowHeights = [];
+                        tableData.rowHeights[index] = newSize;
+                        tableData.rowHeights[index + 1] = newNextSize;
+                        
+                        // Update handle position
+                        let topPos = 0;
+                        for (let i = 0; i <= index; i++) {
+                            const height = tableData.rowHeights[i] || (handle.parentElement.offsetHeight / tableData.rows);
+                            topPos += height;
+                        }
+                        handle.style.top = `${topPos - 2}px`;
+                    } else {
+                        const delta = e.clientX - startPos;
+                        const newSize = Math.max(MIN_CELL_SIZE, startSize + delta);
+                        const newNextSize = Math.max(MIN_CELL_SIZE, nextSize - delta);
+                        
+                        if (!tableData.colWidths) tableData.colWidths = [];
+                        tableData.colWidths[index] = newSize;
+                        tableData.colWidths[index + 1] = newNextSize;
+                        
+                        // Update handle position
+                        let leftPos = 0;
+                        for (let i = 0; i <= index; i++) {
+                            const width = tableData.colWidths[i] || (handle.parentElement.offsetWidth / tableData.cols);
+                            leftPos += width;
+                        }
+                        handle.style.left = `${leftPos - 2}px`;
+                    }
+                    
+                    // Update table directly without full re-render
+                    updateTableDirectly();
+                    
+                    // Throttle save operations
+                    if (updateTimeout) clearTimeout(updateTimeout);
+                    updateTimeout = setTimeout(() => {
+                        this.saveState();
+                    }, 100);
+                };
+                
+                const onMouseUp = () => {
+                    isDragging = false;
+                    delete handle.dataset.dragging;
+                    handle.style.opacity = '0';
+                    
+                    if (updateTimeout) {
+                        clearTimeout(updateTimeout);
+                        updateTimeout = null;
+                    }
+                    
+                    // Final save and re-render
+                    this.saveState();
+                    this.loadCanvas();
+                    this.renderSlides();
+                    
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                };
+            },
+
+            updateTableSize(id, dimension, value) {
+                const elementId = typeof id === 'string' ? parseInt(id) : id;
+                const data = this.data[this.curr].els.find(e => e.id == elementId);
+                if (!data || data.type !== 'table') return;
+                
+                if (dimension === 'rows') {
+                    data.rows = Math.max(1, Math.min(10, value));
+                    // Adjust data array
+                    while (data.data.length < data.rows) {
+                        const newRow = [];
+                        for (let c = 0; c < data.cols; c++) {
+                            newRow.push(`Cell ${data.data.length + 1},${c + 1}`);
+                        }
+                        data.data.push(newRow);
+                    }
+                    while (data.data.length > data.rows) {
+                        data.data.pop();
+                    }
+                    
+                    // Reset row heights if table is resized
+                    if (data.rowHeights && data.rowHeights.length !== data.rows) {
+                        data.rowHeights = [];
+                    }
+                } else if (dimension === 'cols') {
+                    data.cols = Math.max(1, Math.min(10, value));
+                    
+                    // Adjust data array
+                    data.data.forEach((row, r) => {
+                        while (row.length < data.cols) {
+                            row.push(r === 0 ? `Header ${row.length + 1}` : `Cell ${r + 1},${row.length + 1}`);
+                        }
+                        while (row.length > data.cols) {
+                            row.pop();
+                        }
+                    });
+                    
+                    // Reset column widths if table is resized
+                    if (data.colWidths && data.colWidths.length !== data.cols) {
+                        data.colWidths = [];
+                    }
+                }
+                
+                this.saveState();
+                this.loadCanvas();
+                this.renderSlides();
+                
+                // Re-select to update properties panel
+                setTimeout(() => {
+                    const el = document.querySelector(`[data-id="${elementId}"]`);
+                    if (el) this.selectElement(el);
+                }, 50);
             },
 
             loadJSON() {
@@ -5322,104 +5928,73 @@ input[type="color"]{
                 if (!canvas) return;
                 
                 const slide = this.data[this.presentSlide];
+                if (!slide) {
+                    console.error('Slide not found at index:', this.presentSlide);
+                    return;
+                }
                 canvas.innerHTML = '';
                 canvas.style.width = '960px';
                 canvas.style.height = '540px';
-                canvas.style.background = slide.bg || '#ffffff';
                 canvas.style.position = 'relative';
+                canvas.style.border = '1px solid #e5e7eb';
+                canvas.style.overflow = 'hidden';
                 
-                if (slide.bg && slide.bg.startsWith('url(')) {
-                    canvas.style.backgroundImage = slide.bg;
+                // Apply background with transparency (EXACT same logic as loadCanvas)
+                const bg = slide.bg || slide.originalBg || 'white';
+                const opacity = slide.bgOpacity !== undefined ? slide.bgOpacity : 1;
+                
+                if (bg.startsWith('url(')) {
+                    canvas.style.backgroundImage = bg;
                     canvas.style.backgroundSize = 'cover';
                     canvas.style.backgroundPosition = 'center';
+                    canvas.style.opacity = opacity;
+                } else if (bg.startsWith('linear-gradient')) {
+                    canvas.style.background = bg;
+                    canvas.style.opacity = opacity;
+                } else if (bg.startsWith('rgba')) {
+                    canvas.style.background = bg;
+                } else {
+                    // Convert hex to rgba with opacity
+                    if (bg.startsWith('#')) {
+                        const r = parseInt(bg.slice(1, 3), 16);
+                        const g = parseInt(bg.slice(3, 5), 16);
+                        const b = parseInt(bg.slice(5, 7), 16);
+                        canvas.style.background = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+                    } else {
+                        canvas.style.background = bg;
+                        canvas.style.opacity = opacity;
+                    }
                 }
                 
                 const transition = slide.transition || 'fade';
                 canvas.className = 'present-canvas slide-transition-' + transition;
                 
-                slide.els.forEach((el, index) => {
-                    const div = document.createElement('div');
-                    div.className = 'element ' + el.type + '-element';
-                    div.style.left = el.x + 'px';
-                    div.style.top = el.y + 'px';
-                    div.style.width = el.width + 'px';
-                    div.style.height = el.height + 'px';
-
-                    if (el.shadow) {
-                        div.style.boxShadow = el.shadow;
+                // Check if slide has elements array, if not initialize it
+                if (!slide.els || !Array.isArray(slide.els)) {
+                    slide.els = [];
+                }
+                
+                // Use createEl to render elements exactly as in editor, but make them non-editable
+                slide.els.forEach((el) => {
+                    if (!el || !el.type) {
+                        return;
                     }
-
-                    if (el.type === 'text') {
-                        div.textContent = el.content;
-                        div.style.fontFamily = el.font || 'Arial';
-                        div.style.fontSize = (el.size || 24) + 'px';
-                        div.style.color = el.color || '#000000';
-                        div.style.backgroundColor = el.bg || 'transparent';
-                        div.style.fontWeight = el.weight || 'normal';
-                        div.style.textAlign = el.align || 'left';
-                        div.style.padding = '8px';
+                    
+                    // Create element using the same method as loadCanvas
+                    const element = this.createEl(el, this.presentSlide);
+                    
+                    // Make elements non-editable for presentation mode
+                    if (element.contentEditable !== undefined) {
+                        element.contentEditable = false;
                     }
-
-                    if (el.type === 'shape') {
-                        div.style.backgroundColor = el.bg || '#3b82f6';
-                        div.style.border = `${el.thick || 2}px solid ${el.border || '#1e40af'}`;
-                        
-                        // Apply shape styles for presentation
-                        switch(el.shape) {
-                            case 'circle':
-                                div.style.borderRadius = '50%';
-                                break;
-                            case 'rectangle':
-                                div.style.borderRadius = '4px';
-                                break;
-                            case 'triangle':
-                                div.style.backgroundColor = 'transparent';
-                                div.style.borderLeft = `${el.width / 2}px solid transparent`;
-                                div.style.borderRight = `${el.width / 2}px solid transparent`;
-                                div.style.borderBottom = `${el.height}px solid ${el.bg || '#3b82f6'}`;
-                                div.style.width = '0';
-                                div.style.height = '0';
-                                div.style.border = 'none';
-                                break;
-                            case 'star':
-                                div.style.borderRadius = '4px';
-                                div.style.clipPath = 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)';
-                                break;
-                            case 'pentagon':
-                                div.style.clipPath = 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)';
-                                break;
-                            case 'hexagon':
-                                div.style.clipPath = 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)';
-                                break;
-                            case 'diamond':
-                                div.style.clipPath = 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)';
-                                break;
-                            case 'arrow-right':
-                                div.style.clipPath = 'polygon(0% 25%, 60% 25%, 60% 0%, 100% 50%, 60% 100%, 60% 75%, 0% 75%)';
-                                break;
-                            case 'arrow-left':
-                                div.style.clipPath = 'polygon(40% 25%, 100% 25%, 100% 75%, 40% 75%, 40% 100%, 0% 50%, 40% 0%)';
-                                break;
-                            default:
-                                div.style.borderRadius = '4px';
-                        }
-                    }
-
-                    if (el.type === 'image') {
-                        const img = document.createElement('img');
-                        img.src = el.src;
-                        img.style.width = '100%';
-                        img.style.height = '100%';
-                        img.style.objectFit = 'cover';
-                        div.appendChild(img);
-                    }
-
-                    if (el.animation && el.animation !== 'none') {
-                        setTimeout(() => {
-                            div.classList.add('animate-' + el.animation);
-                        }, index * 200);
-                    }
-                    canvas.appendChild(div);
+                    element.style.pointerEvents = 'none';
+                    element.style.userSelect = 'none';
+                    
+                    // Remove resize handles if any
+                    const handles = element.querySelectorAll('.resize-handle');
+                    handles.forEach(handle => handle.remove());
+                    
+                    canvas.appendChild(element);
                 });
                 
                 document.getElementById('presentCounter').textContent = `${this.presentSlide + 1} / ${this.data.length}`;
@@ -5796,7 +6371,22 @@ input[type="color"]{
                     y: 150,
                     width: 400,
                     height: 200,
-                    data: this.createTableData(rows || 3, cols || 3)
+                    data: this.createTableData(rows || 3, cols || 3),
+                    borderStyle: 'solid',
+                    borderColor: '#e5e7eb',
+                    borderWidth: 1,
+                    showBorders: true,
+                    tableBgColor: 'white',
+                    headerBgColor: '#f3f4f6',
+                    cellBgColor: 'transparent',
+                    headerTextColor: '#000000',
+                    cellTextColor: '#000000',
+                    borderStyleOptions: ['solid', 'dashed', 'dotted', 'double', 'none'],
+                    rowHeights: [],
+                    colWidths: [],
+                    textSize: 12,
+                    headerBold: true,
+                    cellBold: false
                 };
                 
                 this.data[this.curr].els.push(tableData);
@@ -6517,723 +7107,7 @@ input[type="color"]{
             resetZoom() {
                 document.getElementById('zoomSlider').value = 100;
                 this.setZoom(100);
-getOpenAIKey() {
-                // Try to get API key from localStorage first (user can set it)
-                let apiKey = localStorage.getItem('openai_api_key');
-                if (!apiKey) {
-                    // Try to get from environment variable or prompt user
-                    apiKey = prompt('Please enter your OpenAI API key:');
-                    if (apiKey) {
-                        localStorage.setItem('openai_api_key', apiKey);
-                    } else {
-                        throw new Error('OpenAI API key is required. Please set it in localStorage or enter it when prompted.');
-                    }
-                }
-                return apiKey;
-            },
-            aiLanguage: 'en', // Default to English
-            aiPendingActions: null,
-            aiPendingSlidesCount: null,
-            aiConversationHistory: [], // Store conversation history for context
-
-            toggleAIPanel() {
-                const sidebar = document.getElementById('aiSidebar');
-                const container = document.querySelector('.container');
-                if (sidebar) {
-                    sidebar.classList.toggle('visible');
-                    if (container) {
-                        container.classList.toggle('ai-sidebar-open');
-                    }
-                    if (sidebar.classList.contains('visible')) {
-                        // Set default language to English
-                        if (!this.aiLanguage) {
-                            this.aiLanguage = 'en';
-                            // Auto-select English button
-                            const enBtn = document.querySelector('.ai-lang-btn[onclick*="en"]');
-                            if (enBtn) {
-                                enBtn.style.background = '#0369a1';
-                                enBtn.style.color = 'white';
-                                enBtn.style.borderColor = '#0369a1';
-                            }
-                        }
-                        // Don't reset conversation history - keep it for context
-                        // Only reset pending actions
-                        this.aiPendingActions = null;
-                        this.aiPendingSlidesCount = null;
-                        setTimeout(() => {
-                            document.getElementById('aiChatInput').focus();
-                        }, 100);
-                    }
-                }
-            },
-
-            setAILanguage(lang) {
-                this.aiLanguage = lang;
-                const langButtons = document.querySelectorAll('.ai-lang-btn');
-                langButtons.forEach(btn => {
-                    btn.style.background = 'white';
-                    btn.style.borderColor = '#bae6fd';
-                    btn.style.color = '#0369a1';
-                });
-                event.target.style.background = '#0369a1';
-                event.target.style.color = 'white';
-                event.target.style.borderColor = '#0369a1';
-                
-                if (lang === 'ar') {
-                    this.addChatMessage('تم اختيار العربية. كيف يمكنني مساعدتك اليوم؟', 'assistant');
-                    document.getElementById('aiChatInput').placeholder = 'اكتب طلبك هنا... (مثال: أضف 3 سلايدات عن موضوع التكنولوجيا)';
-                } else {
-                    this.addChatMessage('English selected. How can I help you today?', 'assistant');
-                    document.getElementById('aiChatInput').placeholder = 'Type your request here... (e.g., Add 3 slides about technology)';
-                }
-            },
-
-            addChatMessage(message, type) {
-                const messagesContainer = document.getElementById('aiChatMessages');
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `ai-message ${type === 'user' ? 'user' : 'ai-assistant'}`;
-                
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'ai-message-content';
-                
-                if (type === 'assistant') {
-                    const header = document.createElement('div');
-                    header.style.cssText = 'font-weight: 600; margin-bottom: 4px; color: #10b981;';
-                    header.textContent = 'AI Assistant';
-                    contentDiv.appendChild(header);
-                }
-                
-                const textDiv = document.createElement('div');
-                textDiv.textContent = message;
-                contentDiv.appendChild(textDiv);
-                
-                messageDiv.appendChild(contentDiv);
-                messagesContainer.appendChild(messageDiv);
-                
-                // Scroll to bottom
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            },
-
-            async sendAIMessage() {
-                const input = document.getElementById('aiChatInput');
-                const message = input.value.trim();
-                if (!message) return;
-
-                // Default to English if not set
-                if (!this.aiLanguage) {
-                    this.aiLanguage = 'en';
-                }
-
-                // Add user message to chat and conversation history
-                this.addChatMessage(message, 'user');
-                this.aiConversationHistory.push({ role: 'user', content: message });
-                input.value = '';
-
-                // Show loading
-                const loadingEl = document.getElementById('aiLoading');
-                const loadingText = document.getElementById('aiLoadingText');
-                loadingEl.style.display = 'block';
-                loadingText.textContent = this.aiLanguage === 'ar' ? 'جاري المعالجة...' : 'Processing...';
-
-                try {
-                    // Get first slide style as reference
-                    const firstSlide = this.data[0] || { els: [], bg: 'white', transition: 'fade' };
-                    const firstSlideStyle = {
-                        bg: firstSlide.bg || 'white',
-                        elements: firstSlide.els || []
-                    };
-                    
-                    // Extract style patterns from first slide
-                    let titleStyle = { size: 42, color: '#0f172a', weight: 'bold', align: 'center', font: 'Arial' };
-                    let contentStyle = { size: 24, color: '#374151', align: 'left', font: 'Arial' };
-                    
-                    // Find title and content elements in first slide
-                    firstSlideStyle.elements.forEach(el => {
-                        if (el.type === 'text') {
-                            if (el.weight === 'bold' && el.size >= 36) {
-                                titleStyle = { size: el.size, color: el.color, weight: el.weight, align: el.align, font: el.font || 'Arial' };
-                            } else {
-                                contentStyle = { size: el.size, color: el.color, align: el.align, font: el.font || 'Arial' };
-                            }
-                        }
-                    });
-                    
-                    // Get current presentation state
-                    const currentState = {
-                        slides: this.data,
-                        currentSlide: this.curr,
-                        title: document.getElementById('title') ? document.getElementById('title').value || 'Untitled Presentation' : 'Untitled Presentation',
-                        totalSlides: this.data.length,
-                        firstSlideStyle: firstSlideStyle,
-                        titleStyle: titleStyle,
-                        contentStyle: contentStyle
-                    };
-
-                    // Check if asking about number of slides
-                    const slidesCountMatch = message.match(/(\d+)\s*(?:سلايد|slide|slides)/i);
-                    if (slidesCountMatch && !this.aiPendingSlidesCount) {
-                        this.aiPendingSlidesCount = parseInt(slidesCountMatch[1]);
-                    }
-
-                    // Prepare system message based on language
-                    const systemMessage = this.aiLanguage === 'ar' ? 
-                        `أنت مساعد ذكي لتحرير العروض التقديمية. يمكنك:
-1. إضافة سلايدات جديدة (يمكن إضافة عدة سلايدات في مرة واحدة)
-2. إضافة نصوص وصور ورسوم بيانية
-3. تعديل وتنظيم السلايدات الموجودة - يمكنك تعديل أي سلايد موجود باستخدام "modify_slide" مع slide: [رقم السلايد]
-4. تغيير الألوان والخطوط
-
-يجب أن ترد بـ JSON يحتوي على:
-{
-  "actions": [
-    {"type": "add_slide", "title": "عنوان السلايد", "bg": "white", "elements": [{"type": "text", "content": "النص", "x": 100, "y": 100, "width": 300, "height": 50, "size": 24, "color": "#000000"}]}
-  ],
-  "preview": "ملخص ما سيتم إضافته",
-  "slidesCount": 3,
-  "message": "سأضيف 3 سلايدات عن الموضوع"
-}
-
-استخدم الأرقام العربية في الردود.` :
-                        `You are a PROFESSIONAL presentation design assistant. Create DETAILED, COMPREHENSIVE, and RICH content slides with VARIED content formats.
-
-CRITICAL: Respond with VALID JSON only. Follow the exact format below.
-
-SLIDE CANVAS: 960px × 540px
-
-IMPORTANT RULES:
-1. USE VARIED CONTENT FORMATS - Mix different text styles
-2. KEEP CONTENT FITTING - Content must fit within slide boundaries (height max 300px)
-3. CONCISE CONTENT - CRITICAL: Maximum 400 characters per text element
-4. MODIFY EXISTING SLIDES - You can modify ANY existing slide using "modify_slide" with slide: [index]
-5. ALWAYS use the SAME background color as the first slide
-6. ALWAYS use the SAME text styles as the first slide
-7. Use proper coordinates within canvas bounds (0-960 width, 0-540 height)
-8. DON'T OVERLAP ELEMENTS - CRITICAL: If adding an image, ensure text doesn't overlap with it
-
-RESPONSE FORMAT (JSON ONLY):
-{
-  "actions": [
-    {
-      "type": "add_slide",
-      "title": "Introduction to Topic",
-      "bg": "white",
-      "elements": [
-        {"type": "text", "content": "Brief introduction.\\n\\n• Key feature one\\n• Key feature two", "x": 120, "y": 180, "width": 500, "height": 300, "size": 24, "color": "#374151", "align": "left"},
-        {"type": "image", "imageUrl": "topic", "x": 550, "y": 180, "width": 300, "height": 220}
-      ]
-    }
-  ],
-  "preview": "Creating slides",
-  "slidesCount": 3,
-  "message": "Creating slides..."
-}
-
-REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`;
-
-                    // Build messages array with conversation history
-                    const messages = [
-                        {
-                            role: 'system',
-                            content: systemMessage
-                        }
-                    ];
-
-                    // Add conversation history (last 5 messages only to avoid token limit)
-                    const recentHistory = this.aiConversationHistory.slice(-5);
-                    recentHistory.forEach(msg => {
-                        if (msg.role === 'user' || (msg.role === 'assistant' && msg.content.length < 500)) {
-                            messages.push(msg);
-                        }
-                    });
-
-                    // Add current state and user request
-                    const simplifiedState = {
-                        totalSlides: currentState.totalSlides,
-                        currentSlide: currentState.curr,
-                        title: currentState.title,
-                        firstSlideStyle: {
-                            bg: currentState.firstSlideStyle?.bg || 'white',
-                            titleStyle: currentState.titleStyle,
-                            contentStyle: currentState.contentStyle
-                        }
-                    };
-                    
-                    const currentRequest = {
-                        role: 'user',
-                        content: `Presentation: ${simplifiedState.totalSlides} slides. Style: ${JSON.stringify(simplifiedState.firstSlideStyle)}. Request: ${message}${this.aiPendingSlidesCount ? ` (${this.aiPendingSlidesCount} slides)` : ''}`
-                    };
-                    messages.push(currentRequest);
-
-                    // Call OpenAI API
-                    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${this.getOpenAIKey()}`
-                        },
-                        body: JSON.stringify({
-                            model: 'gpt-4',
-                            messages: messages,
-                            temperature: 0.7,
-                            max_tokens: 2000
-                        })
-                    });
-
-                    const data = await response.json();
-                    
-                    if (data.error) {
-                        throw new Error(data.error.message || (this.aiLanguage === 'ar' ? 'خطأ في API' : 'API Error'));
-                    }
-
-                    const aiResponse = data.choices[0].message.content;
-                    
-                    // Try to parse JSON from response
-                    let actions = null;
-                    let preview = null;
-                    let slidesCount = null;
-                    let responseMessage = aiResponse;
-                    
-                    try {
-                        // Try multiple methods to extract JSON
-                        const codeBlockMatch = aiResponse.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
-                        if (codeBlockMatch) {
-                            const parsed = JSON.parse(codeBlockMatch[1]);
-                            if (parsed.actions) {
-                                actions = parsed.actions;
-                                preview = parsed.preview;
-                                slidesCount = parsed.slidesCount;
-                                responseMessage = parsed.message || aiResponse;
-                            }
-                        } else {
-                            const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-                            if (jsonMatch) {
-                                try {
-                                    const parsed = JSON.parse(jsonMatch[0]);
-                                    if (parsed.actions && Array.isArray(parsed.actions)) {
-                                        actions = parsed.actions;
-                                        preview = parsed.preview;
-                                        slidesCount = parsed.slidesCount;
-                                        responseMessage = parsed.message || aiResponse;
-                                    }
-                                } catch (parseError) {
-                                    console.log('JSON parse error:', parseError);
-                                }
-                            }
-                        }
-                    } catch (e) {
-                        console.log('Could not parse JSON, treating as plain text:', e);
-                    }
-
-                    // Add AI response to conversation history
-                    this.aiConversationHistory.push({ role: 'assistant', content: aiResponse });
-
-                    // If we have actions, execute them automatically
-                    if (actions && Array.isArray(actions) && actions.length > 0) {
-                        // Show message first
-                        this.addChatMessage(responseMessage || 'Creating slides...', 'assistant');
-                        
-                        // Execute actions automatically
-                        await this.executeAIActions(actions);
-                        
-                        // Show success message
-                        const successMsg = this.aiLanguage === 'ar' ? 
-                            `✅ تم إنشاء ${actions.filter(a => a.type === 'add_slide').length} سلايد بنجاح!` : 
-                            `✅ Successfully created ${actions.filter(a => a.type === 'add_slide').length} slide(s)!`;
-                        this.addChatMessage(successMsg, 'assistant');
-                    } else {
-                        // Add AI response to chat
-                        this.addChatMessage(responseMessage, 'assistant');
-                    }
-
-                } catch (error) {
-                    console.error('AI Error:', error);
-                    const errorMsg = this.aiLanguage === 'ar' ? 
-                        `عذراً، حدث خطأ: ${error.message}` : 
-                        `Sorry, an error occurred: ${error.message}`;
-                    this.addChatMessage(errorMsg, 'assistant');
-                } finally {
-                    loadingEl.style.display = 'none';
-                }
-            },
-
-            showAIPreview(actions, previewText) {
-                const previewContainer = document.getElementById('aiPreviewContainer');
-                previewContainer.style.display = 'block';
-                
-                const slidesToAdd = actions.filter(a => a.type === 'add_slide').length;
-                const totalSlides = this.data.length + slidesToAdd;
-                
-                let elementsCount = 0;
-                actions.forEach(action => {
-                    if (action.elements) {
-                        elementsCount += action.elements.length;
-                    } else if (action.type !== 'add_slide' && action.type !== 'set_slide_bg' && action.type !== 'switch_slide' && action.type !== 'delete_slide') {
-                        elementsCount++;
-                    }
-                });
-                
-                const previewHTML = `
-                    <div class="ai-message ai-assistant">
-                        <div class="ai-message-content" style="background: #fef3c7; border: 2px solid #f59e0b;">
-                            <div style="font-weight: 600; margin-bottom: 8px; color: #92400e;">📋 ${this.aiLanguage === 'ar' ? 'معاينة المحتوى' : 'Content Preview'}</div>
-                            <div style="color: #78350f; margin-bottom: 12px; line-height: 1.6;">${previewText}</div>
-                            <div style="display: flex; gap: 8px; margin-top: 16px;">
-                                <button onclick="app.confirmAIActions()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">${this.aiLanguage === 'ar' ? '✅ موافق، نفّذ' : '✅ Confirm & Execute'}</button>
-                                <button onclick="app.cancelAIPreview()" style="flex: 1; padding: 12px; background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; border-radius: 8px; font-weight: 600; cursor: pointer;">${this.aiLanguage === 'ar' ? '❌ إلغاء' : '❌ Cancel'}</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                previewContainer.innerHTML = previewHTML;
-                setTimeout(() => {
-                    previewContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }, 100);
-            },
-
-            confirmAIActions() {
-                if (this.aiPendingActions) {
-                    this.executeAIActions(this.aiPendingActions);
-                    this.cancelAIPreview();
-                    const confirmMsg = this.aiLanguage === 'ar' ? '✅ تم تنفيذ الأوامر بنجاح!' : '✅ Commands executed successfully!';
-                    this.addChatMessage(confirmMsg, 'assistant');
-                    this.aiConversationHistory.push({ role: 'assistant', content: confirmMsg });
-                }
-            },
-
-            cancelAIPreview() {
-                const previewContainer = document.getElementById('aiPreviewContainer');
-                previewContainer.style.display = 'none';
-                previewContainer.innerHTML = '';
-                this.aiPendingActions = null;
-                this.aiPendingSlidesCount = null;
-            },
-
-            async executeAIActions(actions) {
-                for (const action of actions) {
-                    try {
-                        switch (action.type) {
-                            case 'add_slide':
-                                this.addSlide();
-                                const newSlideIndex = this.data.length - 1;
-                                const firstSlideBg = this.data[0]?.bg || 'white';
-                                this.data[newSlideIndex].bg = action.bg || firstSlideBg;
-                                
-                                if (action.title && action.title.trim()) {
-                                    const firstSlide = this.data[0] || { els: [] };
-                                    let titleStyle = { size: 42, color: '#0f172a', weight: 'bold', align: 'center', font: 'Arial' };
-                                    firstSlide.els.forEach(el => {
-                                        if (el.type === 'text' && (el.weight === 'bold' || el.size >= 36)) {
-                                            titleStyle = { size: el.size || 42, color: el.color || '#0f172a', weight: el.weight || 'bold', align: el.align || 'center', font: el.font || 'Arial' };
-                                        }
-                                    });
-                                    this.addTextElement(newSlideIndex, { content: action.title, x: 130, y: 60, width: 700, height: 80, size: titleStyle.size, color: titleStyle.color, weight: titleStyle.weight, align: titleStyle.align, font: titleStyle.font });
-                                }
-                                
-                                if (action.elements && Array.isArray(action.elements)) {
-                                    for (let idx = 0; idx < action.elements.length; idx++) {
-                                        const element = action.elements[idx];
-                                        await new Promise(resolve => setTimeout(resolve, 100 * (idx + 1)));
-                                        
-                                        if (element.type === 'text') {
-                                            if (action.title && element.content === action.title && element.weight === 'bold') continue;
-                                            const firstSlide = this.data[0] || { els: [] };
-                                            let defaultContentStyle = { size: 24, color: '#374151', align: 'left', font: 'Arial' };
-                                            firstSlide.els.forEach(el => {
-                                                if (el.type === 'text' && el.weight !== 'bold' && el.size < 36) {
-                                                    defaultContentStyle = { size: el.size || 24, color: el.color || '#374151', align: el.align || 'left', font: el.font || 'Arial' };
-                                                }
-                                            });
-                                            this.addTextElement(newSlideIndex, { content: element.content || 'New text', x: element.x || 120, y: element.y || (150 + idx * 60), width: element.width || 500, height: element.height || 200, size: element.size || defaultContentStyle.size, color: element.color || defaultContentStyle.color, weight: element.weight || 'normal', align: element.align || defaultContentStyle.align, font: element.font || defaultContentStyle.font });
-                                        } else if (element.type === 'chart') {
-                                            this.addChartElement(newSlideIndex, { chartType: element.chartType || 'bar', labels: element.labels || [], values: element.values || [], colors: element.colors || ['#10b981', '#3b82f6', '#f59e0b'], x: element.x || 250, y: element.y || 250, width: element.width || 450, height: element.height || 250 });
-                                        } else if (element.type === 'image') {
-                                            let imageUrl = element.imageUrl || element.src;
-                                            if (typeof imageUrl === 'string' && !imageUrl.startsWith('http')) {
-                                                imageUrl = await this.getImageFromUnsplash(imageUrl);
-                                            }
-                                            if (imageUrl) {
-                                                this.addImageElement(newSlideIndex, { src: imageUrl, x: element.x || 550, y: element.y || 180, width: element.width || 300, height: element.height || 220 });
-                                            }
-                                        }
-                                    }
-                                }
-                                break;
-                            case 'modify_slide':
-                                const modifySlideIndex = action.slide !== undefined ? action.slide : 0;
-                                if (this.data[modifySlideIndex] && action.elements && Array.isArray(action.elements)) {
-                                    for (let idx = 0; idx < action.elements.length; idx++) {
-                                        const element = action.elements[idx];
-                                        await new Promise(resolve => setTimeout(resolve, 100 * (idx + 1)));
-                                        if (element.type === 'text') {
-                                            this.addTextElement(modifySlideIndex, { content: element.content || 'New text', x: element.x || 130, y: element.y || 60, width: element.width || 700, height: element.height || 80, size: element.size || 24, color: element.color || '#000000', weight: element.weight || 'normal', align: element.align || 'left', font: element.font || 'Arial' });
-                                        } else if (element.type === 'image') {
-                                            let imageUrl = element.imageUrl || element.src;
-                                            if (typeof imageUrl === 'string' && !imageUrl.startsWith('http')) {
-                                                imageUrl = await this.getImageFromUnsplash(imageUrl);
-                                            }
-                                            if (imageUrl) {
-                                                this.addImageElement(modifySlideIndex, { src: imageUrl, x: element.x || 550, y: element.y || 180, width: element.width || 300, height: element.height || 220 });
-                                            }
-                                        } else if (element.type === 'chart') {
-                                            this.addChartElement(modifySlideIndex, { chartType: element.chartType || 'bar', labels: element.labels || [], values: element.values || [], colors: element.colors || ['#10b981', '#3b82f6', '#f59e0b'], x: element.x || 250, y: element.y || 250, width: element.width || 450, height: element.height || 250 });
-                                        }
-                                    }
-                                }
-                                break;
-                            case 'add_text':
-                                const slideIndex = action.slide !== undefined ? action.slide : this.curr;
-                                this.addTextElement(slideIndex, { content: action.content || 'New text', x: action.x || 100, y: action.y || 100, width: action.width || 300, height: action.height || 50, size: action.size || 24, color: action.color || '#000000', weight: action.weight || 'normal', align: action.align || 'left', font: action.font || 'Arial' });
-                                break;
-                            case 'add_chart':
-                                const chartSlideIndex = action.slide !== undefined ? action.slide : this.curr;
-                                this.addChartElement(chartSlideIndex, { chartType: action.chartType || 'bar', labels: action.labels || ['A', 'B', 'C'], values: action.values || [10, 20, 30], colors: action.colors || ['#10b981', '#3b82f6', '#f59e0b'], x: action.x || 200, y: action.y || 200, width: action.width || 400, height: action.height || 300 });
-                                break;
-                            case 'set_slide_bg':
-                                const bgSlideIndex = action.slide !== undefined ? action.slide : this.curr;
-                                if (this.data[bgSlideIndex]) {
-                                    this.data[bgSlideIndex].bg = action.bg || 'white';
-                                    this.saveState();
-                                    this.loadCanvas();
-                                }
-                                break;
-                            case 'switch_slide':
-                                if (action.slide !== undefined && this.data[action.slide]) {
-                                    this.switchSlide(action.slide);
-                                }
-                                break;
-                            case 'delete_slide':
-                                if (action.slide !== undefined && this.data[action.slide]) {
-                                    this.deleteSlide(action.slide);
-                                }
-                                break;
-                        }
-                    } catch (error) {
-                        console.error('Error executing action:', action, error);
-                    }
-                }
-                this.saveState();
-                this.loadCanvas();
-                this.renderSlides();
-            },
-
-            addTextElement(slideIndex, options) {
-                if (!this.data[slideIndex]) return;
-                let content = options.content || 'New text';
-                const fontSize = options.size || 24;
-                const width = options.width || 300;
-                const maxHeight = 300;
-                const charsPerLine = Math.floor(width / (fontSize * 0.6));
-                const lineHeight = fontSize * 1.4;
-                const maxLines = Math.floor(maxHeight / lineHeight);
-                const maxChars = charsPerLine * maxLines;
-                if (content.length > maxChars) {
-                    const truncated = content.substring(0, maxChars - 10);
-                    const lastSpace = truncated.lastIndexOf(' ');
-                    content = lastSpace > maxChars * 0.7 ? truncated.substring(0, lastSpace) + '...' : truncated + '...';
-                }
-                let calculatedHeight = options.height || 50;
-                if (content) {
-                    const actualLines = content.split('\\n').length;
-                    const estimatedLines = Math.ceil(content.length / charsPerLine);
-                    const totalLines = Math.max(actualLines, estimatedLines);
-                    calculatedHeight = Math.min(Math.max(50, totalLines * lineHeight + 20), maxHeight);
-                }
-                const maxY = 540 - calculatedHeight - 20;
-                let finalY = Math.min(options.y || 100, maxY);
-                let finalX = options.x || 100;
-                let finalWidth = width;
-                const slideElements = this.data[slideIndex].els || [];
-                slideElements.forEach(existingEl => {
-                    if (existingEl.type === 'image') {
-                        const imageX = existingEl.x || 0;
-                        const imageY = existingEl.y || 0;
-                        const imageWidth = existingEl.width || 0;
-                        const imageHeight = existingEl.height || 0;
-                        const imageRight = imageX + imageWidth;
-                        const imageBottom = imageY + imageHeight;
-                        const textRight = finalX + finalWidth;
-                        const textBottom = finalY + calculatedHeight;
-                        const horizontalOverlap = (finalX < imageRight && textRight > imageX);
-                        const verticalOverlap = (finalY < imageBottom && textBottom > imageY);
-                        if (horizontalOverlap && verticalOverlap) {
-                            if (imageX >= 500) {
-                                finalWidth = Math.max(200, imageX - finalX - 20);
-                                if (finalWidth < 250) {
-                                    finalX = 120;
-                                    finalWidth = Math.max(200, imageX - finalX - 20);
-                                }
-                            } else if (imageX <= 200) {
-                                finalX = imageRight + 20;
-                                finalWidth = Math.min(width, 960 - finalX - 20);
-                            } else {
-                                if (finalX < 480) {
-                                    finalX = imageRight + 20;
-                                    finalWidth = Math.min(width, 960 - finalX - 20);
-                                } else {
-                                    finalX = 120;
-                                    finalWidth = Math.min(width, imageX - finalX - 20);
-                                }
-                            }
-                        }
-                    }
-                });
-                const id = Date.now() + Math.random();
-                const el = { id: id, type: 'text', content: content, x: finalX, y: finalY, width: finalWidth, height: calculatedHeight, font: options.font || 'Arial', size: fontSize, color: options.color || '#000000', bg: options.bg || 'transparent', weight: options.weight || 'normal', align: options.align || 'left', animation: 'none' };
-                this.data[slideIndex].els.push(el);
-                if (this.fixOverlaps) this.fixOverlaps(slideIndex);
-                this.saveState();
-                this.loadCanvas();
-                this.renderSlides();
-            },
-
-            addChartElement(slideIndex, options) {
-                if (!this.data[slideIndex]) return;
-                const id = Date.now() + Math.random();
-                const el = { id: id, type: 'chart', chartType: options.chartType || 'bar', labels: options.labels || [], values: options.values || [], colors: options.colors || ['#10b981', '#3b82f6', '#f59e0b'], x: options.x || 200, y: options.y || 200, width: options.width || 400, height: options.height || 300, animation: 'none' };
-                this.data[slideIndex].els.push(el);
-                this.saveState();
-                this.loadCanvas();
-                this.renderSlides();
-            },
-
-            async getImageFromUnsplash(searchTerm) {
-                try {
-                    console.log('Generating image for:', searchTerm);
-                    try {
-                        const imageUrl = await this.generateImageWithDALLE(searchTerm);
-                        if (imageUrl) {
-                            console.log('Image generated successfully:', imageUrl);
-                            return imageUrl;
-                        }
-                    } catch (dalleError) {
-                        console.warn('DALL-E generation failed, using placeholder:', dalleError);
-                    }
-                    const colors = ['10b981', '14b8a6', '38bdf8', '0ea5e9', '3b82f6', '059669', '0284c7', '0891b2'];
-                    const seed = searchTerm.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-                    const colorIndex = seed % colors.length;
-                    const color = colors[colorIndex];
-                    return `https://via.placeholder.com/800x600/${color}/ffffff?text=${encodeURIComponent(searchTerm.substring(0, 20))}`;
-                } catch (error) {
-                    console.error('Error fetching image:', error);
-                    return `https://via.placeholder.com/800x600/10b981/ffffff?text=Image`;
-                }
-            },
-
-            async generateImageWithDALLE(prompt) {
-                try {
-                    const imagePrompt = `Professional, clean, modern presentation image about: ${prompt}. Suitable for business presentation, high quality, no text.`;
-                    const response = await fetch('https://api.openai.com/v1/images/generations', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.getOpenAIKey()}` },
-                        body: JSON.stringify({ model: 'dall-e-3', prompt: imagePrompt, n: 1, size: '1024x1024', quality: 'standard' })
-                    });
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        console.error('DALL-E API error:', errorData);
-                        return await this.getImageFromAlternativeSource(prompt);
-                    }
-                    const data = await response.json();
-                    if (data.data && data.data[0] && data.data[0].url) {
-                        return data.data[0].url;
-                    }
-                    return null;
-                } catch (error) {
-                    console.error('Error generating image with DALL-E:', error);
-                    return await this.getImageFromAlternativeSource(prompt);
-                }
-            },
-
-            async getImageFromAlternativeSource(searchTerm) {
-                try {
-                    const seed = searchTerm.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-                    const picsumUrl = `https://picsum.photos/seed/${seed}/800/600`;
-                    return new Promise((resolve) => {
-                        const testImg = new Image();
-                        testImg.onload = () => resolve(picsumUrl);
-                        testImg.onerror = () => {
-                            const colors = ['10b981', '14b8a6', '38bdf8', '0ea5e9'];
-                            const colorIndex = seed % colors.length;
-                            resolve(`https://via.placeholder.com/800x600/${colors[colorIndex]}/ffffff?text=${encodeURIComponent(searchTerm.substring(0, 15))}`);
-                        };
-                        testImg.src = picsumUrl;
-                    });
-                } catch (error) {
-                    console.error('Error getting alternative image:', error);
-                    return `https://via.placeholder.com/800x600/10b981/ffffff?text=${encodeURIComponent(searchTerm)}`;
-                }
-            },
-
-            addImageElement(slideIndex, options) {
-                if (!this.data[slideIndex]) {
-                    console.error('Slide index does not exist:', slideIndex);
-                    return;
-                }
-                if (!options.src || options.src.trim() === '') {
-                    console.warn('No image src provided, using placeholder');
-                    options.src = `https://via.placeholder.com/${options.width || 300}x${options.height || 200}/10b981/ffffff?text=Image`;
-                }
-                console.log('Adding image element to slide', slideIndex, 'with src:', options.src);
-                const imageX = options.x || 150;
-                const imageY = options.y || 100;
-                const imageWidth = options.width || 300;
-                const imageHeight = options.height || 200;
-                const imageRight = imageX + imageWidth;
-                const imageBottom = imageY + imageHeight;
-                const slideElements = this.data[slideIndex].els || [];
-                let needsSave = false;
-                slideElements.forEach(existingEl => {
-                    if (existingEl.type === 'text' && !existingEl.weight) {
-                        const textRight = existingEl.x + existingEl.width;
-                        const textBottom = existingEl.y + existingEl.height;
-                        const horizontalOverlap = (existingEl.x < imageRight && textRight > imageX);
-                        const verticalOverlap = (existingEl.y < imageBottom && textBottom > imageY);
-                        if (horizontalOverlap && verticalOverlap) {
-                            needsSave = true;
-                            if (imageX >= 500) {
-                                const newWidth = Math.max(200, imageX - existingEl.x - 20);
-                                if (newWidth < existingEl.width) {
-                                    existingEl.width = newWidth;
-                                }
-                            } else if (imageX <= 200) {
-                                const newX = imageRight + 20;
-                                if (newX !== existingEl.x) {
-                                    existingEl.x = newX;
-                                    existingEl.width = Math.min(existingEl.width, 960 - existingEl.x - 20);
-                                }
-                            } else {
-                                if (existingEl.x < 480) {
-                                    const newX = imageRight + 20;
-                                    if (newX < 960 - existingEl.width) {
-                                        existingEl.x = newX;
-                                        existingEl.width = Math.min(existingEl.width, 960 - existingEl.x - 20);
-                                    } else {
-                                        existingEl.width = Math.max(200, imageX - existingEl.x - 20);
-                                    }
-                                } else {
-                                    const newX = 120;
-                                    const maxWidth = imageX - newX - 20;
-                                    if (maxWidth >= 200) {
-                                        existingEl.x = newX;
-                                        existingEl.width = Math.min(existingEl.width, maxWidth);
-                                    } else {
-                                        existingEl.width = Math.max(200, imageX - existingEl.x - 20);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-                const id = Date.now() + Math.random();
-                const el = { id: id, type: 'image', src: options.src, x: imageX, y: imageY, width: imageWidth, height: imageHeight, animation: 'none' };
-                this.data[slideIndex].els.push(el);
-                console.log('Image element added, total elements:', this.data[slideIndex].els.length);
-                if (this.fixOverlaps) this.fixOverlaps(slideIndex);
-                if (needsSave) this.saveState();
-                this.loadCanvas();
-                this.renderSlides();
             }
-        }
         };
 
         window.onload = async () => {
@@ -7409,52 +7283,6 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
     if (activeTarget) positionTooltip(activeTarget);
   });
 })();
-
-<!-- AI Assistant Sidebar -->
-<div class="ai-sidebar" id="aiSidebar">
-<div class="ai-sidebar-header">
-<h3>
-<span>AI Smart Assistant</span>
-</h3>
-<button class="ai-sidebar-close" onclick="app.toggleAIPanel()">×</button>
-</div>
-<div class="ai-sidebar-content">
-<div class="ai-sidebar-messages" id="aiChatMessages">
-<div class="ai-message ai-assistant">
-<div class="ai-message-content">
-<div style="font-weight: 600; margin-bottom: 4px; color: #10b981;">AI Assistant</div>
-<div>Hello! I'm your creative AI assistant. I can automatically:</div>
-<ul style="margin: 8px 0; padding-left: 20px; color: #64748b;">
-<li>Create complete slides with titles, content, and visuals</li>
-<li>Add images from the internet related to your topic</li>
-<li>Create charts and graphs with data</li>
-<li>Add bullet points and organize content beautifully</li>
-<li>Design professional layouts automatically</li>
-</ul>
-<div style="margin-top: 16px; padding: 12px; background: #f0f9ff; border-radius: 8px; border: 1px solid #bae6fd;">
-<div style="font-weight: 600; margin-bottom: 8px; color: #0369a1;">Choose Language:</div>
-<div style="display: flex; gap: 8px;">
-<button onclick="app.setAILanguage('ar')" class="ai-lang-btn" style="flex: 1; padding: 10px; background: white; border: 2px solid #bae6fd; border-radius: 8px; cursor: pointer; font-weight: 600; color: #0369a1; transition: all 0.2s;">🇸🇦 العربية</button>
-<button onclick="app.setAILanguage('en')" class="ai-lang-btn" style="flex: 1; padding: 10px; background: #0369a1; color: white; border: 2px solid #0369a1; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s;">🇬🇧 English</button>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div id="aiPreviewContainer" style="display: none; padding: 0 20px 20px 20px;"></div>
-</div>
-<div class="ai-sidebar-input-area">
-<div style="display: flex; gap: 8px;">
-<input type="text" id="aiChatInput" placeholder="Type your request... (e.g., Create 5 slides about AI)" style="flex: 1; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.2s;" onkeypress="if(event.key === 'Enter') app.sendAIMessage()">
-<button onclick="app.sendAIMessage()" style="padding: 12px 24px; background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #38bdf8 100%); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Send</button>
-</div>
-<div id="aiLoading" style="display: none; margin-top: 12px; padding: 12px; background: #f0f9ff; border-radius: 8px; color: #0369a1; font-size: 13px;">
-<div style="display: flex; align-items: center; gap: 8px;">
-<div class="ai-spinner"></div>
-<span id="aiLoadingText">Processing...</span>
-</div>
-</div>
-</div>
-</div>
+</script>
 </body>
-</body>
+</html>
