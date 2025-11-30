@@ -5843,9 +5843,10 @@ input[type="color"]{
                 try {
                     const { collection, addDoc, doc, setDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
                     const title = document.getElementById('title').value || 'Untitled presentation';
+                    // Convert slides to JSON string to avoid nested arrays issue in Firestore
                     const presentationData = {
                         title: title,
-                        slides: this.data,
+                        slides: JSON.stringify(this.data),
                         editorType: 'editor-ad',
                         updatedAt: serverTimestamp(),
                         createdAt: serverTimestamp()
@@ -7854,16 +7855,16 @@ input[type="color"]{
 
 مهم جداً: تذكر دائماً سياق المحادثة. إذا قال المستخدم "أضف المزيد" أو "غير هذا" أو "نفس الموضوع" أو "عدل" أو "تعديل" أو "تغيير" أو "المزيد" أو "غير اللون" أو "غير الحجم" أو "غير الخط" أو أي طلب لتعديل خاصية (مثل لون الكتابة، حجم الخط، إلخ)، يجب أن تفهم ما كان يتحدث عنه في الرسائل السابقة وتعدل على العناصر الموجودة باستخدام "modify_slide" مع slide: [رقم السلايد] بدلاً من إنشاء عناصر جديدة.
 
-عند تعديل العناصر (مثل تغيير اللون، الحجم، الخط):
-- مهم جداً: لتحديث خاصية عنصر موجود، يجب أن تضيف العنصر بنفس المحتوى الموجود بالضبط
-- ابحث عن العنصر الموجود بمطابقة المحتوى أولاً، ثم الموضع (ضمن 50 بكسل)
-- قم بتحديث خصائص العنصر الموجود (اللون، الحجم، الوزن، المحاذاة، الخط، bg، borderColor، borderWidth)
-- أضف العنصر بنفس المحتوى/الموضع الموجود وحدد فقط الخاصية المراد تغييرها
-- مثال لتغيير اللون: {"type": "text", "content": "Future of Gold Mining in KSA", "color": "#ff0000", "x": 130, "y": 60} سيحدث لون النص المطابق
-- مثال لتغيير الحجم: {"type": "text", "content": "Future of Gold Mining in KSA", "size": 48, "x": 130, "y": 60} سيحدث حجم النص المطابق
-- لا تستخدم محتوى وهمي مثل "New text" - استخدم المحتوى الموجود الفعلي
-- لا تضيف عنصر جديد إذا وجدت عنصر مطابق - قم بتحديثه بدلاً من ذلك
-- إذا لم تعرف المحتوى بالضبط، تحقق من currentState.slides لرؤية العناصر الموجودة ومحتواها
+عند تعديل العناصر (مثل تغيير اللون، الحجم، الخط، أو المحتوى):
+- مهم جداً جداً: عند استخدام "modify_slide"، يجب أن تبحث في existingSlides عن المحتوى الموجود الفعلي وتستخدمه
+- يجب أن تضيف العنصر بنفس المحتوى الموجود بالضبط (من existingSlides) وبنفس الموضع (x, y) الموجود
+- لا تخترع محتوى جديد - استخدم المحتوى الموجود من existingSlides
+- قم بتحديث خصائص العنصر الموجود (اللون، الحجم، الوزن، المحاذاة، الخط، bg، borderColor، borderWidth، أو المحتوى نفسه)
+- مثال لتغيير اللون: إذا كان النص الموجود "Future of Gold Mining in KSA" في الموضع x:130, y:60، استخدم: {"type": "text", "content": "Future of Gold Mining in KSA", "color": "#ff0000", "x": 130, "y": 60}
+- مثال لتغيير المحتوى: إذا كان النص الموجود "Future of Gold Mining" في الموضع x:130, y:60، وتريد تغييره إلى "Gold Mining Future"، استخدم: {"type": "text", "content": "Gold Mining Future", "x": 130, "y": 60} (استخدم نفس الموضع)
+- لا تستخدم محتوى وهمي مثل "New text" - دائماً استخدم المحتوى الموجود الفعلي من existingSlides
+- لا تضيف عنصر جديد أبداً عند التعديل - دائماً قم بتحديث العنصر الموجود باستخدام نفس المحتوى والموضع
+- إذا لم تعرف المحتوى بالضبط، تحقق من existingSlides في الرسالة لرؤية العناصر الموجودة ومحتواها ومواضعها (x, y)
 
 إذا طلب المستخدم إضافة محتوى بعد إنشاء سلايدات، عدل على آخر سلايدات تم إنشاؤها.
 
@@ -8052,16 +8053,16 @@ CRITICAL - MODIFY vs CREATE:
 - If user says "add more" or "المزيد" after creating slides → Modify the LAST created slides (highest indices), NOT create new ones
 - Only use "add_slide" when user explicitly asks to CREATE NEW slides or ADD NEW content to a NEW slide
 - Check existingSlides in currentState to see which slides exist and their indices
-- When modifying elements (like changing color, size, font):
-  * CRITICAL: To update an existing element's property, you MUST include the element with the EXACT SAME content as the existing element
-  * Find existing element by matching EXACT content first, then by position (within 50px tolerance)
-  * UPDATE the existing element's properties (color, size, weight, align, font, bg, borderColor, borderWidth)
-  * Include the element with SAME content/position and specify ONLY the property to change
-  * Example to change color: {"type": "text", "content": "Future of Gold Mining in KSA", "color": "#ff0000", "x": 130, "y": 60} will UPDATE color of the matching text
-  * Example to change size: {"type": "text", "content": "Future of Gold Mining in KSA", "size": 48, "x": 130, "y": 60} will UPDATE size of the matching text
-  * DO NOT use placeholder content like "New text" - use the ACTUAL existing content
-  * DO NOT add new element if matching element exists - UPDATE it instead
-  * If you don't know the exact content, check currentState.slides to see existing elements and their content
+- When modifying elements (like changing color, size, font, or content):
+  * CRITICAL: When using "modify_slide", you MUST look up the ACTUAL existing content from existingSlides and use it
+  * You MUST include the element with the EXACT SAME content as the existing element (from existingSlides) and SAME position (x, y)
+  * DO NOT invent new content - use the ACTUAL existing content from existingSlides
+  * UPDATE the existing element's properties (color, size, weight, align, font, bg, borderColor, borderWidth, or the content itself)
+  * Example to change color: If existing text is "Future of Gold Mining in KSA" at position x:130, y:60, use: {"type": "text", "content": "Future of Gold Mining in KSA", "color": "#ff0000", "x": 130, "y": 60}
+  * Example to change content: If existing text is "Future of Gold Mining" at position x:130, y:60, and you want to change it to "Gold Mining Future", use: {"type": "text", "content": "Gold Mining Future", "x": 130, "y": 60} (use same position)
+  * DO NOT use placeholder content like "New text" - ALWAYS use the ACTUAL existing content from existingSlides
+  * NEVER add a new element when modifying - ALWAYS update the existing element using the same content and position
+  * If you don't know the exact content, check existingSlides in the message to see existing elements, their content, and positions (x, y)
 - When modifying, preserve existing elements and ADD or UPDATE them, don't replace everything
 
 CONTENT VARIETY EXAMPLES:
@@ -8528,7 +8529,10 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                                             
                                             if (element.type === 'text') {
                                                 // Try to find existing element to update
+                                                // IMPORTANT: In modify_slide mode, we should ALWAYS try to update existing elements
+                                                // instead of adding new ones, unless explicitly adding new content
                                                 const existingElements = this.data[modifySlideIndex].els || [];
+                                                const textElements = existingElements.filter(existing => existing.type === 'text');
                                                 let existingEl = null;
                                                 
                                                 // Ignore placeholder content like "New text"
@@ -8539,21 +8543,27 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                                                 
                                                 // Strategy 1: Match by exact content (most reliable)
                                                 if (hasValidContent) {
-                                                    existingEl = existingElements.find(existing => 
-                                                        existing.type === 'text' && 
+                                                    existingEl = textElements.find(existing => 
                                                         existing.content && 
                                                         existing.content.trim() === element.content.trim()
                                                     );
                                                 }
                                                 
-                                                // Strategy 2: If this is a property update (has color/size/etc but no valid content)
+                                                // Strategy 2: Match by position (even if content is different)
+                                                // This is critical for modify mode - if position matches, update that element
+                                                if (!existingEl && element.x !== undefined && element.y !== undefined) {
+                                                    existingEl = textElements.find(existing => 
+                                                        Math.abs((existing.x || 0) - (element.x || 0)) < 50 &&
+                                                        Math.abs((existing.y || 0) - (element.y || 0)) < 50
+                                                    );
+                                                }
+                                                
+                                                // Strategy 3: If this is a property update (has color/size/etc but no valid content)
                                                 // Find element by position - this handles cases like "change color" without specifying content
                                                 if (!existingEl && !hasValidContent && 
                                                     (element.color !== undefined || element.size !== undefined || 
                                                      element.weight !== undefined || element.align !== undefined ||
                                                      element.font !== undefined || element.bg !== undefined)) {
-                                                    // Find closest text element to the specified position
-                                                    const textElements = existingElements.filter(existing => existing.type === 'text');
                                                     if (textElements.length > 0) {
                                                         if (element.x !== undefined && element.y !== undefined) {
                                                             // Find the closest one to the specified position
@@ -8575,28 +8585,36 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                                                     }
                                                 }
                                                 
-                                                // Strategy 3: If no exact content match, try to match by position and similar content
-                                                if (!existingEl && element.x !== undefined && element.y !== undefined) {
-                                                    existingEl = existingElements.find(existing => 
-                                                        existing.type === 'text' && 
-                                                        Math.abs((existing.x || 0) - (element.x || 0)) < 50 &&
-                                                        Math.abs((existing.y || 0) - (element.y || 0)) < 50 &&
-                                                        // Also check if content is similar (for partial matches)
-                                                        (!hasValidContent || !existing.content || 
-                                                         existing.content.includes(element.content) || 
-                                                         element.content.includes(existing.content))
+                                                // Strategy 4: Match by similar content (partial match)
+                                                if (!existingEl && hasValidContent) {
+                                                    existingEl = textElements.find(existing => 
+                                                        existing.content && (
+                                                            existing.content.includes(element.content) || 
+                                                            element.content.includes(existing.content) ||
+                                                            // Check if content is similar (at least 30% match)
+                                                            (existing.content.length > 0 && element.content.length > 0 &&
+                                                             (existing.content.toLowerCase().includes(element.content.toLowerCase().substring(0, Math.min(10, element.content.length))) ||
+                                                              element.content.toLowerCase().includes(existing.content.toLowerCase().substring(0, Math.min(10, existing.content.length)))))
+                                                        )
                                                     );
                                                 }
                                                 
-                                                // Strategy 4: If modifying and only one text element exists, use it
-                                                if (!existingEl) {
-                                                    const textElements = existingElements.filter(el => el.type === 'text');
-                                                    if (textElements.length === 1) {
-                                                        existingEl = textElements[0];
-                                                    } else if (textElements.length > 1 && !hasValidContent) {
-                                                        // If multiple text elements and no content specified, prefer title (bold/large)
+                                                // Strategy 5: Match by element type (title vs content)
+                                                // If modifying and we have text elements, match by type characteristics
+                                                if (!existingEl && textElements.length > 0) {
+                                                    const isTitleElement = element.weight === 'bold' || element.size >= 36;
+                                                    if (isTitleElement) {
+                                                        // Looking for title - find title element
                                                         existingEl = textElements.find(el => el.weight === 'bold' || el.size >= 36) || textElements[0];
+                                                    } else {
+                                                        // Looking for content - find content element (not title)
+                                                        existingEl = textElements.find(el => el.weight !== 'bold' && el.size < 36) || textElements[textElements.length - 1];
                                                     }
+                                                }
+                                                
+                                                // Strategy 6: Last resort - if only one text element exists, use it
+                                                if (!existingEl && textElements.length === 1) {
+                                                    existingEl = textElements[0];
                                                 }
                                                 
                                                 // If found existing element, update it instead of adding new one
@@ -8626,39 +8644,66 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                                                     continue; // Skip adding new element
                                                 }
                                                 
-                                                // If no existing element found, add new one
-                                                // Get style from first slide
-                                                const firstSlide = this.data[0] || { els: [] };
-                                                let defaultStyle = { size: 24, color: '#374151', align: 'left', font: 'Arial' };
+                                                // If no existing element found, only add new one if:
+                                                // 1. We have valid content AND
+                                                // 2. The position is clearly different from all existing elements (to avoid overlap)
+                                                // In modify_slide mode, we should prefer updating over adding
                                                 
-                                                // Check if it's a title
-                                                if (element.weight === 'bold' || element.size >= 36) {
-                                                    firstSlide.els.forEach(el => {
-                                                        if (el.type === 'text' && (el.weight === 'bold' || el.size >= 36)) {
-                                                            defaultStyle = {
-                                                                size: el.size || 42,
-                                                                color: el.color || '#0f172a',
-                                                                weight: el.weight || 'bold',
-                                                                align: el.align || 'center',
-                                                                font: el.font || 'Arial'
-                                                            };
-                                                        }
-                                                    });
-                                                } else {
-                                                    firstSlide.els.forEach(el => {
-                                                        if (el.type === 'text' && el.weight !== 'bold' && el.size < 36) {
-                                                            defaultStyle = {
-                                                                size: el.size || 24,
-                                                                color: el.color || '#374151',
-                                                                align: el.align || 'left',
-                                                                font: el.font || 'Arial'
-                                                            };
-                                                        }
-                                                    });
+                                                // Check if position is far from all existing text elements
+                                                let shouldAddNew = false;
+                                                if (hasValidContent) {
+                                                    if (textElements.length === 0) {
+                                                        // No text elements at all - safe to add
+                                                        shouldAddNew = true;
+                                                    } else if (element.x !== undefined && element.y !== undefined) {
+                                                        // Check if position is significantly different (more than 100px away)
+                                                        const isFarFromAll = textElements.every(existing => {
+                                                            const dist = Math.sqrt(
+                                                                Math.pow((existing.x || 0) - (element.x || 0), 2) + 
+                                                                Math.pow((existing.y || 0) - (element.y || 0), 2)
+                                                            );
+                                                            return dist > 100;
+                                                        });
+                                                        shouldAddNew = isFarFromAll;
+                                                    } else {
+                                                        // No position specified but has content - this might be intentional new content
+                                                        // But in modify mode, be conservative - only add if it's clearly new content
+                                                        // For now, allow it but log a warning
+                                                        shouldAddNew = true;
+                                                    }
                                                 }
                                                 
-                                                // Only add new element if we have valid content (not placeholder)
-                                                if (hasValidContent) {
+                                                if (shouldAddNew) {
+                                                    // Get style from first slide
+                                                    const firstSlide = this.data[0] || { els: [] };
+                                                    let defaultStyle = { size: 24, color: '#374151', align: 'left', font: 'Arial' };
+                                                    
+                                                    // Check if it's a title
+                                                    if (element.weight === 'bold' || element.size >= 36) {
+                                                        firstSlide.els.forEach(el => {
+                                                            if (el.type === 'text' && (el.weight === 'bold' || el.size >= 36)) {
+                                                                defaultStyle = {
+                                                                    size: el.size || 42,
+                                                                    color: el.color || '#0f172a',
+                                                                    weight: el.weight || 'bold',
+                                                                    align: el.align || 'center',
+                                                                    font: el.font || 'Arial'
+                                                                };
+                                                            }
+                                                        });
+                                                    } else {
+                                                        firstSlide.els.forEach(el => {
+                                                            if (el.type === 'text' && el.weight !== 'bold' && el.size < 36) {
+                                                                defaultStyle = {
+                                                                    size: el.size || 24,
+                                                                    color: el.color || '#374151',
+                                                                    align: el.align || 'left',
+                                                                    font: el.font || 'Arial'
+                                                                };
+                                                            }
+                                                        });
+                                                    }
+                                                    
                                                     this.addTextElement(modifySlideIndex, {
                                                         content: element.content,
                                                         x: element.x || 130,
@@ -8671,8 +8716,39 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                                                         align: element.align || defaultStyle.align,
                                                         font: element.font || defaultStyle.font
                                                     });
+                                                } else if (!existingEl) {
+                                                    // No match found and shouldn't add new - this might be a failed property update
+                                                    // Try to update the first matching element by type as fallback
+                                                    if (textElements.length > 0) {
+                                                        const isTitleElement = element.weight === 'bold' || element.size >= 36;
+                                                        const fallbackEl = isTitleElement 
+                                                            ? (textElements.find(el => el.weight === 'bold' || el.size >= 36) || textElements[0])
+                                                            : (textElements.find(el => el.weight !== 'bold' && el.size < 36) || textElements[textElements.length - 1]);
+                                                        
+                                                        if (fallbackEl) {
+                                                            // Update properties of fallback element
+                                                            if (element.color !== undefined) fallbackEl.color = element.color;
+                                                            if (element.size !== undefined) fallbackEl.size = element.size;
+                                                            if (element.weight !== undefined) fallbackEl.weight = element.weight;
+                                                            if (element.align !== undefined) fallbackEl.align = element.align;
+                                                            if (element.font !== undefined) fallbackEl.font = element.font;
+                                                            if (element.bg !== undefined) fallbackEl.bg = element.bg;
+                                                            if (element.borderColor !== undefined) fallbackEl.borderColor = element.borderColor;
+                                                            if (element.borderWidth !== undefined) fallbackEl.borderWidth = element.borderWidth;
+                                                            if (hasValidContent && element.content !== fallbackEl.content) {
+                                                                fallbackEl.content = element.content;
+                                                            }
+                                                            if (element.x !== undefined) fallbackEl.x = element.x;
+                                                            if (element.y !== undefined) fallbackEl.y = element.y;
+                                                            if (element.width !== undefined) fallbackEl.width = element.width;
+                                                            if (element.height !== undefined) fallbackEl.height = element.height;
+                                                            
+                                                            this.saveState();
+                                                            this.loadCanvas();
+                                                            this.renderSlides();
+                                                        }
+                                                    }
                                                 }
-                                                // If no valid content and no existing element found, skip (likely a property update that failed to match)
                                             } else if (element.type === 'image') {
                                                 let imageUrl = element.imageUrl || element.src;
                                                 if (typeof imageUrl === 'string' && !imageUrl.startsWith('http')) {
@@ -9202,7 +9278,12 @@ REMEMBER: Always use bg: "white" for all slides. Never use colored backgrounds.`
                     
                     if (presentationSnap.exists()) {
                         const data = presentationSnap.data();
-                        app.data = data.slides || app.data;
+                        // Parse slides from JSON string if it's a string, otherwise use as is (for backward compatibility)
+                        if (typeof data.slides === 'string') {
+                            app.data = JSON.parse(data.slides);
+                        } else {
+                            app.data = data.slides || app.data;
+                        }
                         document.getElementById('title').value = data.title || '';
                         app.curr = 0;
                         // Store presentationId for future saves

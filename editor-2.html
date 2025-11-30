@@ -2003,6 +2003,8 @@ input[type="color"]{
 </div>
 <div class="header-right">
 <button class="header-btn grey-style" onclick="app.newPresentation()">New</button>
+<button class="header-btn grey-style" onclick="app.saveJSON()">Save</button>
+<button class="header-btn grey-style" onclick="app.downloadJSON()">Save JSON</button>
 <button class="header-btn grey-style" onclick="app.loadJSON()">Load</button>
 <button class="header-btn" data-tooltip="Undo (Ctrl+Z)" disabled="" id="undoBtn" onclick="app.undo()">Undo</button>
 <button class="header-btn" data-tooltip="Redo (Ctrl+Y)" disabled="" id="redoBtn" onclick="app.redo()">Redo</button>
@@ -2675,7 +2677,7 @@ input[type="color"]{
                     // Save: Ctrl+S
                     if (e.ctrlKey && e.key === 's') {
                         e.preventDefault();
-                        // Save functionality removed
+                        this.saveJSON();
                     }
 
                     // Arrow keys to move selected element
@@ -5337,9 +5339,10 @@ input[type="color"]{
                 try {
                     const { collection, addDoc, doc, setDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
                     const title = document.getElementById('title').value || 'Untitled presentation';
+                    // Convert slides to JSON string to avoid nested arrays issue in Firestore
                     const presentationData = {
                         title: title,
-                        slides: this.data,
+                        slides: JSON.stringify(this.data),
                         editorType: 'editor-2',
                         updatedAt: serverTimestamp(),
                         createdAt: serverTimestamp()
@@ -5387,6 +5390,30 @@ input[type="color"]{
                     console.error('Failed to save to Firebase:', error);
                     this.showNotification('Failed to save to cloud: ' + error.message, 'error');
                 }
+            },
+
+            saveJSON() {
+                // Save to Firebase only
+                this.saveToFirebase();
+            },
+
+            downloadJSON() {
+                const title = document.getElementById('title').value || 'presentation';
+                const data = {
+                    title: title,
+                    slides: this.data
+                };
+                const jsonStr = JSON.stringify(data, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                this.showNotification('JSON file downloaded successfully');
             },
 
 
@@ -7141,7 +7168,12 @@ input[type="color"]{
                     
                     if (presentationSnap.exists()) {
                         const data = presentationSnap.data();
-                        app.data = data.slides || app.data;
+                        // Parse slides from JSON string if it's a string, otherwise use as is (for backward compatibility)
+                        if (typeof data.slides === 'string') {
+                            app.data = JSON.parse(data.slides);
+                        } else {
+                            app.data = data.slides || app.data;
+                        }
                         document.getElementById('title').value = data.title || '';
                         app.curr = 0;
                         // Store presentationId for future saves
