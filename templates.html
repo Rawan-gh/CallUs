@@ -937,7 +937,21 @@
         const title = (data?.title || '').trim() || 'Untitled presentation';
         const updatedAt = toDate(data?.updatedAt) || toDate(data?.createdAt);
         const updatedLabel = updatedAt ? formatRelativeTime(updatedAt) : 'Recently saved';
-        const slideCount = Array.isArray(data?.slides) ? data.slides.length : 0;
+        
+        // Parse slides from JSON string if it's a string, otherwise use as is
+        let slidesArray = [];
+        if (typeof data?.slides === 'string') {
+          try {
+            slidesArray = JSON.parse(data.slides);
+          } catch (e) {
+            console.error('Failed to parse slides:', e);
+            slidesArray = [];
+          }
+        } else if (Array.isArray(data?.slides)) {
+          slidesArray = data.slides;
+        }
+        
+        const slideCount = slidesArray.length || 0;
         const slideLabel = slideCount === 1 ? 'slide' : 'slides';
 
         const card = document.createElement('div');

@@ -1973,6 +1973,7 @@ input[type="color"]{
 <div class="header-right">
 <button class="header-btn grey-style" onclick="app.newPresentation()">New</button>
 <button class="header-btn grey-style" onclick="app.saveJSON()">Save</button>
+<button class="header-btn grey-style" onclick="app.showVersions()">Versions</button>
 <button class="header-btn grey-style" onclick="app.loadJSON()">Load</button>
 <button class="header-btn" data-tooltip="Undo (Ctrl+Z)" disabled="" id="undoBtn" onclick="app.undo()">Undo</button>
 <button class="header-btn" data-tooltip="Redo (Ctrl+Y)" disabled="" id="redoBtn" onclick="app.redo()">Redo</button>
@@ -2238,6 +2239,20 @@ input[type="color"]{
 <div class="animation-option" onclick="app.applyAnimation('slideInDown')">Slide In Down</div>
 <div class="animation-option" onclick="app.applyAnimation('zoomIn')">Zoom In</div>
 <div class="animation-option" onclick="app.applyAnimation('bounce')">Bounce</div>
+</div>
+</div>
+</div>
+<!-- Versions Modal -->
+<div class="modal" id="versionsModal">
+<div class="modal-content" style="max-width: 700px; max-height: 80vh; overflow-y: auto;">
+<span class="modal-close" onclick="app.closeModal('versionsModal')">×</span>
+<div class="modal-header">Presentation Versions</div>
+<div style="padding: 20px;">
+<div id="versionsList" style="display: flex; flex-direction: column; gap: 12px;">
+<div style="text-align: center; padding: 40px; color: #6b7280;">
+Loading versions...
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -5243,7 +5258,7 @@ input[type="color"]{
                 }
 
                 try {
-                    const { collection, addDoc, doc, setDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                    const { collection, addDoc, doc, setDoc, getDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
                     const title = document.getElementById('title').value || 'Untitled presentation';
                     // Convert slides to JSON string to avoid nested arrays issue in Firestore
                     const presentationData = {
@@ -5264,10 +5279,35 @@ input[type="color"]{
                     }
                     
                     if (presentationId) {
-                        // Update existing presentation
+                        // Get existing document to preserve versions array
                         const presentationRef = doc(window.firebaseDb, 'users', window.currentUserId, 'presentations', presentationId);
+                        const existingDoc = await getDoc(presentationRef);
+                        let existingVersions = [];
+                        
+                        if (existingDoc.exists()) {
+                            const existingData = existingDoc.data();
+                            existingVersions = existingData.versions || [];
+                        }
+                        
+                        // Add new version to array (keep last 20 versions)
+                        // Use Date object instead of serverTimestamp() because serverTimestamp() is not supported inside arrays
+                        const newVersion = {
+                            title: title,
+                            slides: JSON.stringify(this.data),
+                            createdAt: new Date(),
+                            versionNumber: Date.now()
+                        };
+                        existingVersions.push(newVersion);
+                        
+                        // Keep only last 20 versions
+                        if (existingVersions.length > 20) {
+                            existingVersions = existingVersions.slice(-20);
+                        }
+                        
+                        // Update existing presentation with versions array
                         await setDoc(presentationRef, {
                             ...presentationData,
+                            versions: existingVersions,
                             updatedAt: serverTimestamp()
                         }, { merge: true });
                         
@@ -5278,8 +5318,19 @@ input[type="color"]{
                     } else {
                         // Create new presentation
                         const presentationsRef = collection(window.firebaseDb, 'users', window.currentUserId, 'presentations');
+                        
+                        // Create first version
+                        // Use Date object instead of serverTimestamp() because serverTimestamp() is not supported inside arrays
+                        const firstVersion = {
+                            title: title,
+                            slides: JSON.stringify(this.data),
+                            createdAt: new Date(),
+                            versionNumber: Date.now()
+                        };
+                        
                         const docRef = await addDoc(presentationsRef, {
                             ...presentationData,
+                            versions: [firstVersion],
                             createdAt: serverTimestamp()
                         });
                         
@@ -5302,6 +5353,301 @@ input[type="color"]{
                 // Save to Firebase only
                 this.saveToFirebase();
             },
+
+            async showVersions() {
+                if (!window.firebaseDb || !window.currentUserId) {
+                    this.showNotification('Please log in to view versions', 'error');
+                    return;
+                }
+
+                const urlParams = new URLSearchParams(window.location.search);
+                let presentationId = urlParams.get('presentationId');
+                
+                if (!presentationId && this.currentPresentationId) {
+                    presentationId = this.currentPresentationId;
+                }
+
+                if (!presentationId) {
+                    this.showNotification('No presentation found. Please save first.', 'error');
+                    return;
+                }
+
+                const versionsList = document.getElementById('versionsList');
+                versionsList.innerHTML = '<div style="text-align: center; padding: 20px; color: #6b7280;">Loading versions...</div>';
+
+                document.getElementById('versionsModal').classList.add('show');
+
+                try {
+                    const { collection, query, getDocs, orderBy, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                    
+                    // Try to load versions from subcollection first
+                    try {
+                        const versionsRef = collection(window.firebaseDb, 'users', window.currentUserId, 'presentations', presentationId, 'versions');
+                        const q = query(versionsRef, orderBy('createdAt', 'desc'));
+                        const querySnapshot = await getDocs(q);
+
+                        if (querySnapshot.empty) {
+                            versionsList.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">No versions found. Save your presentation to create versions.</div>';
+                            return;
+                        }
+
+                        versionsList.innerHTML = '';
+                        querySnapshot.forEach((docSnap) => {
+                            const versionData = docSnap.data();
+                            const versionId = docSnap.id;
+                            let createdAt;
+                            if (versionData.createdAt?.toDate) {
+                                createdAt = versionData.createdAt.toDate();
+                            } else if (versionData.createdAt instanceof Date) {
+                                createdAt = versionData.createdAt;
+                            } else if (versionData.createdAt?.seconds) {
+                                createdAt = new Date(versionData.createdAt.seconds * 1000);
+                            } else {
+                                createdAt = new Date(versionData.versionNumber || Date.now());
+                            }
+                            const formattedDate = createdAt.toLocaleString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+
+                            const versionItem = document.createElement('div');
+                            versionItem.style.cssText = 'background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s;';
+                            versionItem.onmouseover = function() { this.style.background = '#f3f4f6'; this.style.borderColor = '#d1d5db'; };
+                            versionItem.onmouseout = function() { this.style.background = '#f9fafb'; this.style.borderColor = '#e5e7eb'; };
+                            
+                            versionItem.innerHTML = `
+                                <div>
+                                    <div style="font-weight: 600; color: #111827; margin-bottom: 4px;">${versionData.title || 'Untitled'}</div>
+                                    <div style="font-size: 12px; color: #6b7280;">${formattedDate}</div>
+                                </div>
+                                <button onclick="app.restoreVersion('${versionId}')" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">Restore</button>
+                            `;
+                            versionsList.appendChild(versionItem);
+                        });
+                    } catch (subcollectionError) {
+                        // If subcollection access fails, try to get versions from the main document
+                        console.warn('Subcollection access failed, trying alternative method:', subcollectionError);
+                        
+                        const presentationRef = doc(window.firebaseDb, 'users', window.currentUserId, 'presentations', presentationId);
+                        const presentationSnap = await getDoc(presentationRef);
+                        
+                        if (presentationSnap.exists()) {
+                            const data = presentationSnap.data();
+                            // Check if versions are stored in the main document
+                            if (data.versions && Array.isArray(data.versions) && data.versions.length > 0) {
+                                versionsList.innerHTML = '';
+                                // Sort by createdAt descending
+                                const sortedVersions = data.versions.sort((a, b) => {
+                                    let dateA = 0;
+                                    if (a.createdAt?.toDate) {
+                                        dateA = a.createdAt.toDate().getTime();
+                                    } else if (a.createdAt instanceof Date) {
+                                        dateA = a.createdAt.getTime();
+                                    } else if (a.createdAt?.seconds) {
+                                        dateA = a.createdAt.seconds * 1000;
+                                    } else {
+                                        dateA = a.versionNumber || 0;
+                                    }
+                                    
+                                    let dateB = 0;
+                                    if (b.createdAt?.toDate) {
+                                        dateB = b.createdAt.toDate().getTime();
+                                    } else if (b.createdAt instanceof Date) {
+                                        dateB = b.createdAt.getTime();
+                                    } else if (b.createdAt?.seconds) {
+                                        dateB = b.createdAt.seconds * 1000;
+                                    } else {
+                                        dateB = b.versionNumber || 0;
+                                    }
+                                    
+                                    return dateB - dateA;
+                                });
+                                
+                                sortedVersions.forEach((versionData, index) => {
+                                    let createdAt;
+                                    if (versionData.createdAt?.toDate) {
+                                        createdAt = versionData.createdAt.toDate();
+                                    } else if (versionData.createdAt instanceof Date) {
+                                        createdAt = versionData.createdAt;
+                                    } else if (versionData.createdAt?.seconds) {
+                                        createdAt = new Date(versionData.createdAt.seconds * 1000);
+                                    } else {
+                                        createdAt = new Date(versionData.versionNumber || Date.now());
+                                    }
+                                    const formattedDate = createdAt.toLocaleString('en-US', {
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    });
+
+                                    const versionItem = document.createElement('div');
+                                    versionItem.style.cssText = 'background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s;';
+                                    versionItem.onmouseover = function() { this.style.background = '#f3f4f6'; this.style.borderColor = '#d1d5db'; };
+                                    versionItem.onmouseout = function() { this.style.background = '#f9fafb'; this.style.borderColor = '#e5e7eb'; };
+                                    
+                                    versionItem.innerHTML = `
+                                        <div>
+                                            <div style="font-weight: 600; color: #111827; margin-bottom: 4px;">${versionData.title || 'Untitled'}</div>
+                                            <div style="font-size: 12px; color: #6b7280;">${formattedDate}</div>
+                                        </div>
+                                        <button onclick="app.restoreVersionFromArray(${index})" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">Restore</button>
+                                    `;
+                                    versionsList.appendChild(versionItem);
+                                });
+                                
+                                // Store versions array for restore function
+                                this.versionsArray = sortedVersions;
+                            } else {
+                                versionsList.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">No versions found. Save your presentation to create versions.</div>';
+                            }
+                        } else {
+                            versionsList.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">No versions found. Save your presentation to create versions.</div>';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to load versions:', error);
+                    if (error.message && error.message.includes('permissions')) {
+                        versionsList.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">Versions feature requires Firebase permissions. Please contact administrator to enable versions access.</div>';
+                    } else {
+                        versionsList.innerHTML = '<div style="text-align: center; padding: 40px; color: #ef4444;">Failed to load versions: ' + error.message + '</div>';
+                    }
+                }
+            },
+
+            async restoreVersion(versionId) {
+                if (!window.firebaseDb || !window.currentUserId) {
+                    this.showNotification('Please log in to restore version', 'error');
+                    return;
+                }
+
+                if (!confirm('Are you sure you want to restore this version? Current changes will be lost.')) {
+                    return;
+                }
+
+                const urlParams = new URLSearchParams(window.location.search);
+                let presentationId = urlParams.get('presentationId');
+                
+                if (!presentationId && this.currentPresentationId) {
+                    presentationId = this.currentPresentationId;
+                }
+
+                if (!presentationId) {
+                    this.showNotification('No presentation found', 'error');
+                    return;
+                }
+
+                try {
+                    const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                    
+                    // Try subcollection first
+                    try {
+                        const versionRef = doc(window.firebaseDb, 'users', window.currentUserId, 'presentations', presentationId, 'versions', versionId);
+                        const versionSnap = await getDoc(versionRef);
+
+                        if (versionSnap.exists()) {
+                            const versionData = versionSnap.data();
+                            
+                            // Parse slides from JSON string if it's a string
+                            if (typeof versionData.slides === 'string') {
+                                this.data = JSON.parse(versionData.slides);
+                            } else {
+                                this.data = versionData.slides || this.data;
+                            }
+
+                            if (versionData.title) {
+                                document.getElementById('title').value = versionData.title;
+                            }
+
+                            this.curr = 0;
+                            this.saveState();
+                            this.loadCanvas();
+                            this.renderSlides();
+                            
+                            this.closeModal('versionsModal');
+                            this.showNotification('Version restored successfully');
+                            return;
+                        }
+                    } catch (subcollectionError) {
+                        // Fall through to array method
+                        console.warn('Subcollection restore failed, trying array method');
+                    }
+                    
+                    // Fallback: try array method
+                    const presentationRef = doc(window.firebaseDb, 'users', window.currentUserId, 'presentations', presentationId);
+                    const presentationSnap = await getDoc(presentationRef);
+                    
+                    if (presentationSnap.exists()) {
+                        const data = presentationSnap.data();
+                        if (data.versions && Array.isArray(data.versions)) {
+                            const version = data.versions.find(v => v.versionNumber === versionId || v.createdAt?.toDate?.getTime() === parseInt(versionId));
+                            if (version) {
+                                // Parse slides from JSON string if it's a string
+                                if (typeof version.slides === 'string') {
+                                    this.data = JSON.parse(version.slides);
+                                } else {
+                                    this.data = version.slides || this.data;
+                                }
+
+                                if (version.title) {
+                                    document.getElementById('title').value = version.title;
+                                }
+
+                                this.curr = 0;
+                                this.saveState();
+                                this.loadCanvas();
+                                this.renderSlides();
+                                
+                                this.closeModal('versionsModal');
+                                this.showNotification('Version restored successfully');
+                                return;
+                            }
+                        }
+                    }
+                    
+                    this.showNotification('Version not found', 'error');
+                } catch (error) {
+                    console.error('Failed to restore version:', error);
+                    this.showNotification('Failed to restore version: ' + error.message, 'error');
+                }
+            },
+
+            restoreVersionFromArray(index) {
+                if (!this.versionsArray || !this.versionsArray[index]) {
+                    this.showNotification('Version not found', 'error');
+                    return;
+                }
+
+                if (!confirm('Are you sure you want to restore this version? Current changes will be lost.')) {
+                    return;
+                }
+
+                const versionData = this.versionsArray[index];
+                
+                // Parse slides from JSON string if it's a string
+                if (typeof versionData.slides === 'string') {
+                    this.data = JSON.parse(versionData.slides);
+                } else {
+                    this.data = versionData.slides || this.data;
+                }
+
+                if (versionData.title) {
+                    document.getElementById('title').value = versionData.title;
+                }
+
+                this.curr = 0;
+                this.saveState();
+                this.loadCanvas();
+                this.renderSlides();
+                
+                this.closeModal('versionsModal');
+                this.showNotification('Version restored successfully');
+            },
+
 
 
             updateTableProperty(id, property, value) {
